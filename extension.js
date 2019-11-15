@@ -35,8 +35,11 @@ const SHELL_MINOR = parseInt(config.PACKAGE_VERSION.split('.')[1]);
 // SectorMenu Imports
 const SectorMenu = Me.imports;
 
+const myLog (message) {
+    log(`${ME} : ${message}`)
+}
 
-log(`SectorMenu: Gnome Shell minor version ${SHELL_MINOR}`);
+myLog(`SectorMenu: Gnome Shell minor version ${SHELL_MINOR}`);
 log('SectorMenu: Package Name is ',config.PACKAGE_NAME);
 log('SectorMenu: Package Version is ',config.PACKAGE_VERSION);
 
@@ -147,7 +150,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
             'SectorTest',
             this.menuAction.bind(this),
             null);
-        log("SectorMenu: _init done.")
+        myLog("TEST _init done.")
     }
 
     _onPanelStatesChanged(settings, key) {
@@ -167,9 +170,9 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
 
     menuAction() {
         //util.spawnCommandLine("xterm");
-        SectorMenu.show();
+        //0SectorMenu.show();
         //view.show();
-        log('SectorMenu:  Menu item activated');
+        this._log('SectorMenu:  Menu item activated');
     }
 
     spawnCL(input){
@@ -186,6 +189,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
      */
     togglePanelItem(name) {
         log(`SectorMenu: ${name} menu item toggled`);
+        this._log('test')
         let statusItem = main.panel.statusArea[name];
         statusItem.actor.visible = !statusItem.actor.visible;
 

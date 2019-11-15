@@ -19,4 +19,9 @@ vs.
 const Gio =  imports.gi.Gio;
 const GLib = imports.gi.GLib;
 ```
-* https://gjs-docs.gnome.org/ This might be very handy as I move forward
+### Working on some new stuff
+- I've had quite a bit of learning to do. I've started using `git` and reading a lot of other extension code to help with developing ideas and understanding.
+- I now know what a snippet is (and how to use them in atom)
+- I got a couple of nice packages for atom, and I'm still working on (thinking about) developing my own.
+    - [fold-navigator][https://atom.io/packages/fold-navigator]
+    - fold-navigator [^1][https://atom.io/packages/fold-navigator]
