@@ -19,7 +19,6 @@
 // Always have this as the first line of your file. Google for an explanation.
 'use strict'; //Is this still really neccessary?
 
-log(' -={ Starting SectorMenu }=- ')
 // gi Imports
 const { Gio, GLib, GObject, St} = imports.gi;
 // ui Imports
@@ -35,18 +34,16 @@ const SHELL_MINOR = parseInt(config.PACKAGE_VERSION.split('.')[1]);
 // SectorMenu Imports
 const SectorMenu = Me.imports;
 
-const myLog (message) {
-    log(`${ME} : ${message}`)
-}
-
-myLog(`SectorMenu: Gnome Shell minor version ${SHELL_MINOR}`);
-log('SectorMenu: Package Name is ',config.PACKAGE_NAME);
-log('SectorMenu: Package Version is ',config.PACKAGE_VERSION);
-
 var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
 
     _init() {
+
+        log(' -={ Starting Sector Menu }=- ')
+        log(`SectorMenu: Gnome Shell minor version ${SHELL_MINOR}`);
+        log('SectorMenu: Package Name is ',config.PACKAGE_NAME);
+        log('SectorMenu: Package Version is ',config.PACKAGE_VERSION);
         log("SectorMenuIndicator._init")
+
         super._init(0.0, `${Me.metadata.name} Indicator`, false);
 
         // Pick and add an icon
