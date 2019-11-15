@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.sectormenu" path="/org/gnome/shell/extensions/sectormenu/">
+    <!-- The key type "a{sb}" describes a dictionary of string-boolean pairs -->
+    <!-- See also: https://developer.gnome.org/glib/stable/gvariant-format-strings.html -->
+    <key name="panel-states" type="a{sb}">
+      <default>{}</default>
+    </key>
+    <key name="show-indicator" type="b">
+      <default>true</default>
+    </key>
+
+    <!-- My thought is that a{ss} is a dictionary of string-string pairs -->
+    <key type="aas" name="menu-entries">
+        <default>[["Term","xfce4-terminal "]]</default>
+        <summary>These entries should ?? look like {{"name","command"},...{s,s}}</summary>
+        <description></description>
+    </key>
+
+    <!-- For future use to add extra keys with copy/paste
+    <key type="s" name="name">
+        <default></default>
+        <summary></summary>
+        <description></description>
+    </key>
+    -->
+
+  </schema>
+</schemalist>
