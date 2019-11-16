@@ -34,15 +34,17 @@ const SHELL_MINOR = parseInt(config.PACKAGE_VERSION.split('.')[1]);
 // SectorMenu Imports
 const SectorMenu = Me.imports;
 
+const myLog = (message) => log(`${ME} : ${message}`)
+
 var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
 
     _init() {
 
-        log(' -={ Starting Sector Menu }=- ')
-        log(`SectorMenu: Gnome Shell minor version ${SHELL_MINOR}`);
-        log('SectorMenu: Package Name is ',config.PACKAGE_NAME);
-        log('SectorMenu: Package Version is ',config.PACKAGE_VERSION);
-        log("SectorMenuIndicator._init")
+        myLog(' ~-~--={ Starting Sector Menu }=-~-~ ')
+        myLog(`Gnome Shell minor version ${SHELL_MINOR}`);
+        myLog('Package Name is ',config.PACKAGE_NAME);
+        myLog('Package Version is ',config.PACKAGE_VERSION);
+        myLog("SectorMenuIndicator._init")
 
         super._init(0.0, `${Me.metadata.name} Indicator`, false);
 
@@ -112,7 +114,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
 
             // Restore our settings
             if (name in this.saved) {
-                log(`SectorMenu: Restoring state of ${name}`);
+                myLog(`Restoring state of ${name}`);
                 main.panel.statusArea[name].actor.visible = this.saved[name];
             }
 
@@ -126,13 +128,11 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem())
 
         // Add a menu for each menu-entry in the settings
-        log("SectorMenu: building menu from saved list.")
+        myLog("building menu from saved list.")
         let menus=this.settings.get_value('menu-entries').deep_unpack();
-        log("SectorMenu",menus,)
-        log(ME, menus)
-        log(ME, menus[0][0])
+
         for (let i = 0; i < menus.length; i++){
-            log(`${ME}: Creating menu ${menus[0][0]} --> ${menus[0][1]}`)
+            myLog(`Creating menuitem: ${menus[0][0]} --> ${menus[0][1]}`)
              this.menu.addAction(
                  menus[i][0],
                  this.spawnCL.bind(this,menus[i][1]),
@@ -141,13 +141,13 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
              );
         }
 
-         log("SectorMenu: done building entries. ")
+         myLog("Done building entries. ")
         //old single menu item to call sectormenu(). This will be used for development and testing (hopefully in the near future)
         this.menu.addAction(
             'SectorTest',
             this.menuAction.bind(this),
             null);
-        myLog("TEST _init done.")
+        myLog("_init done.")
     }
 
     _onPanelStatesChanged(settings, key) {
@@ -169,11 +169,11 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
         //util.spawnCommandLine("xterm");
         //0SectorMenu.show();
         //view.show();
-        this._log('SectorMenu:  Menu item activated');
+        this._myLog('SectorMenu:  Menu item activated');
     }
 
     spawnCL(input){
-        log(ME, input);
+        myLog(ME, input);
         util.spawnCommandLine(input);
     };
 
@@ -185,8 +185,8 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
      * Don't be a jerk to your future self; document your code!
      */
     togglePanelItem(name) {
-        log(`SectorMenu: ${name} menu item toggled`);
-        this._log('test')
+        myLog(`SectorMenu: ${name} menu item toggled`);
+        this._myLog('test')
         let statusItem = main.panel.statusArea[name];
         statusItem.actor.visible = !statusItem.actor.visible;
 
@@ -202,7 +202,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
             // extension of Clutter so these may also be StWidgets.
             statusItem.actor.visible = !statusItem.actor.visible;
         } catch (e) {
-            logError(e, 'togglePanelItem');
+            myLogError(e, 'togglePanelItem');
         }
         */
     }
@@ -245,17 +245,17 @@ You MUST NOT make any changes to GNOME Shell, connect any signals or add any
  MainLoop sources here.
 */
 function init() {
-    log(`initializing ${Me.metadata.name} version ${Me.metadata.version}`);
+    myLog(`initializing ${Me.metadata.name} version ${Me.metadata.version}`);
 }
 
 /* This function could be called after your extension is enabled, which could
-// be done from GNOME Tweaks, when you log in or when the screen is unlocked.
+// be done from GNOME Tweaks, when you myLog in or when the screen is unlocked.
 //
 // This is when you setup any UI for your extension, change existing widgets,
 // connect signals or modify GNOME Shell's behaviour.
 */
 function enable() {
-    log(`enabling ${Me.metadata.name} version ${Me.metadata.version}`);
+    myLog(`enabling ${Me.metadata.name} version ${Me.metadata.version}`);
     indicator = new SectorMenuIndicator();
 
     // The `main` import is an example of file that is mostly live instances of
@@ -265,12 +265,12 @@ function enable() {
 }
 
 /* This function could be called after your extension is uninstalled,
-disabled in GNOME Tweaks, when you log out or when the screen locks.
+disabled in GNOME Tweaks, when you myLog out or when the screen locks.
 Anything you created, modifed or setup in enable() MUST be undone here. Not
 doing so is the most common reason extensions are rejected during review!
 */
 function disable() {
-    log(`disabling ${Me.metadata.name} version ${Me.metadata.version}`);
+    myLog(`disabling ${Me.metadata.name} version ${Me.metadata.version}`);
 
     // REMINDER: It's required for extensions to clean up after themselves when
     // they are disabled. This is required for approval during review!
