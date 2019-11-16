@@ -25,3 +25,13 @@ const GLib = imports.gi.GLib;
 - I got a couple of nice packages for atom, and I'm still working on (thinking about) developing my own.
     - [fold-navigator][https://atom.io/packages/fold-navigator]
     - fold-navigator [^1][https://atom.io/packages/fold-navigator]
+
+## ToDo for Sector menu
+- [ ] Get a keybinding
+- [ ] Get a full screen windows
+- [ ] save preferences so we can make our own menus
+- [ ] start working with glade to make the prefs menu more accessible
+- [ ] icons for menus?
+- [ ] Make up some default stuff for myself, ssh commands, hue commands, getCurrentExtension
+- [ ] load favorites from gnome ?
+- [ ] Use logger.js (perhasp rather than my own?)
