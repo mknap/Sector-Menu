@@ -19,16 +19,25 @@ vs.
 const Gio =  imports.gi.Gio;
 const GLib = imports.gi.GLib;
 ```
+
 ### Working on some new stuff
 - I've had quite a bit of learning to do. I've started using `git` and reading a lot of other extension code to help with developing ideas and understanding.
 - I now know what a snippet is (and how to use them in atom)
 - I got a couple of nice packages for atom, and I'm still working on (thinking about) developing my own.
-    - [fold-navigator][https://atom.io/packages/fold-navigator]
-    - fold-navigator [^1][https://atom.io/packages/fold-navigator]
+- [fold-navigator][https://atom.io/packages/fold-navigator]
+- fold-navigator [^1][https://atom.io/packages/fold-navigator]
+    - Would like for it to be less distracting as it changes width from file to file.
+
+### A new command tool I learned to utilize
+`bluetoothctl` is nice to connect to saved devices automatically. Already working on some scripts.
+`amp` connects to the amp via bluetooth with the simple command `
+bluetoothctl connect  3C:91:80:11:AF:2D` The only hard thing to remember is the address.
 
 ## ToDo for Sector menu
 - [ ] Get a keybinding
-- [ ] Get a full screen windows
+- [ ] Get a full screen window
+- [ ] Learn how to draw on the window
+- [ ] learn tweener
 - [ ] save preferences so we can make our own menus
 - [ ] start working with glade to make the prefs menu more accessible
 - [ ] icons for menus?

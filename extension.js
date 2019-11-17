@@ -148,6 +148,16 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
             this.menuAction.bind(this),
             null);
         myLog("_init done.")
+
+        /*/home/mknap/.local/share/gnome-shell/extensions/hidetopbar@mathieu.bidon.ca/panelVisibilityManager.js @380
+        */
+        // Main.wm.addKeybinding("shortcut-keybind",
+        //     this._settings, Meta.KeyBindingFlags.NONE,
+        //     ShellActionMode.NORMAL,
+        //     Lang.bind(this, this._handleShortcut)
+        // );
+
+        main.notify('Sector Menu', 'Loaded .')
     }
 
     _onPanelStatesChanged(settings, key) {
