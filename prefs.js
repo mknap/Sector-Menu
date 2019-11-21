@@ -116,7 +116,7 @@ function buildPrefsWidget() {
     })
     prefsWidget.attach(name1, 1, 3, 1, 1);
     prefsWidget.attach(cmd1, 2, 3, 1, 1);
-
+    
 
     /////////////////////////////////////////////////////////////////////
     // For testing purposes,
@@ -138,7 +138,28 @@ function buildPrefsWidget() {
 
     // Bind the text of the gtk entries to our settings. Does this "save" the settings?
 
-
+    ////////////////////////////////////////////////////////////////////////////
+    // Keybinding . man I want to figure this out!
+    ////////////////////////////////////////////////////////////////////////////
+    let key_label = new Gtk.Label({
+        label: 'keybinding to run menuitem 1:',
+        halign: Gtk.Align.START,
+        visible: true
+    })
+    let key_entry = new Gtk.Entry({
+        //active: true,
+        halign: Gtk.Align.END,
+        visible: true,
+    })
+    prefsWidget.attach(key_label, 1, 5, 1, 1);
+    prefsWidget.attach(key_entry, 2, 5, 1, 1);
+    // bind the text of the keyboard shortcut to the schema 'keybinding' key
+    this.settings.bind(
+        'keybinding',
+        key_entry,
+        'active',
+        Gio.SettingsBindFlags.DEFAULT
+    );
     // Bind the switch to the `show-indicator` key
     this.settings.bind(
         'show-indicator',

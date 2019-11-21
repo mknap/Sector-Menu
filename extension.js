@@ -85,6 +85,14 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
             this._onPanelStatesChanged.bind(this)
         );
 
+        // Here, bind the keyboard shortcut to the GSettings values
+        // this.settings.bind(
+        //     'keybinding',
+        //     KEYBOARD SHORTCUT,
+        // )
+
+
+
         // Keep record of the original state of each item
         this.states = {};
 
@@ -238,8 +246,8 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
     }
 }
 
-// Compatibility with gnome-shell >= 3.32
 if (SHELL_MINOR > 30) {
+    // Compatibility with gnome-shell >= 3.32
     SectorMenuIndicator = GObject.registerClass(
         {GTypeName: 'SectorMenuIndicator'},
         SectorMenuIndicator
@@ -249,22 +257,22 @@ if (SHELL_MINOR > 30) {
 // We're going to declare `indicator` in the scope of the whole script so it can be accessed in both `enable()` and `disable()`
 var indicator = null;
 
-/* This function is called once when your extension is loaded, not enabled.
+function init() {
+    /* This function is called once when your extension is loaded, not enabled.
 This is a good time to setup translations or anything else you only do once.
 You MUST NOT make any changes to GNOME Shell, connect any signals or add any
- MainLoop sources here.
+MainLoop sources here.
 */
-function init() {
     myLog(`initializing ${Me.metadata.name} version ${Me.metadata.version}`);
 }
 
-/* This function could be called after your extension is enabled, which could
+function enable() {
+    /* This function could be called after your extension is enabled, which could
 // be done from GNOME Tweaks, when you myLog in or when the screen is unlocked.
 //
 // This is when you setup any UI for your extension, change existing widgets,
 // connect signals or modify GNOME Shell's behaviour.
 */
-function enable() {
     myLog(`enabling ${Me.metadata.name} version ${Me.metadata.version}`);
     indicator = new SectorMenuIndicator();
 
@@ -274,12 +282,12 @@ function enable() {
     main.panel.addToStatusArea(`${Me.metadata.name} Indicator`, indicator);
 }
 
-/* This function could be called after your extension is uninstalled,
-disabled in GNOME Tweaks, when you myLog out or when the screen locks.
-Anything you created, modifed or setup in enable() MUST be undone here. Not
-doing so is the most common reason extensions are rejected during review!
-*/
 function disable() {
+    /* This function could be called after your extension is uninstalled,
+    disabled in GNOME Tweaks, when you myLog out or when the screen locks.
+    Anything you created, modifed or setup in enable() MUST be undone here. Not
+    doing so is the most common reason extensions are rejected during review!
+    */
     myLog(`disabling ${Me.metadata.name} version ${Me.metadata.version}`);
 
     // REMINDER: It's required for extensions to clean up after themselves when
