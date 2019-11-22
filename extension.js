@@ -25,14 +25,11 @@ const { Gio, GLib, GObject, St} = imports.gi;
 const {main, panelMenu} = imports.ui;
 // misc imports and some constants
 const {extensionUtils, config, util} = imports.misc ;
-
 const PopupMenu = imports.ui.popupMenu;
+
 const Me = extensionUtils.getCurrentExtension();
 const ME = Me.metadata.name;
-
 const SHELL_MINOR = parseInt(config.PACKAGE_VERSION.split('.')[1]);
-// SectorMenu Imports
-const SectorMenu = Me.imports;
 
 const myLog = (message) => log(`${ME} : ${message}`)
 
@@ -41,9 +38,6 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
     _init() {
 
         myLog(' ~-~--={ Starting Sector Menu }=-~-~ ')
-        myLog(`Gnome Shell minor version ${SHELL_MINOR}`);
-        myLog('Package Name is ',config.PACKAGE_NAME);
-        myLog('Package Version is ',config.PACKAGE_VERSION);
         myLog("SectorMenuIndicator._init")
 
         super._init(0.0, `${Me.metadata.name} Indicator`, false);
