@@ -4,5 +4,6 @@
   "uuid": "sectormenu@myfirstextension.edu",
   "version": 1,
   "shell-version": ["3.34"],
+  "settings-schema": "org.gnome.shell.extensions.sectormenu",
   "url": "UNDEFINED"
 }

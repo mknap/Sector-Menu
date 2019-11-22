@@ -34,7 +34,7 @@ const GLib = imports.gi.GLib;
 bluetoothctl connect  3C:91:80:11:AF:2D` The only hard thing to remember is the address.
 
 ## ToDo for Sector menu
-- [ ] Get a keybinding
+- [x] Get a keybinding [11-22](#getting-a-keybinding)
 - [ ] Get a full screen window
 - [ ] Learn how to draw on the window
 - [ ] learn tweener
@@ -44,3 +44,7 @@ bluetoothctl connect  3C:91:80:11:AF:2D` The only hard thing to remember is the 
 - [ ] Make up some default stuff for myself, ssh commands, hue commands, getCurrentExtension
 - [ ] load favorites from gnome ?
 - [ ] Use logger.js (perhasp rather than my own?)
+
+
+### Getting a keybinding
+I used hidetopbar as a model to discover the Main.wm.addkeybinding method

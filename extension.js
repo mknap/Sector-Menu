@@ -16,24 +16,30 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-// Always have this as the first line of your file. Google for an explanation.
-'use strict'; //Is this still really neccessary?
+const Lang = imports.lang;
 
-// gi Imports
-const { Gio, GLib, GObject, St} = imports.gi;
-// ui Imports
-const {main, panelMenu} = imports.ui;
-// misc imports and some constants
-const {extensionUtils, config, util} = imports.misc ;
+const { Gio, GLib, GObject, Meta, Shell, St} = imports.gi;
+
+const Config = imports.misc.config;
+
+const ExtensionUtils =imports.misc.extensionUtils;
+const Main = imports.ui.main;
+const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+const Util = imports.misc.util;
 
-const Me = extensionUtils.getCurrentExtension();
+const Me = ExtensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
+
+
 const ME = Me.metadata.name;
-const SHELL_MINOR = parseInt(config.PACKAGE_VERSION.split('.')[1]);
+const SHELL_MINOR = parseInt(Config.PACKAGE_VERSION.split('.')[1]);
+
+const ShellActionMode = (Shell.ActionMode)?Shell.ActionMode:Shell.KeyBindingMode;
 
 const myLog = (message) => log(`${ME} : ${message}`)
 
-var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
+var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
 
     _init() {
 
@@ -50,16 +56,17 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
         });
         this.add_child(icon);
 
-        // Get the GSchema source so we can lookup our settings
-        let gschema = Gio.SettingsSchemaSource.new_from_directory(
-            Me.dir.get_child('schemas').get_path(),
-            Gio.SettingsSchemaSource.get_default(),
-            false
-        );
-
-        this.settings = new Gio.Settings({
-            settings_schema: gschema.lookup('org.gnome.shell.extensions.sectormenu', true)
-        });
+        // // Get the GSchema source so we can lookup our settings
+        // let gschema = Gio.SettingsSchemaSource.new_from_directory(
+        //     Me.dir.get_child('schemas').get_path(),
+        //     Gio.SettingsSchemaSource.get_default(),
+        //     false
+        // );
+        //
+        // this.settings = new Gio.Settings({
+        //     settings_schema: gschema.lookup('org.gnome.shell.extensions.sectormenu', true)
+        // });
+        this.settings=Convenience.getSettings();
 
         /* Bind our indicator visibility to the GSettings value
 
@@ -79,14 +86,26 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
             this._onPanelStatesChanged.bind(this)
         );
 
-        // Here, bind the keyboard shortcut to the GSettings values
-        // this.settings.bind(
-        //     'keybinding',
-        //     KEYBOARD SHORTCUT,
-        // )
+        {/* Here I am working on binding a keyboard shortcut.
+        the settings name is "keybinding"
+        */
+        let kShortcut=this.settings.get_value('keybinding').deep_unpack();
+        myLog(kShortcut)
+        /* From hidetopbar/panelVisibilityManager@380 :
 
+        Main.wm.addKeybinding("shortcut-keybind",
+            this._settings, Meta.KeyBindingFlags.NONE,
+            ShellActionMode.NORMAL,
+            Lang.bind(this, this._handleShortcut)
+        );
+        */
+        Main.wm.addKeybinding("keybinding",
+            this.settings, Meta.KeyBindingFlags.NONE,
+            ShellActionMode.NORMAL,
+            Lang.bind(this, this.menuAction)
+        );
 
-
+        }
         // Keep record of the original state of each item
         this.states = {};
 
@@ -110,14 +129,14 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
         this.saved = variant.deep_unpack();
 
         // Add a menu item for each item in the panel
-        for (let name in main.panel.statusArea) {
+        for (let name in Main.panel.statusArea) {
             // Remember this item's original visibility
-            this.states[name] = main.panel.statusArea[name].actor.visible;
+            this.states[name] = Main.panel.statusArea[name].actor.visible;
 
             // Restore our settings
             if (name in this.saved) {
                 myLog(`Restoring state of ${name}`);
-                main.panel.statusArea[name].actor.visible = this.saved[name];
+                Main.panel.statusArea[name].actor.visible = this.saved[name];
             }
 
             this.menu.addAction(
@@ -159,7 +178,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
         //     Lang.bind(this, this._handleShortcut)
         // );
 
-        main.notify('Sector Menu', 'Loaded .')
+        Main.notify(`${ME}`, 'Loaded .')
     }
 
     _onPanelStatesChanged(settings, key) {
@@ -169,24 +188,25 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
         for (let name in this.states) {
             // If we have a saved state, set that
             if (name in this.saved) {
-                main.panel.statusArea[name].actor.visible = this.saved[name];
+                Main.panel.statusArea[name].actor.visible = this.saved[name];
             // Otherwise restore the original state
             } else {
-                main.panel.statusArea[name].actor.visible = this.states[name];
+                Main.panel.statusArea[name].actor.visible = this.states[name];
             }
         }
     }
 
     menuAction() {
-        //util.spawnCommandLine("xterm");
+        //Util.spawnCommandLine("xterm");
         //0SectorMenu.show();
         //view.show();
-        this._myLog('SectorMenu:  Menu item activated');
+        Main.notify(`${ME}`, 'Got a keybinding .');
+        this._myLog('Menu item activated');
     }
 
     spawnCL(input){
-        myLog(ME, input);
-        util.spawnCommandLine(input);
+        myLog('spawnCL..');
+        Util.spawnCommandLine(input);
     };
 
 
@@ -199,7 +219,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
     togglePanelItem(name) {
         myLog(`SectorMenu: ${name} menu item toggled`);
         this._myLog('test')
-        let statusItem = main.panel.statusArea[name];
+        let statusItem = Main.panel.statusArea[name];
         statusItem.actor.visible = !statusItem.actor.visible;
 
         // Store our saved state
@@ -207,7 +227,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
 
         /* From a previous example :
         try {
-            let statusItem = main.panel.statusArea[name];
+            let statusItem = Main.panel.statusArea[name];
 
             // Many classes in GNOME Shell are actually native classes (non-GObject)
             // with a ClutterActor (GObject) as the property `actor`. St is an
@@ -232,7 +252,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends panelMenu.Button {
 
         // Restore the visibility of the panel items
         for (let [name, visibility] of Object.entries(this.states)) {
-            main.panel.statusArea[name].actor.visible = visibility;
+            Main.panel.statusArea[name].actor.visible = visibility;
         }
 
         // Chain-up to the super-class after we've done our own cleanup
@@ -270,10 +290,10 @@ function enable() {
     myLog(`enabling ${Me.metadata.name} version ${Me.metadata.version}`);
     indicator = new SectorMenuIndicator();
 
-    // The `main` import is an example of file that is mostly live instances of
+    // The `Main` import is an example of file that is mostly live instances of
     // objects, rather than reusable code. `Main.panel` is the actual panel you
     // see at the top of the screen.
-    main.panel.addToStatusArea(`${Me.metadata.name} Indicator`, indicator);
+    Main.panel.addToStatusArea(`${Me.metadata.name} Indicator`, indicator);
 }
 
 function disable() {
