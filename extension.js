@@ -20,8 +20,8 @@ const Lang = imports.lang;
 
 const { Gio, GLib, GObject, Meta, Shell, St} = imports.gi;
 
+const AppFavorites = imports.ui.appFavorites;
 const Config = imports.misc.config;
-
 const ExtensionUtils =imports.misc.extensionUtils;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
@@ -75,7 +75,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         */
         this.settings.bind(
             'show-indicator',
-            this.actor,
+            this,
             'visible',
             Gio.SettingsBindFlags.DEFAULT
         );
@@ -106,6 +106,11 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         );
 
         }
+
+        let favs = AppFavorites.getAppFavorites().getFavorites();
+        myLog(favs)
+        myLog(favs[1])
+
         // Keep record of the original state of each item
         this.states = {};
 
@@ -131,7 +136,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         // Add a menu item for each item in the panel
         for (let name in Main.panel.statusArea) {
             // Remember this item's original visibility
-            this.states[name] = Main.panel.statusArea[name].actor.visible;
+            this.states[name] = Main.panel.statusArea[name].visible;
 
             // Restore our settings
             if (name in this.saved) {
@@ -201,6 +206,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         //0SectorMenu.show();
         //view.show();
         Main.notify(`${ME}`, 'Got a keybinding .');
+        Util.spawnCommandLine('xfce4-terminal')
         this._myLog('Menu item activated');
     }
 
