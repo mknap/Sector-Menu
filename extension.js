@@ -28,16 +28,17 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Util = imports.misc.util;
 
-const Me = ExtensionUtils.getCurrentExtension();
+const Me = ExtensionUtils.getCurrentExtension()
+const ME = Me.metadata.name
+
 const Convenience = Me.imports.convenience;
-
-
-const ME = Me.metadata.name;
-const SHELL_MINOR = parseInt(Config.PACKAGE_VERSION.split('.')[1]);
-
+const Fullscreen = Me.imports.fullscreen;
 const ShellActionMode = (Shell.ActionMode)?Shell.ActionMode:Shell.KeyBindingMode;
 
-const myLog = (message) => log(`${ME} : ${message}`)
+const SHELL_MINOR = parseInt(Config.PACKAGE_VERSION.split('.')[1]);
+const DEBUG = Convenience.DEBUG
+const myLog = Convenience.DEBUG
+//const myLog = (message) => log(`${ME} : ${message}`)
 
 var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
 
@@ -56,16 +57,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         });
         this.add_child(icon);
 
-        // // Get the GSchema source so we can lookup our settings
-        // let gschema = Gio.SettingsSchemaSource.new_from_directory(
-        //     Me.dir.get_child('schemas').get_path(),
-        //     Gio.SettingsSchemaSource.get_default(),
-        //     false
-        // );
-        //
-        // this.settings = new Gio.Settings({
-        //     settings_schema: gschema.lookup('org.gnome.shell.extensions.sectormenu', true)
-        // });
+        // load settings. TODO: study more
         this.settings=Convenience.getSettings();
 
         /* Bind our indicator visibility to the GSettings value
@@ -78,45 +70,19 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
             this,
             'visible',
             Gio.SettingsBindFlags.DEFAULT
-        );
-
+        )
         // Watch the settings for changes
         this._onPanelStatesChangedId = this.settings.connect(
             'changed::panel-states',
             this._onPanelStatesChanged.bind(this)
         );
 
-        {/* Here I am working on binding a keyboard shortcut.
-        the settings name is "keybinding"
-        */
-        let kShortcut=this.settings.get_value('keybinding').deep_unpack();
-        myLog(kShortcut)
-        /* From hidetopbar/panelVisibilityManager@380 :
-
-        Main.wm.addKeybinding("shortcut-keybind",
-            this._settings, Meta.KeyBindingFlags.NONE,
-            ShellActionMode.NORMAL,
-            Lang.bind(this, this._handleShortcut)
-        );
-        */
-        Main.wm.addKeybinding("keybinding",
-            this.settings, Meta.KeyBindingFlags.NONE,
-            ShellActionMode.NORMAL,
-            Lang.bind(this, this.menuAction)
-        );
-
-        }
-
-        let favs = AppFavorites.getAppFavorites().getFavorites();
-        myLog(favs)
-        myLog(favs[1])
-
+        // original extension example, toggling panel items
+        {
         // Keep record of the original state of each item
         this.states = {};
-
         // Read the saved states
         let variant = this.settings.get_value('panel-states');
-
         /* Unpack the GSettings GVariant
 
         NOTE: `GSettings.get_value()` returns a GVariant, which is a
@@ -132,7 +98,6 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
             `GVariant.unpack()` would return `{ string: GVariant }`.
         */
         this.saved = variant.deep_unpack();
-
         // Add a menu item for each item in the panel
         for (let name in Main.panel.statusArea) {
             // Remember this item's original visibility
@@ -150,9 +115,12 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
                 null
             );
         }
+        }
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem())
 
+        // add shortcuts from settings. Incomplete
+        {
         // Add a menu for each menu-entry in the settings
         myLog("building menu from saved list.")
         let menus=this.settings.get_value('menu-entries').deep_unpack();
@@ -167,22 +135,51 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
              );
         }
 
-         myLog("Done building entries. ")
+        myLog("Done building entries. ")
+        }
+        // keyboard shortcut stuff
+        {
+            /* Here I am working on binding a keyboard shortcut.
+            the settings name is "keybinding"
+            */
+            let kShortcut=this.settings.get_value('keybinding').deep_unpack();
+            myLog(` Setting shortcut to ${kShortcut}`)
+            /* From hidetopbar/panelVisibilityManager@380 :
+
+            Main.wm.addKeybinding("shortcut-keybind",
+            this._settings, Meta.KeyBindingFlags.NONE,
+            ShellActionMode.NORMAL,
+            Lang.bind(this, this._handleShortcut)
+        );
+        */
+        Main.wm.addKeybinding("keybinding",
+            this.settings, Meta.KeyBindingFlags.NONE,
+            ShellActionMode.NORMAL,
+            Lang.bind(this, this.menuAction)
+        );
+
+        }
+        // favorites list
+        {
+            let favs = AppFavorites.getAppFavorites().getFavorites();
+            myLog(`There are ${favs.length} favorites`);
+            for (let i = 0 ; i < favs.length ; i++){
+                this.menu.addAction(
+                    favs[i].get_name(),
+                    //favs[i].open_new_window(-1),
+                    null
+                )
+
+            }
+        }
+
         //old single menu item to call sectormenu(). This will be used for development and testing (hopefully in the near future)
         this.menu.addAction(
             'SectorTest',
             this.menuAction.bind(this),
             null);
+
         myLog("_init done.")
-
-        /*/home/mknap/.local/share/gnome-shell/extensions/hidetopbar@mathieu.bidon.ca/panelVisibilityManager.js @380
-        */
-        // Main.wm.addKeybinding("shortcut-keybind",
-        //     this._settings, Meta.KeyBindingFlags.NONE,
-        //     ShellActionMode.NORMAL,
-        //     Lang.bind(this, this._handleShortcut)
-        // );
-
         Main.notify(`${ME}`, 'Loaded .')
     }
 
@@ -206,15 +203,20 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         //0SectorMenu.show();
         //view.show();
         Main.notify(`${ME}`, 'Got a keybinding .');
-        Util.spawnCommandLine('xfce4-terminal')
-        this._myLog('Menu item activated');
+        DEBUG('menuAction() : RENAME ME. trying to start fullscreen')
+        if (!this.fullscreen){
+            this.fullscreen = new Fullscreen.Fullscreen(1); //monitor 0 temp
+        }
+        this.fullscreen.open();
+
+        //Util.spawnCommandLine('xfce4-terminal')
+        //this._myLog('Menu item activated');
     }
 
     spawnCL(input){
         myLog('spawnCL..');
         Util.spawnCommandLine(input);
     };
-
 
     /**
      * togglePanelItem:
@@ -224,7 +226,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
      */
     togglePanelItem(name) {
         myLog(`SectorMenu: ${name} menu item toggled`);
-        this._myLog('test')
+        DEBUG('test')
         let statusItem = Main.panel.statusArea[name];
         statusItem.actor.visible = !statusItem.actor.visible;
 
@@ -265,6 +267,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         super.destroy();
     }
 }
+
 
 if (SHELL_MINOR > 30) {
     // Compatibility with gnome-shell >= 3.32

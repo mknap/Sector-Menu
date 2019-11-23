@@ -16,7 +16,7 @@
         <description></description>
     </key>
     <key type="as" name="keybinding">
-        <default><![CDATA[ ['<Super>'1] ]]></default>
+        <default><![CDATA[ ['<Super>z'] ]]></default>
         <summary>Keybinding  to switch to run menu 1.</summary>
     <description>
       Keybinding to switch to run menu item 1. Default menuitem 1 is a terminal.
