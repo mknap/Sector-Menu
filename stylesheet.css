@@ -1,6 +1,13 @@
 /* Add your custom extension styling here */
 
+
 .sectormenu-fullscreen {
     background-color: rgba(255, 0, 0, 0.5);
     color: white;
+}
+
+.sectormenu-fullscreen .content {
+    background-color: rgba(13, 0, 161, 0.53);
+    color: white;
+
 }

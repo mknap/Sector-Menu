@@ -155,7 +155,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         Main.wm.addKeybinding("keybinding",
             this.settings, Meta.KeyBindingFlags.NONE,
             ShellActionMode.NORMAL,
-            Lang.bind(this, this.menuAction)
+            Lang.bind(this, this._keyAction)
         );
 
         }
@@ -174,10 +174,10 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         }
 
         //old single menu item to call sectormenu(). This will be used for development and testing (hopefully in the near future)
-        this.menu.addAction(
-            'SectorTest',
-            this.menuAction.bind(this),
-            null);
+        // this.menu.addAction(
+        //     'SectorTest',
+        //     this.menuAction.bind(this),
+        //     null);
 
         myLog("_init done.")
         Main.notify(`${ME}`, 'Loaded .')
@@ -198,16 +198,16 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         }
     }
 
-    menuAction() {
+    _keyAction() {
         //Util.spawnCommandLine("xterm");
         //0SectorMenu.show();
         //view.show();
-        Main.notify(`${ME}`, 'Got a keybinding .');
-        DEBUG('menuAction() : RENAME ME. trying to start fullscreen')
+        //Main.notify(`${ME}`, 'Got a keybinding .');
+        DEBUG('_keyAction()')
         if (!this.fullscreen){
-            this.fullscreen = new Fullscreen.Fullscreen(1); //monitor 0 temp
+            this.fullscreen = new Fullscreen.Fullscreen(0); //monitor 0 temp
         }
-        this.fullscreen.open();
+        this.fullscreen.toggle();
 
         //Util.spawnCommandLine('xfce4-terminal')
         //this._myLog('Menu item activated');
