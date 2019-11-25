@@ -5,7 +5,7 @@
 
 */
 
-// const Clutter   = imports.gi.Clutter;
+const Clutter   = imports.gi.Clutter;
 // const Gtk       = imports.gi.Gtk;
 const Meta      = imports.gi.Meta;
 const St        = imports.gi.St;
@@ -32,12 +32,6 @@ var Fullscreen = class Fullscreen{
 
         let monitor = Main.layoutManager.currentMonitor;
         DEBUG(monitor.width)
-        // this.actor=new St.Widget(
-        //     { visible: true,
-        //     reactive: true,
-        //     style_class: 'sectormenu-fullscreen'
-        //     }
-        // );
 
         /** initBackground from coverflow platform.js */
         {
@@ -66,56 +60,45 @@ var Fullscreen = class Fullscreen{
             this.actor.set_size(monitor.width, monitor.height);
             this.content_box = new St.BoxLayout({
                 vertical: true,
-                //x_expand: true,
-                //y_expand: true,
+                x_expand: true,
+                y_expand: true,
                 style_class: 'content'
             });
+            //this.content_box.set_position(100,100);
+            //this.content_box.set_size(100,100)
             this.actor.add_actor(this.content_box);
-            Main.uiGroup.add_actor(this.actor);
+
+            /// entry box
+            this.entry_box = new St.Entry({
+                style_class: 'entry-box',
+                hint_text: 'Run command',
+                track_hover: true,
+                can_focus: true,
+            })
+            this.content_box.add_actor(this.entry_box)
+            //this.entrybox.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS);
+
+
         }
-        // this.monitor = monitor;
-        // this.monitor_constraint= new Layout.MonitorConstraint();
-        // this.display=global.display;   //bypassing the wrapper, VER>=3.34
-        //
-        // Tyring my own ideas here, not sure if they will work.
-        // Sort of works. brings up the window, but crashes upon close.
-        // Clutter.init(null);
-        // this.stage = new Clutter.Stage();
-        // this.stage.connect("destroy", Clutter.main_quit);
-        // // Put some title
-        // this.stage.title = "this.stage.title is Test";
-        // // this.stage.set_fullscreen (True);
-        // // Set a color to the stage to show that it is working
-        // this.stage.set_use_alpha(true);
-        // // Set a color to the stage to show that it is working
-        // this.stage.set_background_color(new Clutter.Color({
-        //     red : 150,
-        //     blue : 0,
-        //     green : 0,
-        //     alpha : 128
-        // }));
 
-
-        // container (ST methods from timepp extenion)
-        //
-        // this.actor = new St.BoxLayout(
-        //     { reactive: true,
-        //     style_class: 'sectormenu-fullscreen' }
-        // )
-        // this.actor.add_constraint(this.monitor_constraint);
-        // this.content_box = new St.BoxLayout(
-        //     { vertical: true,
-        //     x_expand: true,
-        //     y_expand: true,
-        //     style_class: 'content' }
-        // );
-        // this.actor.add_actor(this.content_box);
+        /** drawing guides with Clutter? */
+    //     let RED   = new Clutter.Color( {'red':255, 'blue':0, 'green':0, 'alpha':255} );
+    //     for (let n=0; n< 6; n++){
+    //         let guideline = new Clutter.Actor ({
+    //             "background_color": RED,
+    //             "width":300,
+    //             "height":1,
+    //             "x":1920/2,
+    //             "y":1080/2,
+    //             "rotation-angle-z" : n*60 + 30
+    //         })
+    //         this.content_box.add_actor(guideline);
+    //     }
 
 
 
 
-
-
+        Main.layoutManager.uiGroup.add_actor(this.actor);
         DEBUG('fullscreen.constructor DONE.')
     }
 
@@ -140,9 +123,10 @@ var Fullscreen = class Fullscreen{
             return;
         }
         this.is_open = true;
-        //global.window_group.hide();
+        //global.window_group.hide(); //makes screen fade
         this.actor.show();
-        this.actor.grab_key_focus();
+        this.entry_box.grab_key_focus();
+        // this.actor.grab_mouse_focus()
         this.actor.raise_top();
     }
 

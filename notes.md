@@ -1,6 +1,17 @@
 # Notes
 
 I hvae never written an extension before, so a lot of the work here is slow going and I'm learning as I go. (I have programmed before)
+## ToDo for Sector menu
+- [x] [11-22](#getting-a-keybinding) Get a keybinding
+- [X] [11-23,11-24](#got-fullscreen)Get a full screen window
+- [ ] Learn how to draw on the window
+- [ ] learn tweener
+- [ ] save preferences so we can make our own menus
+- [ ] start working with glade to make the prefs menu more accessible
+- [ ] icons for menus?
+- [ ] Make up some default stuff for myself, ssh commands, hue commands, getCurrentExtension
+- [x] [11-22](ui.appFavorites.js)load favorites from gnome ?
+- [ ] Use logger.js (perhaps rather than my own?)
 
 ### Some useful links I've Found
 A lot of these are in the code at the moment for references, but they will at some point be removed, so I wanted to keep them around.
@@ -30,17 +41,6 @@ const GLib = imports.gi.GLib;
 `amp` connects to the amp via bluetooth with the simple command `
 bluetoothctl connect  3C:91:80:11:AF:2D` The only hard thing to remember is the address.
 
-## ToDo for Sector menu
-- [x] Get a keybinding [11-22](#getting-a-keybinding)
-- [ ] Get a full screen window
-- [ ] Learn how to draw on the window
-- [ ] learn tweener
-- [ ] save preferences so we can make our own menus
-- [ ] start working with glade to make the prefs menu more accessible
-- [ ] icons for menus?
-- [ ] Make up some default stuff for myself, ssh commands, hue commands, getCurrentExtension
-- [x] load favorites from gnome ? [11-22](ui.appFavorites.js)
-- [ ] Use logger.js (perhasp rather than my own?)
 
 
 ### Getting a keybinding
@@ -48,3 +48,7 @@ I used hidetopbar as a model to discover the Main.wm.addkeybinding method
 
 ### ui.appFavorites.js
 Able to get a list of favorite apps from gnome shell. Now working on how to run one from the list. Using the extension Panel_Favorites for help here.
+
+### Got Fullscreen
+###### Finally
+It seems that the key I was missing was `Main.uiGroup.add_actor()` to display the content I was trying to create. (Now I get to try to make my content). Also, after reading more source, it seems that it really should be `Main.layoutManager.uiGroup.add_actor()`
