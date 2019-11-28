@@ -16,6 +16,7 @@ const Main      = imports.ui.main;
 const ShellEntry = imports.ui.shellEntry;
 const ExtensionUtils =imports.misc.extensionUtils;
 //const Signals   = imports.signals;
+const Util = imports.misc.util;
 
 //const ME = imports.misc.extensionUtils.getCurrentExtension();
 const Me = ExtensionUtils.getCurrentExtension()
@@ -106,10 +107,18 @@ var Fullscreen = class Fullscreen{
     }
 
     _entryRun(actor){                       //TODO: and this params just (a)?
-        DEBUG(`_entryRun().  ${actor} -- ${actor.get_text}`);
-        this.popModal();
-        command=actor.get_text();
 
+        DEBUG(`_entryRun().  ${actor}` );
+        //this.popModal();
+        let command=actor.get_text();
+        DEBUG(command)
+
+        if(command=='r'){
+            this._restart();
+        }
+        else{
+            Util.trySpawnCommandLine(command);
+        }
     }
 
     /** @_drawSectors
