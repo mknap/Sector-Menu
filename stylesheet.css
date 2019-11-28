@@ -10,7 +10,6 @@
 }
 
 .sectormenu-fullscreen .content {
-    background-color: rgba(21, 0, 255, 0.53);
     border-color: red;
     color: white;
 }
@@ -27,3 +26,5 @@
 .sectormenu-fullscreen *:hover {
     outline: 3px rgba(250, 255, 0, 0.98)
 }
+
+.gtk-notebook {}

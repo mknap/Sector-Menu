@@ -4,13 +4,13 @@ I hvae never written an extension before, so a lot of the work here is slow goin
 ## ToDo for Sector menu
 - [x] [11-22](#getting-a-keybinding) Get a keybinding
 - [X] [11-23,11-24](#got-fullscreen)Get a full screen window
-- [ ] Learn how to draw on the window
-- [ ] learn tweener
+- [X] Learn how to draw on the window [11-26] See the commit.
+- [x] [11-22](ui.appFavorites.js)load favorites from gnome ?
 - [ ] save preferences so we can make our own menus
 - [ ] start working with glade to make the prefs menu more accessible
 - [ ] icons for menus?
 - [ ] Make up some default stuff for myself, ssh commands, hue commands, getCurrentExtension
-- [x] [11-22](ui.appFavorites.js)load favorites from gnome ?
+- [ ] learn tweener
 - [ ] Use logger.js (perhaps rather than my own?)
 
 ### Some useful links I've Found
@@ -27,6 +27,7 @@ vs.
 const Gio =  imports.gi.Gio;
 const GLib = imports.gi.GLib;
 ```
+* [https://iacopodeenosee.wordpress.com/2013/03/10/simple-guide-to-improve-your-own-extension-on-gnome-shell/] [Simple ] Hnady list of other links. 
 
 ### Working on some new stuff
 - I've had quite a bit of learning to do. I've started using `git` and reading a lot of other extension code to help with developing ideas and understanding.

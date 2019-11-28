@@ -18,11 +18,18 @@
 
 const Lang = imports.lang;
 
-const { Gio, GLib, GObject, Meta, Shell, St} = imports.gi;
+const {
+    Gio,
+    GLib,
+    GObject,
+    Meta,
+    Shell,
+    St
+} = imports.gi;
 
 const AppFavorites = imports.ui.appFavorites;
 const Config = imports.misc.config;
-const ExtensionUtils =imports.misc.extensionUtils;
+const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
@@ -33,14 +40,15 @@ const ME = Me.metadata.name
 
 const Convenience = Me.imports.convenience;
 const Fullscreen = Me.imports.fullscreen;
-const ShellActionMode = (Shell.ActionMode)?Shell.ActionMode:Shell.KeyBindingMode;
+const ShellActionMode = (Shell.ActionMode) ? Shell.ActionMode : Shell.KeyBindingMode;
 
 const SHELL_MINOR = parseInt(Config.PACKAGE_VERSION.split('.')[1]);
 const DEBUG = Convenience.DEBUG
 const myLog = Convenience.DEBUG
 //const myLog = (message) => log(`${ME} : ${message}`)
 
-var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
+var SectorMenuIndicator = class SectorMenuIndicator
+extends PanelMenu.Button {
 
     _init() {
 
@@ -58,7 +66,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         this.add_child(icon);
 
         // load settings. TODO: study more
-        this.settings=Convenience.getSettings();
+        this.settings = Convenience.getSettings();
 
         /* Bind our indicator visibility to the GSettings value
 
@@ -79,70 +87,72 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
 
         // original extension example, toggling panel items
         {
-        // Keep record of the original state of each item
-        this.states = {};
-        // Read the saved states
-        let variant = this.settings.get_value('panel-states');
-        /* Unpack the GSettings GVariant
+            // Keep record of the original state of each item
+            this.states = {};
+            // Read the saved states
+            let variant = this.settings.get_value('panel-states');
+            /* Unpack the GSettings GVariant
 
-        NOTE: `GSettings.get_value()` returns a GVariant, which is a
-        multi-type container for packed values. GJS has two helper functions:
+            NOTE: `GSettings.get_value()` returns a GVariant, which is a
+            multi-type container for packed values. GJS has two helper functions:
 
-         * `GVariant.unpack()`
-            This function will do a shallow unpacking of any variant type,
-            useful for simple types like "s" (string) or "u" (uint32/Number).
+             * `GVariant.unpack()`
+                This function will do a shallow unpacking of any variant type,
+                useful for simple types like "s" (string) or "u" (uint32/Number).
 
-         * `GVariant.deep_unpack()`
-            A deep, but non-recursive unpacking, such that our variant type
-            "a{sb}" will be unpacked to a JS Object of `{ string: boolean }`.
-            `GVariant.unpack()` would return `{ string: GVariant }`.
-        */
-        this.saved = variant.deep_unpack();
-        // Add a menu item for each item in the panel
-        for (let name in Main.panel.statusArea) {
-            // Remember this item's original visibility
-            this.states[name] = Main.panel.statusArea[name].visible;
+             * `GVariant.deep_unpack()`
+                A deep, but non-recursive unpacking, such that our variant type
+                "a{sb}" will be unpacked to a JS Object of `{ string: boolean }`.
+                `GVariant.unpack()` would return `{ string: GVariant }`.
+            */
+            this.saved = variant.deep_unpack();
+            // Add a menu item for each item in the panel
+            for (let name in Main.panel.statusArea) {
+                // Remember this item's original visibility
+                this.states[name] = Main.panel.statusArea[name].visible;
 
-            // Restore our settings
-            if (name in this.saved) {
-                myLog(`Restoring state of ${name}`);
-                Main.panel.statusArea[name].actor.visible = this.saved[name];
+                // Restore our settings
+                if (name in this.saved) {
+                    myLog(`Restoring state of ${name}`);
+                    Main.panel.statusArea[name].actor.visible = this.saved[name];
+                }
+
+                this.menu.addAction(
+                    `Toggle "${name}"`,
+                    this.togglePanelItem.bind(this, name),
+                    null
+                );
             }
-
-            this.menu.addAction(
-                `Toggle "${name}"`,
-                this.togglePanelItem.bind(this, name),
-                null
-            );
-        }
         }
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem())
 
         // add shortcuts from settings. Incomplete
         {
-        // Add a menu for each menu-entry in the settings
-        myLog("building menu from saved list.")
-        let menus=this.settings.get_value('menu-entries').deep_unpack();
+            // Add a menu for each menu-entry in the settings
+            myLog("building menu from saved list.")
+            let menus = this.settings.get_value('menu-entries').deep_unpack();
 
-        for (let i = 0; i < menus.length; i++){
-            myLog(`Creating menuitem: ${menus[0][0]} --> ${menus[0][1]}`)
-             this.menu.addAction(
-                 menus[i][0],
-                 this.spawnCL.bind(this,menus[i][1]),
-                 // The above call gave me such a hard time. Learn more here.
-                 null
-             );
-        }
+            for (let i = 0; i < menus.length; i++) {
+                myLog(`Creating menuitem: ${menus[0][0]} --> ${menus[0][1]}`)
+                this.menu.addAction(
+                    menus[i][0],
+                    this.spawnCL.bind(this, menus[i][1]),
+                    // The above call gave me such a hard time. Learn more here.
+                    null
+                );
 
-        myLog("Done building entries. ")
+
+            }
+
+            myLog("Done building entries. ")
         }
         // keyboard shortcut stuff
         {
             /* Here I am working on binding a keyboard shortcut.
             the settings name is "keybinding"
             */
-            let kShortcut=this.settings.get_value('keybinding').deep_unpack();
+            let kShortcut = this.settings.get_value('keybinding').deep_unpack();
             myLog(` Setting shortcut to ${kShortcut}`)
             /* From hidetopbar/panelVisibilityManager@380 :
 
@@ -152,18 +162,22 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
             Lang.bind(this, this._handleShortcut)
         );
         */
-        Main.wm.addKeybinding("keybinding",
-            this.settings, Meta.KeyBindingFlags.NONE,
-            ShellActionMode.NORMAL,
-            Lang.bind(this, this._keyAction)
-        );
+            Main.wm.addKeybinding(
+                "keybinding",
+                this.settings,
+                Meta.KeyBindingFlags.NONE,
+                ShellActionMode.NORMAL,
+                /** See https://gitlab.gnome.org/GNOME/gjs/blob/master/doc/Modules.md */
+                Lang.bind(this, this._keyAction)
+
+            );
 
         }
-        // favorites list
+        // Get the favorites list
         {
             let favs = AppFavorites.getAppFavorites().getFavorites();
             myLog(`There are ${favs.length} favorites`);
-            for (let i = 0 ; i < favs.length ; i++){
+            for (let i = 0; i < favs.length; i++) {
                 this.menu.addAction(
                     favs[i].get_name(),
                     //favs[i].open_new_window(-1),
@@ -172,13 +186,6 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
 
             }
         }
-
-        //old single menu item to call sectormenu(). This will be used for development and testing (hopefully in the near future)
-        // this.menu.addAction(
-        //     'SectorTest',
-        //     this.menuAction.bind(this),
-        //     null);
-
         myLog("_init done.")
         Main.notify(`${ME}`, 'Loaded .')
     }
@@ -191,7 +198,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
             // If we have a saved state, set that
             if (name in this.saved) {
                 Main.panel.statusArea[name].actor.visible = this.saved[name];
-            // Otherwise restore the original state
+                // Otherwise restore the original state
             } else {
                 Main.panel.statusArea[name].actor.visible = this.states[name];
             }
@@ -199,21 +206,15 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
     }
 
     _keyAction() {
-        //Util.spawnCommandLine("xterm");
-        //0SectorMenu.show();
-        //view.show();
-        //Main.notify(`${ME}`, 'Got a keybinding .');
+        //Toggle the fullscreen sector menu
         DEBUG('_keyAction()')
-        if (!this.fullscreen){
+        if (!this.fullscreen) {
             this.fullscreen = new Fullscreen.Fullscreen(0); //monitor 0 temp
         }
         this.fullscreen.toggle();
-
-        //Util.spawnCommandLine('xfce4-terminal')
-        //this._myLog('Menu item activated');
     }
 
-    spawnCL(input){
+    spawnCL(input) {
         myLog('spawnCL..');
         Util.spawnCommandLine(input);
     };
@@ -233,7 +234,7 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
         // Store our saved state
         this.saved[name] = statusItem.actor.visible;
 
-        /* From a previous example :
+        /** From a previous example :
         try {
             let statusItem = Main.panel.statusArea[name];
 
@@ -271,8 +272,9 @@ var SectorMenuIndicator = class SectorMenuIndicator extends PanelMenu.Button {
 
 if (SHELL_MINOR > 30) {
     // Compatibility with gnome-shell >= 3.32
-    SectorMenuIndicator = GObject.registerClass(
-        {GTypeName: 'SectorMenuIndicator'},
+    SectorMenuIndicator = GObject.registerClass({
+            GTypeName: 'SectorMenuIndicator'
+        },
         SectorMenuIndicator
     );
 }

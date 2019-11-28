@@ -13,6 +13,7 @@ const St        = imports.gi.St;
 const Layout    = imports.ui.layout;
 const Main      = imports.ui.main;
 // const PopupMenu = imports.ui.popupMenu;
+const ShellEntry = imports.ui.shellEntry;
 const ExtensionUtils =imports.misc.extensionUtils;
 //const Signals   = imports.signals;
 
@@ -38,9 +39,10 @@ var Fullscreen = class Fullscreen{
     constructor(){
         DEBUG(`fullscreen.constructor()...`)
         this.is_open = false;
-
-        let monitor = Main.layoutManager.currentMonitor;
-        DEBUG(monitor.width)
+        this.draw_at_mouse=true;
+        this.monitor = Main.layoutManager.currentMonitor;
+        this.guidelines=[];
+        this.items=[];
 
         /** initBackground from coverflow platform.js */
         {
@@ -58,134 +60,104 @@ var Fullscreen = class Fullscreen{
         //     }
         }
 
-        /** container for widgets from coverflow switcher.js */
-        {
-            this.FSMenu = new St.Widget({
-                visible: true,
-                reactive: true,
-                style_class: 'sectormenu-fullscreen'
-            });
-            this.FSMenu.set_position(monitor.x, monitor.y);
-            this.FSMenu.set_size(monitor.width, monitor.height);
-            // this.content_box = new St.BoxLayout({
-            //     vertical: true,
-            //     x_expand: true,
-            //     y_expand: true,
-            //     style_class: 'content'
-            // });
-            // this.content_box.set_position(100,100);
-            // this.content_box.set_size(100,100)
-            // this.actor.add_actor(this.content_box);
-            //
-            // // Create a new actor
-            // let actorRectangle = new Clutter.Actor();
-            // // Make it like a rectangle
-            // actorRectangle.set_size(100, 100);
-            // actorRectangle.set_position(500, 100);
-            // /*
-            //  * Colors are made in RGBA http://en.wikipedia.org/wiki/RGBA_color_space
-            //  * Basically, Red, Green, Blue, Alpha (transparency). Each is a value between 0 and 255
-            //  */
-            // actorRectangle.set_background_color(new Clutter.Color({
-            //     red : 100,
-            //     blue : 100,
-            //     green : 100,
-            //     alpha : 255
-            // }));
-            // this.content_box.add_actor(actorRectangle);
-            //
-            /// entry box
-            this.entry_box = new St.Entry({
-                style_class: 'entry-box',
-                hint_text: 'Run command',
-                track_hover: true,
-                can_focus: true,
-            })
-            // this.content_box.add_actor(this.entry_box)
-            // //this.entrybox.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS);
-            //
-            // // switched to FSMenu, so
-            // this.FSMenu=this.actor
-
-        }
-
-        /** drawing guides with Clutter? */
-        {
-            // let RED   = new Clutter.Color( {'red':255, 'blue':0, 'green':0, 'alpha':255} );
-            // for (let n=0; n< 6; n++){
-            //     let guideline = new Clutter.Actor ({
-            //         "background_color": RED,
-            //         "width":300,
-            //         "height":1,
-            //         "x":1920/2,
-            //         "y":1080/2,
-            //         "rotation-angle-z" : n*60 + 30
-            //     })
-            //     this.content_box.add_actor(guideline);
-            // }
-        }
+        this.FSMenu = new St.Widget({
+            visible: true,
+            reactive: true,
+            style_class: 'sectormenu-fullscreen'
+        });
+        this.FSMenu.set_size(this.monitor.width, this.monitor.height);
+        this.entry_box = new St.Entry({
+            style_class: 'entry-box',
+            hint_text: 'Run command',
+            track_hover: true,
+            can_focus: true,
+        })
 
 
-        /** Working on another approach */
-        {
-            // this.FSMenu = new Clutter.Stage();
-            // DEBUG(this.FSMenu);
-            // //this.FSMenu.set_use_fullscreen(true);
-            // this.FSMenu.set_use_alpha(true);
-            // this.FSMenu.set_background_color(new Clutter.Color({
-            //     'red':150,
-            //     'blue':0,
-            //     'green':0,
-            //     'alpha':10
-            // }))
-        }
+        ShellEntry.addContextMenu(this.entry_box)     //TODO: what does this do
+        this.entry_text=this.entry_box.clutter_text;
 
-        this._drawSectors(6);
+        this.entry_text.connect(
+            'activate',
+            this._entryRun.bind(this)
+        )
+
+
+        this.entry_text.connect(
+            'key-press-event',
+            this._entryKeyPressEvent.bind(this)
+        );
+
+
+        this.FSMenu.add_actor(this.entry_box)
         Main.layoutManager.uiGroup.add_actor(this.FSMenu);
         DEBUG('fullscreen.constructor DONE.')
     }
 
+    _entryKeyPressEvent(actor,event){         //TODO: why is this params (a,e)?
+        let symbol=event.get_key_symbol();
+        DEBUG(symbol);
+        if (symbol === Clutter.KEY_Escape) {
+            //if (this._isActivated()) {
+                this.close();
+                return Clutter.EVENT_STOP;
+            }
+        return Clutter.EVENT_PROPAGATE;
+    }
+
+    _entryRun(actor){                       //TODO: and this params just (a)?
+        DEBUG(`_entryRun().  ${actor} -- ${actor.get_text}`);
+        this.popModal();
+        command=actor.get_text();
+
+    }
+
     /** @_drawSectors
     Draws N sectors
-
-    @param N : the number of sectors to calculate and drawing
+    @param N the number of sectors to calculate and drawing
     */
     _drawSectors(N){
+
+        if(this.draw_at_mouse) {
+            var [x0, y0, mask] = global.get_pointer();
+        } else {
+            var [x0, y0] = [ X/2 , Y/2 ];
+        }
         for (let n = 0; n < N ; n++)
         {
-            let x = (100*Math.cos(n*2*Math.PI/(N)) + X/2); //FIXME no hard code sizes
-            let y = (100*Math.sin(n*2*Math.PI/(N)) + Y/2);
+            let x = (100*Math.cos(n*2*Math.PI/(N)) + x0); //FIXME no hard code sizes
+            let y = (100*Math.sin(n*2*Math.PI/(N)) + y0);
             //print(n, ": ", x,y)
 
-            let menuItem = new Clutter.Text( {"text": "Item " + n.toString(),"color":WHITE } );
-            let [dx,dy]=menuItem.get_size();
+            this.items[n] = new Clutter.Text( {"text": "Item " + n.toString(),"color":WHITE } );
+            let [dx,dy]=this.items[n].get_size();
             //print (dx,dy)
-            menuItem.set_position(x-dx/2,y-dy/2)
-            menuItem.set_reactive(true)
+            this.items[n].set_position(x-dx/2,y-dy/2)
+            this.items[n].set_reactive(true)
             // menuItem.connect('button-press-event',
             //     Lang.bind(this, function(actor, event){
             //         this.stage.destroy();
             //     }
             //     )
             // );
-            this.FSMenu.add_actor(menuItem)
+            this.FSMenu.add_actor(this.items[n])
         }
         // Draw guide lines between the menu menuitems
         for (let n =0; n <N; n++){
             //let x = (100*Math.cos(n*2*Math.PI/SECTORS + Math.PI/SECTORS) + SIZE_X/2);
             //let y = (100*Math.sin(n*2*Math.PI/(SECTORS) +Math.PI/SECTORS) + SIZE_Y/2);
 
-            let guideline = new Clutter.Actor ({
+            this.guidelines[n] = new Clutter.Actor ({
                 "background_color":RED,
                 "width":300,
                 "height":1,
-                "x":X/2,
-                "y":Y/2,
+                "x":x0,
+                "y":y0,
                 "rotation-angle-z": n*360/N +.5*350/N
             });
             //print(guideline.get_pivot_point());
             //guideline.set_rotation_angle(2, ( ( Math.PI ) / SECTORS) );
-            this.FSMenu.add_actor(guideline)
+            this.FSMenu.add_actor(this.guidelines[n])
             //print(n, ": ", x,y)
         }
 
@@ -200,6 +172,10 @@ var Fullscreen = class Fullscreen{
         DEBUG('fullscreen.close()')
         this.is_open = false;
         global.window_group.show();
+        for (let n =0; n < this.items.length; n++) {
+            this.FSMenu.remove_actor(this.items[n]);
+            this.FSMenu.remove_actor(this.guidelines[n])
+        }
         this.FSMenu.hide();
     }
 
@@ -213,6 +189,7 @@ var Fullscreen = class Fullscreen{
         }
         this.is_open = true;
         //global.window_group.hide(); //makes screen fade
+        this._drawSectors(3);
         this.FSMenu.show();
         this.entry_box.grab_key_focus();
         // this.actor.grab_mouse_focus()
@@ -224,5 +201,16 @@ var Fullscreen = class Fullscreen{
             this.close();
         else
             this.open();
+    }
+
+    _restart() {
+        DEBUG('_restart()')
+        if (Meta.is_wayland_compositor()) {
+            //this._showError(_("Restart is not available on Wayland"));
+            return;
+        }
+        //this._shouldFadeOut = false;
+        this.close();
+        Meta.restart(_("Restarting…"));
     }
 }

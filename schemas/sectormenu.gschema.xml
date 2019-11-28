@@ -9,6 +9,11 @@
     <key name="show-indicator" type="b">
       <default>true</default>
     </key>
+    <key name="show-favorites" type="b">
+      <default>true</default>
+    </key>
+
+
     <!-- An array of string arrays: [['this', 'that'],['name','cmd']] -->
     <key type="aas" name="menu-entries">
         <default>[["Term","xfce4-terminal "]]</default>
