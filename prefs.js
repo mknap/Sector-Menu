@@ -13,6 +13,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const ME = Me.metadata.name;
 const Convenience = Me.imports.convenience;
 
+const DEBUG = Convenience.DEBUG
 // Like `extension.js` this is used for any one-time setup like translations.
 function init() {
     log(`initializing ${Me.metadata.name} Preferences`);
@@ -23,6 +24,7 @@ function init() {
 function buildPrefsWidget() {
 
     // settings, notebook container, and pages
+
     this.settings = Convenience.getSettings();
     // Create a parent widget that we'll return from this function
 
@@ -146,6 +148,9 @@ function buildPrefsWidget() {
     }
     // Sector Prefereces tab
     {
+
+
+
         let menuLabel = new Gtk.Label({
             label: 'Menu Items:',
             halign: Gtk.Align.START,
@@ -191,16 +196,17 @@ function buildPrefsWidget() {
 
         // Bind the text of the gtk entries to our settings. Does this "save" the settings?
 
-        ////////////////////////////////////////////////////////////////////////////
-        // Keybinding . man I want to figure this out!
-        ////////////////////////////////////////////////////////////////////////////
+        // Keybinding (TODO)
         let key_label = new Gtk.Label({
-            label: 'keybinding to run menuitem 1:',
+            label: 'Keyboard shortcut to toggle the menu:',
             halign: Gtk.Align.START,
             visible: true
         })
+        let k = this.settings.get_value('keybinding').deep_unpack();
+        DEBUG(k[0])
+
         let key_entry = new Gtk.Entry({
-            //active: true,
+            text: k[0]z ,
             halign: Gtk.Align.END,
             visible: true,
         })
@@ -215,5 +221,7 @@ function buildPrefsWidget() {
         );
     }
     // Return our widget which will be added to the window
+
+
     return noteWidget;
 }
