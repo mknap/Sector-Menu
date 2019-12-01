@@ -1,8 +1,7 @@
 /* Add your custom extension styling here */
 
-
 .sectormenu-fullscreen {
-    background-color: rgba(1, 0, 0, 0.9);
+    background-color: rgba(0, 0, 0, 0.71);
     border-color: red;
     border: 1;
     padding: 5px;
@@ -15,17 +14,46 @@
 }
 
 .sectormenu-fullscreen .guidelines {
-    background-color: yellow;
+    background-color: rgba(20, 0, 184, 0.86);
     color: green;
     width: 300;
     height: 1;
 }
 
-.sectormenu-fullscreen .entry-box{}
-
-.sectormenu-fullscreen *:hover {
-    outline: 1px rgba(250, 255, 0, 0.98)
+.sectormenu-fullscreen .entry-box{
+    width: 320px;
+    padding: 7px,9px;
+    border-radius: 18px;
 }
 
-.sectormenu
-.gtk-notebook {}
+.sectormenu-fullscreen .launcher-icon{
+    icon-size: 128px;
+    border-radius: 7px;
+    padding: 0px 0px;
+    align: center;
+}
+
+.sectormenu-fullscreen *:hover {
+    outline: 1px rgba(0, 255, 25, 0.98)
+}
+/* search entry from /srs/gnome-shell/data/theme/gnome-shell-sass/_common.scss */
+
+/* .search-entry, %search_entry {
+  width: 320px;
+  padding: 7px 9px;
+  border-radius: 18px;
+  color: $fg_color;
+  background-color: $base_color;
+  border-color: $borders_color;
+  &:focus {
+    padding: 6px 8px;
+    border-width: 2px;
+    border-color: $selected_bg_color;
+  }
+
+  .search-entry-icon { icon-size: 1em; padding: 0 4px; color: $fg_color; }
+
+  &:hover, &:focus {
+    .search-entry-icon { color: transparentize($fg_color,.3); }
+  }
+} */

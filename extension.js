@@ -47,6 +47,8 @@ const DEBUG = Convenience.DEBUG
 const myLog = Convenience.DEBUG
 //const myLog = (message) => log(`${ME} : ${message}`)
 
+const SHELL_KEYBINDINGS_SCHEMA = 'org.gnome.shell.keybindings';
+
 var SectorMenuIndicator = class SectorMenuIndicator
 extends PanelMenu.Button {
 
@@ -152,8 +154,8 @@ extends PanelMenu.Button {
             /* Here I am working on binding a keyboard shortcut.
             the settings name is "keybinding"
             */
-            let kShortcut = this.settings.get_value('keybinding').deep_unpack();
-            myLog(` Setting shortcut to ${kShortcut}`)
+            // let kShortcut = this.settings.get_value('keybinding').deep_unpack();
+            // myLog(` Setting shortcut to ${kShortcut}`)
             /* From hidetopbar/panelVisibilityManager@380 :
 
             Main.wm.addKeybinding("shortcut-keybind",
@@ -162,16 +164,29 @@ extends PanelMenu.Button {
             Lang.bind(this, this._handleShortcut)
         );
         */
+
             Main.wm.addKeybinding(
                 "keybinding",
                 this.settings,
                 Meta.KeyBindingFlags.NONE,
-                ShellActionMode.NORMAL,
+                ShellActionMode.NORMAL |
+                ShellActionMode.OVERVIEW,
                 /** See https://gitlab.gnome.org/GNOME/gjs/blob/master/doc/Modules.md */
-                Lang.bind(this, this._keyAction)
-
+                //Lang.bind(this, this._keyAction)
+                this._keyAction.bind(this)
             );
 
+            //this is from viewSelector.js@221 and @228
+            // doesn't seem to usurp the key though
+            // Main.wm.addKeybinding('toggle-application-view',
+            //     new Gio.Settings({
+            //         schema_id: SHELL_KEYBINDINGS_SCHEMA
+            //     }),
+            //     Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+            //     Shell.ActionMode.NORMAL |
+            //     Shell.ActionMode.OVERVIEW,
+            //     this._keyAction.bind(this)
+            // );
         }
         // Get the favorites list
         {
@@ -209,7 +224,7 @@ extends PanelMenu.Button {
         //Toggle the fullscreen sector menu
         DEBUG('_keyAction()')
         if (!this.fullscreen) {
-            this.fullscreen = new Fullscreen.Fullscreen(0); //monitor 0 temp
+            this.fullscreen = new Fullscreen.Fullscreen(0); //FIXME: monitor 0 temp
         }
         this.fullscreen.toggle();
     }

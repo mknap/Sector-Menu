@@ -5,72 +5,105 @@
 
 */
 
-const Clutter   = imports.gi.Clutter;
+const Clutter = imports.gi.Clutter;
 // const Gtk       = imports.gi.Gtk;
-const Meta      = imports.gi.Meta;
-const St        = imports.gi.St;
+const Meta = imports.gi.Meta;
+const St = imports.gi.St;
 // const Pango     = imports.gi.Pango;
 
+const Signals = imports.signals;
 
 const AppFavorites = imports.ui.appFavorites;
 const AppDisplay = imports.ui.appDisplay;
-const Layout    = imports.ui.layout;
-const Main      = imports.ui.main;
+const Layout = imports.ui.layout;
+const Main = imports.ui.main;
 // const PopupMenu = imports.ui.popupMenu;
 const ShellEntry = imports.ui.shellEntry;
+const Tweener =imports.ui.tweener;
 
-
-const ExtensionUtils =imports.misc.extensionUtils;
+const ExtensionUtils = imports.misc.extensionUtils;
 //const Signals   = imports.signals;
 const Util = imports.misc.util;
 
 //const ME = imports.misc.extensionUtils.getCurrentExtension();
 const Me = ExtensionUtils.getCurrentExtension()
 const Convenience = Me.imports.convenience;
-const DEBUG=Convenience.DEBUG;
+const DEBUG = Convenience.DEBUG;
 
 /** Some constants for clutter colors: */
 
-const WHITE = new Clutter.Color( {'red':255, 'blue':255, 'green':255, 'alpha':255} );
-const BLACK = new Clutter.Color( {'red':0, 'blue':0, 'green':0, 'alpha':255} );
-const RED   = new Clutter.Color( {'red':255, 'blue':0, 'green':0, 'alpha':255} );
-const TRANS = new Clutter.Color( {'red':255, 'blue':255, 'green':255, 'alpha':0} );
-const SEMITRANS = new Clutter.Color( {'red':0, 'blue':0, 'green':0, 'alpha':200} );
-const GRAY  = new Clutter.Color( {'red':127, 'blue':127, 'green':127, 'alpha':127} );
+const WHITE = new Clutter.Color({
+    'red': 255,
+    'blue': 255,
+    'green': 255,
+    'alpha': 255
+});
+const BLACK = new Clutter.Color({
+    'red': 0,
+    'blue': 0,
+    'green': 0,
+    'alpha': 255
+});
+const RED = new Clutter.Color({
+    'red': 255,
+    'blue': 0,
+    'green': 0,
+    'alpha': 255
+});
+const TRANS = new Clutter.Color({
+    'red': 255,
+    'blue': 255,
+    'green': 255,
+    'alpha': 0
+});
+const SEMITRANS = new Clutter.Color({
+    'red': 0,
+    'blue': 0,
+    'green': 0,
+    'alpha': 200
+});
+const GRAY = new Clutter.Color({
+    'red': 127,
+    'blue': 127,
+    'green': 127,
+    'alpha': 127
+});
 
-const SECTORS=7;
-const X=1920;
-const Y=1080
+const SECTORS = 7;
+const R = 220;
+const X = 1920;
+const Y = 1080;
 
 
 
-var Fullscreen = class Fullscreen{
+var Fullscreen = class Fullscreen {
 
-    constructor(){
+    constructor() {
         DEBUG(`fullscreen.constructor()...`)
         this.is_open = false;
-        this.draw_at_mouse=true;
-        this.draw_guides=true;
+        this.draw_at_mouse = true;
+        this.draw_guides = true;
 
         this.monitor = Main.layoutManager.currentMonitor;
-        this.guidelines=[];
         this.favs = AppFavorites.getAppFavorites().getFavorites();
-        this.items=[];
 
+        this.guidelines = [];
+        this.items = [];
+        this.tips = [];
         /** initBackground from coverflow platform.js */
         {
-        //     let Background = imports.ui.background;
-        //
-	    // 	this._backgroundGroup = new Meta.BackgroundGroup();
-        // Main.layoutManager.uiGroup.add_child(this._backgroundGroup);
-        // this._backgroundGroup.lower_bottom();
-        // this._backgroundGroup.hide();
-        // for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
-        //     new Background.BackgroundManager({
-        //         container: this._backgroundGroup,
-        //         monitorIndex: i,
-        //         vignette: true });
-        //     }
+            //     let Background = imports.ui.background;
+            //
+            // 	this._backgroundGroup = new Meta.BackgroundGroup();
+            // Main.layoutManager.uiGroup.add_child(this._backgroundGroup);
+            // this._backgroundGroup.lower_bottom();
+            // this._backgroundGroup.hide();
+            // for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
+            //     new Background.BackgroundManager({
+            //         container: this._backgroundGroup,
+            //         monitorIndex: i,
+            //         vignette: true });
+            //     }
         }
 
         this.FSMenu = new St.Widget({
@@ -84,12 +117,12 @@ var Fullscreen = class Fullscreen{
             hint_text: 'Run command',
             track_hover: true,
             can_focus: true,
-            x: 108,
+            x: 100,
             y: 100,
-            width: this.monitor.width/5,
+            width: this.monitor.width / 4,
         })
         //ShellEntry.addContextMenu(this.entry_box)     //TODO: what does this do
-        this.entry_text=this.entry_box.clutter_text;
+        this.entry_text = this.entry_box.clutter_text;
         this.entry_text.connect(
             'activate',
             this._entryRun.bind(this)
@@ -98,13 +131,26 @@ var Fullscreen = class Fullscreen{
             'key-press-event',
             this._entryKeyPressEvent.bind(this)
         );
+        this.entry_box.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS); //TODO : What does this do?
         this.FSMenu.add_actor(this.entry_box)
-        Main.layoutManager.uiGroup.add_actor(this.FSMenu);
+
+        //Main.layoutManager.uiGroup.add_actor(this.FSMenu);
+        this.FSMenu.connect(
+            'scroll-event',
+            this._onScrollEvent.bind(this)
+        )
+
+        Main.layoutManager.addChrome(this.FSMenu);
         DEBUG('fullscreen.constructor DONE.')
     }
 
-    _entryKeyPressEvent(actor,event){         //TODO: why is this params (a,e)?
-        let symbol=event.get_key_symbol();
+    _onScrollEvent(actor, event) {
+        this.emit('scroll-event', event);
+        return Clutter.EVENT_PROPAGATE;
+    }
+
+    _entryKeyPressEvent(actor, event) { //TODO: why is this params (a,e)?
+        let symbol = event.get_key_symbol();
         DEBUG(symbol);
         if (symbol === Clutter.KEY_Escape) {
             if (actor.get_text()) {
@@ -113,21 +159,20 @@ var Fullscreen = class Fullscreen{
             } else {
                 this.close();
             }
-            }
+        }
         return Clutter.EVENT_PROPAGATE;
     }
 
-    _entryRun(actor){                       //TODO: and this params just (a)?
+    _entryRun(actor) { //TODO: and this params just (a)?
 
-        DEBUG(`_entryRun().  ${actor}` );
+        DEBUG(`_entryRun().  ${actor}`);
         //this.popModal();
-        let command=actor.get_text();
+        let command = actor.get_text();
         DEBUG(command)
 
-        if(command=='r'){
+        if (command == 'r') {
             this._restart();
-        }
-        else{
+        } else {
             Util.trySpawnCommandLine(command);
             this.close();
         }
@@ -137,114 +182,129 @@ var Fullscreen = class Fullscreen{
     Draws N sectors
     @param N the number of sectors to calculate and drawing
     */
-    _drawSectors(N){
+    _drawSectors(N) {
 
-        if(this.draw_at_mouse) {
+        if (this.draw_at_mouse) {
             var [x0, y0, mask] = global.get_pointer();
         } else {
-            var [x0, y0] = [ X/2 , Y/2 ];
+            var [x0, y0] = [X / 2, Y / 2];
         }
-        for (let n = 0; n < N ; n++)
-        {
-            let x = (100*Math.cos(n*2*Math.PI/(N)) + x0); //FIXME no hard code sizes
-            let y = (100*Math.sin(n*2*Math.PI/(N)) + y0);
+        for (let n = 0; n < N; n++) {
+            let x = (R * Math.cos(n * 2 * Math.PI / (N)) + x0); //FIXME no hard code sizes
+            let y = (R * Math.sin(n * 2 * Math.PI / (N)) + y0);
 
-           //Labels; were my first attempt:
-             // this.items[n] = new Clutter.Text({
-            //     "text": "Item " + n.toString(),
-            //     "color":WHITE
-            // });
-
-            //from Panel_favorites extension.js@31
-        {   let app = this.favs[n];
-            this.items[n] = new St.Button({
-                //style_class: 'panel-button',
-                reactive: true,
-                visible: true,
-            });
-            let gicon = app.app_info.get_icon();
-            let icon = new St.Icon({
-                gicon: gicon,
-                //style_class: 'panel-launcher-icon',
-                visible: true,
-            });
-            this.items[n].set_child(icon);
-            this.items[n]._delegate = this;
-            let text = app.get_name();
-            if ( app.get_description() ) {
-                text += '\n' + app.get_description();
+            //Labels; were my first attempt:
+            { // this.items[n] = new Clutter.Text({
+                //     "text": "Item " + n.toString(),
+                //     "color":WHITE
+                // });
             }
+            //from Panel_favorites extension.js@31
+            {
+                let app = this.favs[n];
+                this.items[n] = new St.Button({
+                    style_class: 'panel-button',
+                    reactive: true,
+                    visible: true,
+                    opacity: 255,
+                });
+                let gicon = app.app_info.get_icon();
+                let icon = new St.Icon({
+                    gicon: gicon,
+                    style_class: 'launcher-icon',
+                    visible: true,
+                    opacity: 255,
+                });
+                this.items[n].set_child(icon);
+                this.items[n]._delegate = this;
 
-            let label = new St.Label({
-                //style_class: 'panel-launcher-label'
-            });
-            label.set_text(text);
-            //Main.layoutManager.addChrome(label);
-            //this.label.hide();
-            this.items[n].label_actor = label;
-
-            //this._app = app;
-            //this._menu = null;
-            //this._menuManager = new PopupMenu.PopupMenuManager(this.actor);
-
-            this.items[n].connect('clicked', () => {
-                app.open_new_window(-1);
-                if ( Main.overview.visible ) {
-                    Main.overview.hide();
+                let text = app.get_name();
+                if (app.get_description()) {
+                    text += '\n' + app.get_description();
                 }
-                this.toggle();
-            });
 
-        }
-            // this.items[n].connect('notify::hover',
-            //         this._onHoverChanged.bind(this));
+                this.tips[n] = new St.Label({
+                    style_class: 'panel-launcher-label',
+                    opacity: 0,
+                });
+                this.tips[n].set_text(text);
+                //this.tips[n].hide();
+                this.items[n].tip = this.tips[n];
+
+                //this._app = app;
+                //this._menu = null;
+                //this._menuManager = new PopupMenu.PopupMenuManager(this.actor);
+
+                this.items[n].connect('clicked', () => {
+                    app.open_new_window(-1);
+                    if (Main.overview.visible) {
+                        Main.overview.hide();
+                    }
+                    this.toggle();
+                });
+                this.items[n].connect(
+                    'notify::hover',
+                    this._onHoverChanged.bind(this));
+            }
             // this.items[n].connect('button-press-event',
             //         this._onButtonPress.bind(this));
 
-            this.items[n].set_size(64,64)
-            let [dx,dy]=this.items[n].get_size();
-            DEBUG(`x: ${dx}, y:${dy}`)// //print (dx,dy)
-            //let [dx,dy] = [64,64];
-            this.items[n].set_position(x-dx/2,y-dy/2)
-            this.items[n].opacity = 207;
-            this.FSMenu.add_actor(this.items[n])
+            let [dx,dy] = [128,128];
+            DEBUG(`dx: ${dx}, dy:${dy}`)
+            this.items[n].set_position(x - dx / 2, y - dy / 2)
+            this.items[n].opacity = 175;
+            // playing around with Tweener
+            Tweener.addTween(this.items[n],
+                         { opacity: 255,
+                           time: .85,
+                           transition: 'easeOutQuad',
+                         });
 
+            this.FSMenu.add_actor(this.items[n])
+            let [tx,ty] = this.tips[n].get_size();
+            DEBUG(`tx: ${tx}, ty:${ty}`)
+            this.FSMenu.add_actor(this.tips[n])
+            this.tips[n].set_position(x-(tx/2),y+dy/2 + 5)
             //guidelines :
-            this.guidelines[n] = new Clutter.Actor ({
-                //"style": "guidelines",   //FIXME: can we do a clutter style?
-                "background_color":RED,
-                "width":300,
-                "height":1,
-                "x":x0,
-                "y":y0,
-                "rotation-angle-z": n*360/N +.5*350/N
-            });
-            //print(guideline.get_pivot_point());
-            //guideline.set_rotation_angle(2, ( ( Math.PI ) / SECTORS) );
-            this.FSMenu.add_actor(this.guidelines[n])
-            //print(n, ": ", x,y)
+            if (this.draw_guides) {
+                this.guidelines[n] = new Clutter.Actor({
+                    //"style": "guidelines",   //FIXME: can we do a clutter style?
+                    "background_color": RED,
+                    "width": 300,
+                    "height": 1,
+                    "x": x0,
+                    "y": y0,
+                    "rotation-angle-z": n * 360 / N + .5 * 350 / N
+                });
+                //print(guideline.get_pivot_point());
+                //guideline.set_rotation_angle(2, ( ( Math.PI ) / SECTORS) );
+                this.FSMenu.add_actor(this.guidelines[n])
+            }
         }
 
     }
 
-    destroy(){
+    destroy() {
         DEBUG('fullscreen.destroy()')
 
     }
 
-    close(){
+    close() {
         DEBUG('fullscreen.close()')
         this.is_open = false;
         global.window_group.show();
-        for (let n =0; n < this.items.length; n++) {
+        for (let n = 0; n < this.items.length; n++) {
             this.FSMenu.remove_actor(this.items[n]);
-            this.FSMenu.remove_actor(this.guidelines[n])
-        }
-        this.entry_box.set_text('')
-        this.FSMenu.hide();
-    }
+            this.FSMenu.remove_actor(this.tips[n]);
 
-    open(){
+            if (this.draw_guides) {
+                this.FSMenu.remove_actor(this.guidelines[n])
+            }
+            this.entry_box.set_text('')
+            this.FSMenu.hide();
+        }
+    }
+    open() {
         DEBUG('fullscreen.open()')
 
         if (this.is_open) {
@@ -261,7 +321,7 @@ var Fullscreen = class Fullscreen{
         this.FSMenu.raise_top();
     }
 
-    toggle(){
+    toggle() {
         if (this.is_open)
             this.close();
         else
@@ -278,4 +338,15 @@ var Fullscreen = class Fullscreen{
         this.close();
         Meta.restart(_("Restarting…"));
     }
+
+    _onHoverChanged(actor) {
+        actor.opacity = actor.hover ? 255 : 175;
+        actor.tip.opacity = actor.hover ? 255 : 0;
+        actor.raise_top();
+        actor.tip.raise_top();
+    }
 }
+
+
+// TODO : I am gathering that this adds methods to handle signals like emit() ?
+Signals.addSignalMethods(Fullscreen.prototype)
