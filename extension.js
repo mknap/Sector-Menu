@@ -86,6 +86,11 @@ extends PanelMenu.Button {
             'changed::panel-states',
             this._onPanelStatesChanged.bind(this)
         );
+        this._onKeybindingChangedId = this.settings.connect(
+            'changed::keybinding',
+            this._onKeybindingChanged.bind(this)
+        );
+
 
         // original extension example, toggling panel items
         {
@@ -189,6 +194,10 @@ extends PanelMenu.Button {
             // );
         }
         // Get the favorites list
+        DEBUG('Show Favorites?')
+        DEBUG(this.settings.get_boolean('show-favorites'));
+
+        if(this.settings.get_boolean('show-favorites'))
         {
             let favs = AppFavorites.getAppFavorites().getFavorites();
             myLog(`There are ${favs.length} favorites`);
@@ -218,6 +227,20 @@ extends PanelMenu.Button {
                 Main.panel.statusArea[name].actor.visible = this.states[name];
             }
         }
+    }
+
+    _onKeybindingChanged(settings, key){
+        DEBUG(`_onKeybindingChanged() ${key}`);
+        Main.wm.addKeybinding(
+            "keybinding",
+            this.settings,
+            Meta.KeyBindingFlags.NONE,
+            ShellActionMode.NORMAL |
+            ShellActionMode.OVERVIEW,
+            /** See https://gitlab.gnome.org/GNOME/gjs/blob/master/doc/Modules.md */
+            //Lang.bind(this, this._keyAction)
+            this._keyAction.bind(this)
+        );
     }
 
     _keyAction() {
