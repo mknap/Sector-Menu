@@ -221,10 +221,10 @@ extends PanelMenu.Button {
         for (let name in this.states) {
             // If we have a saved state, set that
             if (name in this.saved) {
-                Main.panel.statusArea[name].actor.visible = this.saved[name];
+                Main.panel.statusArea[name].visible = this.saved[name];
                 // Otherwise restore the original state
             } else {
-                Main.panel.statusArea[name].actor.visible = this.states[name];
+                Main.panel.statusArea[name].visible = this.states[name];
             }
         }
     }
@@ -289,7 +289,8 @@ extends PanelMenu.Button {
     // We'll override the destroy() function to revert any changes we make
     destroy() {
         // Stop watching the settings for changes
-        this.settings.disconnect(this._onSettingsChangedId);
+
+        // this.settings.disconnect(this._onSettingsChangedId);
 
         // Store the panel settings in GSettings
         this.settings.set_value(
@@ -299,10 +300,11 @@ extends PanelMenu.Button {
 
         // Restore the visibility of the panel items
         for (let [name, visibility] of Object.entries(this.states)) {
-            Main.panel.statusArea[name].actor.visible = visibility;
+            Main.panel.statusArea[name].visible = visibility;
         }
 
         // Chain-up to the super-class after we've done our own cleanup
+        this.fullscreen.destroy();
         super.destroy();
     }
 }

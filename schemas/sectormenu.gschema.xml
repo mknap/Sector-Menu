@@ -17,6 +17,30 @@
         <summary>Boolean to draw | not draw the guidelines of the sector menu.</summary>
         <description></description>
     </key>
+    <key name="draw-at-mouse" type="b">
+        <default>true</default>
+        <summary>Boolean to draw | not draw the menu at the current pointer location.</summary>
+        <description></description>
+    </key>
+    <key name="icon-size" type="i">
+        <range min="32" max="256"/>
+        <default>128</default>
+        <summary>Integer[32-256]: The icon size.</summary>
+        <description></description>
+    </key>
+    <key name="radius" type="i">
+        <range min="128" max="512"/>
+        <default>128</default>
+        <summary>Integer[128 - 512]: The size of the radius for icon placement.</summary>
+        <description></description>
+    </key>
+    <key name="sectors" type="i">
+        <range min="3" max="16"/>
+        <default>7</default>
+        <summary>Integer[3 - 16]: The number of sectors.</summary>
+        <description></description>
+    </key>
+
     <!-- An array of string arrays: [['this', 'that'],['name','cmd']] -->
     <key type="aas" name="menu-entries">
         <default>[["Term","xfce4-terminal "]]</default>

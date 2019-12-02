@@ -41,7 +41,11 @@
     visible: true;
     use_markup: true;
 }
-/* search entry from /srs/gnome-shell/data/theme/gnome-shell-sass/_common.scss */
+/* search entry from
+label: '<b>Drawing preferences :</b>',
+use_markup: true,
+halign: Gtk.Align.START,
+visible: true,/srs/gnome-shell/data/theme/gnome-shell-sass/_common.scss */
 
 /* .search-entry, %search_entry {
   width: 320px;

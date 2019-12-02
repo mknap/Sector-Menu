@@ -69,8 +69,9 @@ const GRAY = new Clutter.Color({
     'alpha': 127
 });
 
-const SECTORS = 7;
-const R = 220;
+// const SECTORS = 7;
+// const R = 220;
+
 const X = 1920;
 const Y = 1080;
 
@@ -81,12 +82,12 @@ var Fullscreen = class Fullscreen {
     constructor() {
         DEBUG(`fullscreen.constructor()...`)
         this.is_open = false;
-        this.draw_at_mouse = true;
-        this.draw_guides = true;
+        // this.draw_at_mouse = true;
+        // this.draw_guides = true;
 
         this.monitor = Main.layoutManager.currentMonitor;
         this.favs = AppFavorites.getAppFavorites().getFavorites();
-
+        this.settings = Convenience.getSettings();
         this.guidelines = [];
         this.items = [];
         this.tips = [];
@@ -183,8 +184,10 @@ var Fullscreen = class Fullscreen {
     @param N the number of sectors to calculate and drawing
     */
     _drawSectors(N) {
-
-        if (this.draw_at_mouse) {
+        DEBUG(N)
+        let R = this.settings.get_int('radius');
+        DEBUG(R);
+        if (this.settings.get_boolean('draw-at-mouse')) {
             var [x0, y0, mask] = global.get_pointer();
         } else {
             var [x0, y0] = [X / 2, Y / 2];
@@ -266,7 +269,7 @@ var Fullscreen = class Fullscreen {
             this.FSMenu.add_actor(this.tips[n])
             this.tips[n].set_position(x-(tx/2),y+dy/2 + 5)
             //guidelines :
-            if (this.draw_guides) {
+            if (this.settings.get_boolean('draw-guides')) {
                 this.guidelines[n] = new Clutter.Actor({
                     //"style": "guidelines",   //FIXME: can we do a clutter style?
                     "background_color": RED,
@@ -285,6 +288,7 @@ var Fullscreen = class Fullscreen {
     }
 
     destroy() {
+        this.FSMenu.destroy();
         DEBUG('fullscreen.destroy()')
 
     }
@@ -297,7 +301,7 @@ var Fullscreen = class Fullscreen {
             this.FSMenu.remove_actor(this.items[n]);
             this.FSMenu.remove_actor(this.tips[n]);
 
-            if (this.draw_guides) {
+            if (this.guidelines) {
                 this.FSMenu.remove_actor(this.guidelines[n])
             }
             this.entry_box.set_text('')
@@ -314,7 +318,7 @@ var Fullscreen = class Fullscreen {
         }
         this.is_open = true;
         //global.window_group.hide(); //makes screen fade
-        this._drawSectors(SECTORS);
+        this._drawSectors(this.settings.get_int('sectors'));
         this.FSMenu.show();
         this.entry_box.grab_key_focus();
         // this.actor.grab_mouse_focus()
