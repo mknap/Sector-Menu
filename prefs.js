@@ -78,18 +78,6 @@ function buildPrefsWidget() {
     // prefsWidget:
     // Reset Button
     {
-        // let title = new Gtk.Label({
-        //     // As described in "Extension Translations", the following template
-        //     // lit
-        //     // prefs.js:88: warning: RegExp literal terminated too early
-        //     //label: `<b>${Me.metadata.name} Extension Preferences</b>`,
-        //     label: '<b>' + ME + ' Preferences</b>',
-        //     halign: Gtk.Align.START,
-        //     use_markup: true,
-        //     visible: true
-        // });
-        // prefsWidget.attach(title, 0, 0, 2, 1);
-
         // The Reset Button
         // Create a label to describe our button and add it to the prefsWidget
         let buttonLabel = new Gtk.Label({
@@ -159,16 +147,17 @@ function buildPrefsWidget() {
         // let frame = new Gtk.VBox({}),
         //     lineitem,
         //     label;
-
+        let hbox = new Gtk.HBox({margin: 18,visible: true});
+        //Drawing prefs:
         let label = new Gtk.Label({
             label: '<b>Drawing preferences :</b>',
             use_markup: true,
             halign: Gtk.Align.START,
             visible: true,
         })
-        // sectorWidget.orientation=Gtk.Orientation.VERTICAL;
         frame.pack_start(label,false,false,0);
-    {
+
+        //draw-guides:
         label = new Gtk.Label({
             label: 'Draw guidelines',
             use_markup: true,
@@ -180,8 +169,118 @@ function buildPrefsWidget() {
             halign: Gtk.Align.END,
             visible: true
         })
+        this.settings.bind(
+            'draw-guides',
+            toggle,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        hbox.pack_start(label,false,false,0)
+        hbox.pack_end(toggle,false,false,0)
+        frame.pack_start(hbox,false,false,0)
 
-    }// sectorWidget.add(label);
+        //draw-at-mouse:
+        hbox = new Gtk.HBox();
+        label = new Gtk.Label({
+            label: 'Draw the sector menu at mouse',
+            use_markup: true,
+            halign: Gtk.Align.START,
+            visible: true,
+        })
+        toggle = new Gtk.Switch({
+            active: this.settings.get_boolean('draw-at-mouse'),
+            halign: Gtk.Align.END,
+            visible: true
+        })
+        this.settings.bind(
+            'draw-at-mouse',
+            toggle,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        hbox.pack_start(label,false,false,0)
+        hbox.pack_end(toggle,false,false,0)
+        frame.pack_start(hbox,false,false,0)
+
+        //TODO: Fix the iconsize in fullscreen.js
+        //icon-size:
+        hbox = new Gtk.HBox();
+        label = new Gtk.Label({
+            label: 'Icon size :',
+            use_markup: true,
+            halign: Gtk.Align.START,
+            visible: true,
+        })
+        let spin = new Gtk.SpinButton({
+            halign: Gtk.Align.END,
+            editable: true,
+            visible: true,
+        })
+        spin.set_range(16,256);
+        spin.set_increments(2,16);
+        spin.set_value(this.settings.get_int('icon-size'))
+        spin.connect(
+            'changed',
+            (a) => {
+                this.settings.set_int('icon-size', a.get_value())
+            })
+        hbox.pack_start(label,false,false,0)
+        hbox.pack_end(spin,false,false,0)
+        frame.pack_start(hbox,false,false,0)
+
+        //radius:
+        hbox = new Gtk.HBox();
+        label = new Gtk.Label({
+            label: 'Radius :',
+            use_markup: true,
+            halign: Gtk.Align.START,
+            visible: true,
+        })
+        spin = new Gtk.SpinButton({
+            //value: this.settings.get_value('radius'),
+            halign: Gtk.Align.END,
+            editable: true,
+            visible: true,
+        })
+        spin.set_range(16,512);
+        spin.set_value(this.settings.get_int('radius'))
+        spin.set_increments(2,16);
+        spin.connect(
+            'changed',
+            (a) => {
+                this.settings.set_int('radius', a.get_value())
+            })
+        hbox.pack_start(label,false,false,0)
+        hbox.pack_end(spin,false,false,0)
+        frame.pack_start(hbox,false,false,0)
+
+        //sectors:
+        hbox = new Gtk.HBox();
+        label = new Gtk.Label({
+            label: 'Number of sectors :',
+            use_markup: true,
+            halign: Gtk.Align.START,
+            visible: true,
+        })
+        spin = new Gtk.SpinButton({
+            //value: this.settings.get_value('radius'),
+            halign: Gtk.Align.END,
+            editable: true,
+            visible: true,
+        })
+        spin.set_range(3,16);
+        spin.set_value(this.settings.get_int('sectors'))
+        spin.set_increments(1,2);
+        spin.connect(
+            'changed',
+            (a) => {
+                this.settings.set_int('sectors', a.get_value())
+            })
+        hbox.pack_start(label,false,false,0)
+        hbox.pack_end(spin,false,false,0)
+        frame.pack_start(hbox,false,false,0)
+
+    // sectorWidget.add(label);
 
     //     label = new Gtk.Label({
     //         //style_class: 'label',
@@ -202,16 +301,14 @@ function buildPrefsWidget() {
         // })
         // sectorWidget.attach(menulabel, 0, 0, 2, 1)
 
-        frame.pack_start(new Gtk.Label({
+        frame.pack_start(
+            new Gtk.Label({
             label: '<b>Custom shortcuts : </b>',
             //style: 'label',
             use_markup: true,
             halign: Gtk.Align.START,
             visible: true,
         }),false,false,0)
-        //Create a label for 1 entry with text boxes to adjust the entry
-        ///FIXME////////////////////////////////////////////////////////////
-        let hbox = new Gtk.HBox({margin: 18,visible: true});
 
         let menus = this.settings.get_value('menu-entries').deep_unpack();
         let name1 = new Gtk.Entry({
@@ -226,7 +323,7 @@ function buildPrefsWidget() {
             visible: true,
             text: menus[0][1]
         })
-
+        hbox=new Gtk.HBox()
         hbox.pack_start(name1,false,false,0)
         hbox.pack_end(cmd1,false,false,0)
         frame.pack_start(hbox,false,false,0)
