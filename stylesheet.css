@@ -36,6 +36,11 @@
 .sectormenu-fullscreen *:hover {
     outline: 1px rgba(0, 255, 25, 0.98)
 }
+
+.prefs label{
+    visible: true;
+    use_markup: true;
+}
 /* search entry from /srs/gnome-shell/data/theme/gnome-shell-sass/_common.scss */
 
 /* .search-entry, %search_entry {

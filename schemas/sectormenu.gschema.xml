@@ -12,8 +12,11 @@
     <key name="show-favorites" type="b">
       <default>true</default>
     </key>
-
-
+    <key name="draw-guides" type="b">
+        <default>true</default>
+        <summary>Boolean to draw | not draw the guidelines of the sector menu.</summary>
+        <description></description>
+    </key>
     <!-- An array of string arrays: [['this', 'that'],['name','cmd']] -->
     <key type="aas" name="menu-entries">
         <default>[["Term","xfce4-terminal "]]</default>
@@ -23,13 +26,13 @@
     <key type="as" name="keybinding">
         <default><![CDATA[ ['<Super>z'] ]]></default>
         <summary>Keybinding  to switch to run menu 1.</summary>
-    <description>
-      Keybinding to switch to run menu item 1. Default menuitem 1 is a terminal.
-    </description>
+        <description>
+          Keybinding to switch to run menu item 1. Default menuitem 1 is a terminal.
+        </description>
     </key>
 
     <!-- For future use to add extra keys with copy/paste
-    <key type="s" name="name">
+    <key name="name" type="s">
         <default></default>
         <summary></summary>
         <description></description>

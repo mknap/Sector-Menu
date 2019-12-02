@@ -25,10 +25,9 @@ function init() {
 function buildPrefsWidget() {
 
     // settings, notebook container, and pages
-
     this.settings = Convenience.getSettings();
-    // Create a parent widget that we'll return from this function
 
+    // Create a parent widget that we'll return from this function
     let noteWidget = new Gtk.Notebook({
         visible: true
     });
@@ -64,11 +63,19 @@ function buildPrefsWidget() {
         row_spacing: 12,
         visible: true
     })
+    let frame = new Gtk.VBox({
+        margin: 0,
+        //column_spacing: 12,
+        // row_spacing: 12,
+        visible: true
+    })
 
-    noteWidget.append_page(sectorWidget, sectorTab)
+
+    noteWidget.append_page(frame, sectorTab)
     noteWidget.append_page(prefsWidget, prefsTab)
     noteWidget.append_page(aboutWidget, aboutTab)
 
+    // prefsWidget:
     // Reset Button
     {
         // let title = new Gtk.Label({
@@ -148,18 +155,64 @@ function buildPrefsWidget() {
 
     }
     // Sector Prefereces tab
-    //shortcut commands:
     {
-        let menuLabel = new Gtk.Label({
-            label: "<b>Custom shortcuts:</b>",
+        // let frame = new Gtk.VBox({}),
+        //     lineitem,
+        //     label;
+
+        let label = new Gtk.Label({
+            label: '<b>Drawing preferences :</b>',
             use_markup: true,
             halign: Gtk.Align.START,
+            visible: true,
+        })
+        // sectorWidget.orientation=Gtk.Orientation.VERTICAL;
+        frame.pack_start(label,false,false,0);
+    {
+        label = new Gtk.Label({
+            label: 'Draw guidelines',
+            use_markup: true,
+            halign: Gtk.Align.START,
+            visible: true,
+        })
+        let toggle = new Gtk.Switch({
+            active: this.settings.get_boolean('draw-guides'),
+            halign: Gtk.Align.END,
             visible: true
         })
-        sectorWidget.attach(menuLabel, 0, 0, 2, 1)
 
+    }// sectorWidget.add(label);
+
+    //     label = new Gtk.Label({
+    //         //style_class: 'label',
+    //         label: '<b>test</b>',
+    //         use_markup: true,
+    //         halign: Gtk.Align.START,
+    //         visible: true,
+    // })
+    //     frame.pack_start(label,false,false,0);
+
+        //Custom chortcuts:
+
+        // let menuLabel = new Gtk.Label({
+        //     label: "<b>Custom shortcuts:</b>",
+        //     use_markup: true,
+        //     halign: Gtk.Align.START,
+        //     visible: true
+        // })
+        // sectorWidget.attach(menulabel, 0, 0, 2, 1)
+
+        frame.pack_start(new Gtk.Label({
+            label: '<b>Custom shortcuts : </b>',
+            //style: 'label',
+            use_markup: true,
+            halign: Gtk.Align.START,
+            visible: true,
+        }),false,false,0)
         //Create a label for 1 entry with text boxes to adjust the entry
-        ////////////////////////////////////////////////////////////////////
+        ///FIXME////////////////////////////////////////////////////////////
+        let hbox = new Gtk.HBox({margin: 18,visible: true});
+
         let menus = this.settings.get_value('menu-entries').deep_unpack();
         let name1 = new Gtk.Entry({
             //active: true,
@@ -173,39 +226,45 @@ function buildPrefsWidget() {
             visible: true,
             text: menus[0][1]
         })
-        sectorWidget.attach(name1, 0, 1, 1, 1);
-        sectorWidget.attach(cmd1, 1, 1, 1, 1);
+
+        hbox.pack_start(name1,false,false,0)
+        hbox.pack_end(cmd1,false,false,0)
+        frame.pack_start(hbox,false,false,0)
+        // sectorWidget.attach(name1, 0, 1, 1, 1);
+        // sectorWidget.attach(cmd1, 1, 1, 1, 1);
 
 
         /////////////////////////////////////////////////////////////////////
         // For testing purposes,
         // And we will see how the entries are saved in our schema.
         ////////////////////////////////////////////////////////////////////
-        let name2 = new Gtk.Entry({
-            //active: true,
-            halign: Gtk.Align.END,
-            visible: true,
-        })
-        let cmd2 = new Gtk.Entry({
-            //active: true,
-            halign: Gtk.Align.END,
-            visible: true,
-        })
-        sectorWidget.attach(name2, 0, 2, 1, 1);
-        sectorWidget.attach(cmd2, 1, 2, 1, 1);
+        // let name2 = new Gtk.Entry({
+        //     //active: true,
+        //     halign: Gtk.Align.END,
+        //     visible: true,
+        // })
+        // let cmd2 = new Gtk.Entry({
+        //     //active: true,
+        //     halign: Gtk.Align.END,
+        //     visible: true,
+        // })
+        // sectorWidget.attach(name2, 0, 2, 1, 1);
+        // sectorWidget.attach(cmd2, 1, 2, 1, 1);
 
         // Bind the text of the gtk entries to our settings. Does this "save" the settings?
-    }
-    // Keybinding (TODO)
-    {
+
+    // Keybinding
+    // keyboard shortcuts:
+
         let key_label = new Gtk.Label({
             label: '<b>Keyboard : </b>',
             halign: Gtk.Align.START,
             use_markup : true,
             visible: true
         })
-        sectorWidget.attach(key_label, 0, 4, 1, 1);
-        /* ++++++++++++++++++++++++++++++++++++ Keyboard accelerator +++++
+        // sectorWidget.attach(key_label, 0, 4, 1, 1);
+        frame.pack_start(key_label,false,false,0);
+/* ++++++++++++++++++++++++++++++++++++ Keyboard accelerator +++++
         swiped from HideTopBar prefs.js@148
         */
         {
@@ -276,10 +335,13 @@ function buildPrefsWidget() {
 
             //settings_vbox.pack_start(settings_hbox, false, false, 3);
             settings_hbox.show_all();
-            sectorWidget.attach(settings_hbox, 0, 5, 1, 1);
+            // sectorWidget.attach(settings_hbox, 0, 5, 1, 1);
+            frame.pack_start(settings_hbox,false,false,0)
+            frame.show_all();
         }
-        /* ++++++++++++++++++++++++++++++++++++ End: Keyboard accelerator +++++ */
-        /*
+
+/* ++++++++++++++++++++++++++++++++++++ End: Keyboard accelerator +++++ */
+        /* OLD
         // key_label = new Gtk.Label({
         //     label: 'Accelerator binding to trigger sectors : >',
         //     use_markup: true,
@@ -313,8 +375,7 @@ function buildPrefsWidget() {
         // );
         */
     }
+
     // Return our widget which will be added to the window
-
-
     return noteWidget;
 }

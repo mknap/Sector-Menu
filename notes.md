@@ -1,6 +1,6 @@
 # Notes
 
-I hvae never written an extension before, so a lot of the work here is slow going and I'm learning as I go. (I have programmed before)
+I have never written an extension before, so a lot of the work here is slow going and I'm learning as I go. (I have programmed before)
 ## ToDo for Sector menu
 - [x] [11-22](#getting-a-keybinding) Get a keybinding
 - [X] [11-23,11-24](#got-fullscreen)Get a full screen window
