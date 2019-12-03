@@ -1,6 +1,10 @@
 # Notes
 
-I have never written an extension before, so a lot of the work here is slow going and I'm learning as I go. (I have programmed before)
+In the last few weeks( since the initial commit of this project ), I have used this work to propel my study and use of
+- [x] `javascript` and `gjs`, a gnome javascript interpreter for the gnome shell
+- [x] `git` and [https://github.com] to track this code Projects
+- [x] `atom' the text editor
+- [x] `Clutter`, `St`, and `Gtk` -- various APIs and components to interact with gnome-shell and this extensions
 ## ToDo for Sector menu
 - [x] [11-22](#getting-a-keybinding) Get a keybinding
 - [X] [11-23,11-24](#got-fullscreen)Get a full screen window
@@ -19,6 +23,7 @@ A lot of these are in the code at the moment for references, but they will at so
 * https://wiki.gnome.org/Projects/GnomeShell/Extensions/Writing Another good oveerview
 * https://wiki.gnome.org/Projects/GnomeShell/Extensions Reference material
 * https://gitlab.gnome.org/GNOME/gnome-shell/blob/master/js/misc/extensionUtils.js This is something I ran across that taught me a new syntax for imports. I like it better as it is more concise.
+<details>
 ```JavaScript
 const { Gio, GLib } = imports.gi;
 ```
@@ -27,6 +32,7 @@ vs.
 const Gio =  imports.gi.Gio;
 const GLib = imports.gi.GLib;
 ```
+</details>
 * [https://iacopodeenosee.wordpress.com/2013/03/10/simple-guide-to-improve-your-own-extension-on-gnome-shell/] [Simple ] Hnady list of other links.
 
 ### Working on some new stuff
