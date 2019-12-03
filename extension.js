@@ -170,6 +170,18 @@ extends PanelMenu.Button {
         );
         */
 
+            /* BIG NOTE
+            from https://unix.stackexchange.com/questions/388238/how-to-set-super-windows-key-to-show-all-applications-menu-in-gnome-de
+
+            Running
+                settings set org.gnome.mutter overlay-key ''
+            removes the hard keybind of the win key. This can be undone with
+                 gsettings set org.gnome.mutter overlay-key "['Super_L']"
+            And this should be able to be done within the javascript.
+
+            One problem that occurs is that other key combinations are then usurped. We should be able to wirte a pass-thru function ?
+            */
+
             Main.wm.addKeybinding(
                 "keybinding",
                 this.settings,
@@ -180,6 +192,19 @@ extends PanelMenu.Button {
                 //Lang.bind(this, this._keyAction)
                 this._keyAction.bind(this)
             );
+
+            Main.wm.allowKeybinding('toggle-overview', Shell.ActionMode.ALL);
+            Main.wm.setCustomKeybindingHandler(
+                'toggle-overview',
+                ShellActionMode.ALL,
+                this._keyAction.bind(this)
+            )
+            // Main.wm.allowKeybinding('toggle-application-view',  Shell.ActionMode.ALL);
+            // Main.wm.setCustomKeybindingHandler(
+            //     'toggle-application-view',
+            //     ShellActionMode.ALL,
+            //     this._keyAction.bind(this)
+            // )
 
             //this is from viewSelector.js@221 and @228
             // doesn't seem to usurp the key though
@@ -231,6 +256,7 @@ extends PanelMenu.Button {
 
     _onKeybindingChanged(settings, key){
         DEBUG(`_onKeybindingChanged() ${key}`);
+
         Main.wm.addKeybinding(
             "keybinding",
             this.settings,
@@ -302,6 +328,7 @@ extends PanelMenu.Button {
         for (let [name, visibility] of Object.entries(this.states)) {
             Main.panel.statusArea[name].visible = visibility;
         }
+        Main.wm.removeKeybinding('keybinding')
 
         // Chain-up to the super-class after we've done our own cleanup
         this.fullscreen.destroy();

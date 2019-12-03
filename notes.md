@@ -6,7 +6,7 @@ I have never written an extension before, so a lot of the work here is slow goin
 - [X] [11-23,11-24](#got-fullscreen)Get a full screen window
 - [X] Learn how to draw on the window [11-26] See the commit.
 - [x] [11-22](ui.appFavorites.js)load favorites from gnome ?
-- [ ] save preferences so we can make our own menus
+- [X] [11-30 - 12-2] save preferences so we can make our own menus
 - [ ] ~start working with glade to make the prefs menu more accessible~
 - [X] [11-30](sortof)icons for menus?
 - [ ] Make up some default stuff for myself, ssh commands, hue commands, getCurrentExtension
@@ -53,3 +53,20 @@ Able to get a list of favorite apps from gnome shell. Now working on how to run 
 ### Got Fullscreen
 ###### Finally
 It seems that the key I was missing was `Main.uiGroup.add_actor()` to display the content I was trying to create. (Now I get to try to make my content). Also, after reading more source, it seems that it really should be `Main.layoutManager.uiGroup.add_actor()`
+
+
+## Using the `<Super>` key alone
+I stumbled across [https://unix.stackexchange.com/questions/388238/how-to-set-super-windows-key-to-show-all-applications-menu-in-gnome-de]
+
+And with few a more tweaks, I can now bind the shortcut to the lone `<Super_L>` key! I have a few more questions, like why `gsettings set|get ` doesn't see the extensions path `org.gnome.shell.extensions.*` where all the extensions schemas are held. There is a little hack, though:  I can't specifically set my extension to the `<Super_L>` key, but I can set
+``` gsettings set org.gnome.shell.keybindings toggle-overview "['Super_L']" ```
+Then, inside the extension code, we can use
+```js
+setCustomKeybindingHandler(
+    'toggle-overview',
+    ShellActionMode.ALL,
+    this._keyAction.bind(this))
+```
+to set the key handler to our own extension code.
+
+More to come.

@@ -152,7 +152,7 @@ var Fullscreen = class Fullscreen {
 
     _entryKeyPressEvent(actor, event) { //TODO: why is this params (a,e)?
         let symbol = event.get_key_symbol();
-        DEBUG(symbol);
+        // DEBUG(symbol);
         if (symbol === Clutter.KEY_Escape) {
             if (actor.get_text()) {
                 actor.set_text('');
@@ -184,9 +184,9 @@ var Fullscreen = class Fullscreen {
     @param N the number of sectors to calculate and drawing
     */
     _drawSectors(N) {
-        DEBUG(N)
+        // DEBUG(N)
         let R = this.settings.get_int('radius');
-        DEBUG(R);
+        // DEBUG(R);
         if (this.settings.get_boolean('draw-at-mouse')) {
             var [x0, y0, mask] = global.get_pointer();
         } else {
@@ -215,6 +215,7 @@ var Fullscreen = class Fullscreen {
                 let icon = new St.Icon({
                     gicon: gicon,
                     style_class: 'launcher-icon',
+                    //icon-size: this.settings.get_int('icon-size'),
                     visible: true,
                     opacity: 255,
                 });
@@ -253,7 +254,7 @@ var Fullscreen = class Fullscreen {
             //         this._onButtonPress.bind(this));
 
             let [dx,dy] = [128,128];
-            DEBUG(`dx: ${dx}, dy:${dy}`)
+            // DEBUG(`dx: ${dx}, dy:${dy}`)
             this.items[n].set_position(x - dx / 2, y - dy / 2)
             this.items[n].opacity = 175;
             // playing around with Tweener
@@ -265,7 +266,7 @@ var Fullscreen = class Fullscreen {
 
             this.FSMenu.add_actor(this.items[n])
             let [tx,ty] = this.tips[n].get_size();
-            DEBUG(`tx: ${tx}, ty:${ty}`)
+            // DEBUG(`tx: ${tx}, ty:${ty}`)
             this.FSMenu.add_actor(this.tips[n])
             this.tips[n].set_position(x-(tx/2),y+dy/2 + 5)
             //guidelines :
@@ -301,7 +302,7 @@ var Fullscreen = class Fullscreen {
             this.FSMenu.remove_actor(this.items[n]);
             this.FSMenu.remove_actor(this.tips[n]);
 
-            if (this.guidelines) {
+            if (this.settings.get_boolean('draw-guides')) {
                 this.FSMenu.remove_actor(this.guidelines[n])
             }
             this.entry_box.set_text('')

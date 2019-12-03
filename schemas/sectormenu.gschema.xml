@@ -6,12 +6,14 @@
     <key name="panel-states" type="a{sb}">
       <default>{}</default>
     </key>
+
     <key name="show-indicator" type="b">
       <default>true</default>
     </key>
     <key name="show-favorites" type="b">
       <default>true</default>
     </key>
+
     <key name="draw-guides" type="b">
         <default>true</default>
         <summary>Boolean to draw | not draw the guidelines of the sector menu.</summary>
@@ -48,7 +50,7 @@
         <description></description>
     </key>
     <key type="as" name="keybinding">
-        <default><![CDATA[ ['<Super>z'] ]]></default>
+        <default><![CDATA[ ['Super_L'] ]]></default>
         <summary>Keybinding  to switch to run menu 1.</summary>
         <description>
           Keybinding to switch to run menu item 1. Default menuitem 1 is a terminal.
