@@ -424,10 +424,10 @@ function buildPrefsWidget() {
     })
     icon = new Gtk.Image({
         file: `${Me.path}/icons/sector-icon.svg`,
-        style_class: 'system-status-icon',
+        // style_class: 'system-status-icon',
         visible: true,
-        pixel_size: 16,
-        icon_size: 20,
+        pixel_size: 0,
+        icon_size: 0,
         halign: Gtk.Align.START,
         valign: Gtk.Align.START,
     })
@@ -440,11 +440,10 @@ function buildPrefsWidget() {
     })
 
 
-
-    grid.attach(name,0,0,1,2);
+    // grid.attach (widget,col,row,width,height)
+    grid.attach(name,0,0,2,1);
     grid.attach(icon,0,1,1,1);
-
-    grid.attach(desc,1,0,2,2)
+    grid.attach(desc,0,2,2,1)
 
     noteWidget.append_page(grid, aboutTab)
     // Return our widget which will be added to the window
