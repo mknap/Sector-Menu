@@ -20,4 +20,4 @@ TODO:
 
 ## Follow the notes
  Just curious. Can we reference other files from within the markdown?
- For example, can we go to [notes.md] ?
+ For example, can we go to [Notes](notes.md) ?
