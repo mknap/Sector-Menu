@@ -3,7 +3,7 @@
 In the last few weeks( since the initial commit of this project ), I have used this work to propel my study and use of
 - [x] `javascript` and `gjs`, a gnome javascript interpreter for the gnome shell
 - [x] `git` and [https://github.com] to track this code Projects
-- [x] `atom' the text editor
+- [x] `atom` and many packages the text editor
 - [x] `Clutter`, `St`, and `Gtk` -- various APIs and components to interact with gnome-shell and this extensions
 ## ToDo for Sector menu
 - [x] [11-22](#getting-a-keybinding) Get a keybinding

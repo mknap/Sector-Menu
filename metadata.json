@@ -1,9 +1,11 @@
 {
   "name": "Sector Menu",
-  "description": "Create a menu in the form of several sectors under the mouse for quick access to launchers and other items. ",
-  "uuid": "sectormenu@myfirstextension.edu",
-  "version": 1,
+  "description": "A gnome shell extension which provides quick access to a configurable set of applications and shortcuts. The extension also provides quick access to a command line and developer tool shortcuts. ",
+  "uuid": "sectormenu@mknap.github.com",
+  "version": "3-dev",
   "shell-version": ["3.34"],
   "settings-schema": "org.gnome.shell.extensions.sectormenu",
-  "url": "UNDEFINED"
+  "url": "http://github.com/mknap/sector-menu",
+  "original-author" : "Mike Knap",
+
 }
