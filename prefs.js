@@ -1,27 +1,20 @@
 // Preferences for my extension. Example from  example
 // https://wiki.gnome.org/Projects/GnomeShell/Extensions/Writing#Preferences_Window
 
-'use strict'; // Is this really neccessary?
-
 const GLib = imports.gi.GLib;
 const Gtk = imports.gi.Gtk;
 const Gio = imports.gi.Gio;
 const GObject = imports.gi.GObject;
 
-// It's common practice to keep GNOME API and JS imports in separate blocks
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const ME = Me.metadata.name;
 const Convenience = Me.imports.convenience;
 
-// const DEBUG = Convenience.DEBUG
-// Like `extension.js` this is used for any one-time setup like translations.
 function init() {
     log(`initializing ${Me.metadata.name} Preferences`);
 }
 
-// This function is called when the preferences window is first created to build
-// and return a Gtk widget. As an example we'll create and return a GtkLabel.
 function buildPrefsWidget() {
 
     // settings, notebook container, and pages
@@ -51,12 +44,12 @@ function buildPrefsWidget() {
         row_spacing: 12,
         visible: true
     });
-    let aboutWidget = new Gtk.Grid({
-        margin: 18,
-        column_spacing: 12,
-        row_spacing: 12,
-        visible: true
-    })
+    // let aboutWidget = new Gtk.Grid({
+    //     margin: 18,
+    //     column_spacing: 12,
+    //     row_spacing: 12,
+    //     visible: true
+    // })
     let sectorWidget = new Gtk.Grid({
         margin: 18,
         column_spacing: 12,
@@ -73,10 +66,9 @@ function buildPrefsWidget() {
 
     noteWidget.append_page(frame, sectorTab)
     noteWidget.append_page(prefsWidget, prefsTab)
-    noteWidget.append_page(aboutWidget, aboutTab)
+
 
     // prefsWidget:
-    // Reset Button
     {
         // The Reset Button
         // Create a label to describe our button and add it to the prefsWidget
@@ -327,31 +319,6 @@ function buildPrefsWidget() {
         hbox.pack_start(name1,false,false,0)
         hbox.pack_end(cmd1,false,false,0)
         frame.pack_start(hbox,false,false,0)
-        // sectorWidget.attach(name1, 0, 1, 1, 1);
-        // sectorWidget.attach(cmd1, 1, 1, 1, 1);
-
-
-        /////////////////////////////////////////////////////////////////////
-        // For testing purposes,
-        // And we will see how the entries are saved in our schema.
-        ////////////////////////////////////////////////////////////////////
-        // let name2 = new Gtk.Entry({
-        //     //active: true,
-        //     halign: Gtk.Align.END,
-        //     visible: true,
-        // })
-        // let cmd2 = new Gtk.Entry({
-        //     //active: true,
-        //     halign: Gtk.Align.END,
-        //     visible: true,
-        // })
-        // sectorWidget.attach(name2, 0, 2, 1, 1);
-        // sectorWidget.attach(cmd2, 1, 2, 1, 1);
-
-        // Bind the text of the gtk entries to our settings. Does this "save" the settings?
-
-    // Keybinding
-    // keyboard shortcuts:
 
         let key_label = new Gtk.Label({
             label: '<b>Keyboard : </b>',
@@ -438,41 +405,48 @@ function buildPrefsWidget() {
         }
 
 /* ++++++++++++++++++++++++++++++++++++ End: Keyboard accelerator +++++ */
-        /* OLD
-        // key_label = new Gtk.Label({
-        //     label: 'Accelerator binding to trigger sectors : >',
-        //     use_markup: true,
-        //     halign: Gtk.Align.START,
-        //     visible: true
-        // })
-        // sectorWidget.attach(key_label, 0, 5, 1, 1);
-        //
-        // let k=this.settings.get_strv("keybinding")[0]
-        // if (k) {
-        //     let [binding_key, binding_mods] = Gtk.accelerator_parse(k);
-        // } else {
-        //     let [binding_key, binding_mods] = [0, 0];
-        // }
-        //
-        // let key_entry = new Gtk.Entry({
-        //     text: k ,
-        //     //halign: Gtk.Align.END,
-        //     visible: true,
-        // })
-        //
-        //
-        // sectorWidget.attach(key_entry, 1, 5, 1, 1);
 
-        // bind the text of the keyboard shortcut to the schema 'keybinding' key
-        // this.settings.bind(
-        //     'keybinding',
-        //     key_entry,
-        //     'text',
-        //     Gio.SettingsBindFlags.DEFAULT
-        // );
-        */
     }
 
+    //aboutWidget :
+    let grid = new Gtk.Grid({
+        visible: true,
+        row_spacing : 6,
+        column_spacing : 8,
+    });
+    let name, icon, meta, desc;
+    name = new Gtk.Label({
+        visible : true,
+        margin : 12,
+        label : "Sector Menu",
+        single_line_mode : true,
+        // font: "Sans Bold 40"
+    })
+    icon = new Gtk.Image({
+        file: `${Me.path}/icons/sector-icon.svg`,
+        style_class: 'system-status-icon',
+        visible: true,
+        pixel_size: 16,
+        icon_size: 20,
+        halign: Gtk.Align.START,
+        valign: Gtk.Align.START,
+    })
+    desc=new Gtk.Label({
+        visible: true,
+        margin: 32,
+        label: Me.metadata['description'],
+        wrap: true,
+        use_markup: true,
+    })
+
+
+
+    grid.attach(name,0,0,1,2);
+    grid.attach(icon,0,1,1,1);
+
+    grid.attach(desc,1,0,2,2)
+
+    noteWidget.append_page(grid, aboutTab)
     // Return our widget which will be added to the window
     return noteWidget;
 }

@@ -5,12 +5,18 @@
     border-color: red;
     border: 1;
     padding: 5px;
+    opacity: 255;
     color: white;
 }
 
 .sectormenu-fullscreen .content {
     border-color: red;
     color: white;
+}
+
+.sectormenu-fullscreen .info {
+    border-color: red;
+    color: rgba(255, 255, 255, 1);
 }
 
 .sectormenu-fullscreen .guidelines {

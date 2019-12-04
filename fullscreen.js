@@ -17,6 +17,7 @@ const AppFavorites = imports.ui.appFavorites;
 const AppDisplay = imports.ui.appDisplay;
 const Layout = imports.ui.layout;
 const Main = imports.ui.main;
+
 // const PopupMenu = imports.ui.popupMenu;
 const ShellEntry = imports.ui.shellEntry;
 const Tweener =imports.ui.tweener;
@@ -135,12 +136,24 @@ var Fullscreen = class Fullscreen {
         this.entry_box.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS); //TODO : What does this do?
         this.FSMenu.add_actor(this.entry_box)
 
-        //Main.layoutManager.uiGroup.add_actor(this.FSMenu);
+        let info = new St.Label({
+            visible: true,
+            reactive: false,
+            style_class: 'info',
+        })
+        info.set_text(
+            Me.metadata['name'] +
+            ' Version ' +
+            Me.metadata['version']
+        );
+        this.FSMenu.add_actor(info)
+
         this.FSMenu.connect(
             'scroll-event',
             this._onScrollEvent.bind(this)
         )
 
+        //Main.layoutManager.uiGroup.add_actor(this.FSMenu);
         Main.layoutManager.addChrome(this.FSMenu);
         DEBUG('fullscreen.constructor DONE.')
     }
@@ -152,7 +165,7 @@ var Fullscreen = class Fullscreen {
 
     _entryKeyPressEvent(actor, event) { //TODO: why is this params (a,e)?
         let symbol = event.get_key_symbol();
-        // DEBUG(symbol);
+         DEBUG(symbol);
         if (symbol === Clutter.KEY_Escape) {
             if (actor.get_text()) {
                 actor.set_text('');
