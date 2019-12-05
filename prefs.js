@@ -95,6 +95,7 @@ function buildPrefsWidget() {
     noteWidget.append_page(frame, sectorTab)
     //noteWidget.append_page(prefsWidget, prefsTab)
 
+ 
 
     // prefsWidget:
 
