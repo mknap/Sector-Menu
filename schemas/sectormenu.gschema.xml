@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
   <schema id="org.gnome.shell.extensions.sectormenu" path="/org/gnome/shell/extensions/sectormenu/">
-    <!-- The key type "a{sb}" describes a dictionary of string-boolean pairs -->
-    <!-- See also: https://developer.gnome.org/glib/stable/gvariant-format-strings.html -->
+
     <key name="panel-states" type="a{sb}">
       <default>{}</default>
     </key>
@@ -50,11 +49,9 @@
         <description></description>
     </key>
     <key type="as" name="keybinding">
-        <default><![CDATA[ ['Super_L'] ]]></default>
-        <summary>Keybinding  to switch to run menu 1.</summary>
-        <description>
-          Keybinding to switch to run menu item 1. Default menuitem 1 is a terminal.
-        </description>
+        <default><![CDATA[ ['<Super>z'] ]]></default>
+        <summary>Keybinding to show the sector menu.</summary>
+        <description></description>
     </key>
 
     <!-- For future use to add extra keys with copy/paste
