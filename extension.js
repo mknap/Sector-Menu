@@ -18,16 +18,132 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* exported init */
+ const {
+     Gio,
+     Meta,
+     Shell,
+     St
+ } = imports.gi;
+
+const Main = imports.ui.main;
+const PanelMenu = imports.ui.panelMenu;
+
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+
+const Convenience = Me.imports.convenience;
+
+const DEBUG = function (message) {
+    // Enable for debugging purposes.
+    //if(true) global.log(Date().substr(16,8) + Me.metadata.name + message);
+
+    //TODO : make this more versatile with options, info, warn, etc.
+   if(true) global.log( "[" + Me.metadata.name + "] " + message);
+}
+const ShellActionMode = (Shell.ActionMode) ? Shell.ActionMode : Shell.KeyBindingMode;
+
 
 class Extension {
     constructor() {
+        DEBUG(' ~-~--={ Starting Sector Menu }=-~-~ ')
+        DEBUG('constructor() begin...')
+
+        DEBUG(' + getting settings')
+        this.settings = Convenience.getSettings();
+
+        DEBUG('constructor() Done.')
+        Main.notify(Me.metadata.name + " loaded.")
     }
 
     enable() {
+        DEBUG('enable() begin...')
+
+        /* BIG NOTE
+        from https://unix.stackexchange.com/questions/388238/how-to-set-super-windows-key-to-show-all-applications-menu-in-gnome-de
+
+        Running
+            settings set org.gnome.mutter overlay-key ''
+        removes the hard keybind of the win key. This can be undone with
+             gsettings set org.gnome.mutter overlay-key "['Super_L']"
+        And this should be able to be done within the javascript.
+
+        One problem that occurs is that other key combinations are then usurped. We should be able to wirte a pass-thru function ?
+        */
+        DEBUG(' + setting keybinding')
+        Main.wm.addKeybinding(
+            "keybinding",
+            this.settings,
+            Meta.KeyBindingFlags.NONE,
+            ShellActionMode.NORMAL |
+            ShellActionMode.OVERVIEW,
+            /** See https://gitlab.gnome.org/GNOME/gjs/blob/master/doc/Modules.md */
+            //Lang.bind(this, this._keyAction)
+            this._keyAction.bind(this)
+        );
+        //Main.wm.allowKeybinding('toggle-overview', Shell.ActionMode.ALL);
+        // Create a setting for the Handler takeover
+
+        //TODO: create a setting for this:
+        Main.wm.setCustomKeybindingHandler(
+            'toggle-overview',
+            ShellActionMode.ALL,
+            this._keyAction.bind(this)
+        )
+
+        DEBUG(' + constructing icon and panel indicator')
+        this.gicon = Gio.icon_new_for_string(Me.path + '/icons/sector-icon.svg');
+        this.indicator = new PanelMenu.Button(0.0, Me.metadata.name, false);
+        this.indicator.add_child(
+            new St.Icon({
+                gicon: this.gicon,
+                style_class: 'system-status-icon'
+            })
+        );
+        Main.panel.addToStatusArea(Me.metadata.name, this.indicator);
+
+
+        DEBUG(' + setting bindings')
+        this.settings.bind(
+            'show-indicator',
+            this.indicator,
+            'visible',
+            Gio.SettingsBindFlags.DEFAULT
+        )
+
+
+        DEBUG('enable() Done.')
     }
 
     disable() {
+        DEBUG('disable() begin...')
+
+        DEBUG(' + destroying')
+        if (this.indicator!== null) {
+            this.indicator.destroy();
+            this.indicator=null;
+        }
+
+        DEBUG(' + resetting keybindings')
+        Main.wm.removeKeybinding('keybinding') //TODO: needed ?
+        //If we took over the <super> key, give it back
+        // from viewselector@228
+        Main.wm.addKeybinding('toggle-overview',
+                              new Gio.Settings({ schema_id: 'org.gnome.shell.keybindings' }),
+                              Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+                              Shell.ActionMode.NORMAL |
+                              Shell.ActionMode.OVERVIEW,
+                              Main.overview.toggle.bind(Main.overview));
+
+        DEBUG('disable() Done.')
+    }
+
+    _keyAction() {
+        //Toggle the fullscreen meenu with keybinding
+        DEBUG('_keyAction()')
+        // if (!this.fullscreen) {
+        //     this.fullscreen = new Fullscreen.Fullscreen(0); //FIXME: monitor 0 temp
+        // }
+        // this.fullscreen.toggle();
     }
 }
 
