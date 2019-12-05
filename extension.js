@@ -71,7 +71,7 @@ class Extension {
         */
         DEBUG(' + setting keybinding')
         Main.wm.addKeybinding(
-            "keybinding",
+            "toggle-sector-menu",
             this.settings,
             Meta.KeyBindingFlags.NONE,
             ShellActionMode.NORMAL |
@@ -124,15 +124,14 @@ class Extension {
         }
 
         DEBUG(' + resetting keybindings')
-        Main.wm.removeKeybinding('keybinding') //TODO: needed ?
+        Main.wm.removeKeybinding('toggle-sector-menu') //TODO: needed ?
         //If we took over the <super> key, give it back
         // from viewselector@228
-        Main.wm.addKeybinding('toggle-overview',
-                              new Gio.Settings({ schema_id: 'org.gnome.shell.keybindings' }),
-                              Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
-                              Shell.ActionMode.NORMAL |
-                              Shell.ActionMode.OVERVIEW,
-                              Main.overview.toggle.bind(Main.overview));
+        Main.wm.setCustomKeybindingHandler(
+            'toggle-overview',
+            ShellActionMode.ALL,
+            Main.overview.toggle.bind(Main.overview)
+        )
 
         DEBUG('disable() Done.')
     }

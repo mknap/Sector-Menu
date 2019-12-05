@@ -48,7 +48,7 @@
         <summary>These entries should ?? look like {{"name","command"},...{s,s}}</summary>
         <description></description>
     </key>
-    <key type="as" name="keybinding">
+    <key type="as" name="toggle-sector-menu">
         <default><![CDATA[ ['<Super>z'] ]]></default>
         <summary>Keybinding to show the sector menu.</summary>
         <description></description>
