@@ -1,15 +1,27 @@
 /* fullscreen.js
- Based upon fullscreen.js from gnome-shell/extensions/timepp@zagortenay333
-
- I am commenting all that I don't need (until I need them) to help me leann the neccessary parts of displaying a fullscreen window.
-
+*
+* Copyright (c) Mike Knap 2019
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+* SPDX-License-Identifier: GPL-2.0-or-later
 */
 
+
 const Clutter = imports.gi.Clutter;
-// const Gtk       = imports.gi.Gtk;
 const Meta = imports.gi.Meta;
 const St = imports.gi.St;
-// const Pango     = imports.gi.Pango;
 
 const Signals = imports.signals;
 
@@ -18,18 +30,22 @@ const AppDisplay = imports.ui.appDisplay;
 const Layout = imports.ui.layout;
 const Main = imports.ui.main;
 
-// const PopupMenu = imports.ui.popupMenu;
 const ShellEntry = imports.ui.shellEntry;
 const Tweener =imports.ui.tweener;
 
 const ExtensionUtils = imports.misc.extensionUtils;
-//const Signals   = imports.signals;
 const Util = imports.misc.util;
 
-//const ME = imports.misc.extensionUtils.getCurrentExtension();
 const Me = ExtensionUtils.getCurrentExtension()
 const Convenience = Me.imports.convenience;
-const DEBUG = Convenience.DEBUG;
+
+const DEBUG = function (message) {
+    // Enable for debugging purposes.
+    //if(true) global.log(Date().substr(16,8) + Me.metadata.name + message);
+
+    //TODO : make this more versatile with options, info, warn, etc.
+   if(true) global.log( "[" + Me.metadata.name + "] " + message);
+}
 
 /** Some constants for clutter colors: */
 
@@ -80,12 +96,9 @@ const Y = 1080;
 
 var Fullscreen = class Fullscreen {
 
-    constructor() {
+    constructor(settings) {
         DEBUG(`fullscreen.constructor()...`)
         this.is_open = false;
-        // this.draw_at_mouse = true;
-        // this.draw_guides = true;
-
         this.monitor = Main.layoutManager.currentMonitor;
         this.favs = AppFavorites.getAppFavorites().getFavorites();
         this.settings = Convenience.getSettings();

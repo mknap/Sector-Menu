@@ -1,5 +1,24 @@
-// Preferences for my extension. Example from  example
-// https://wiki.gnome.org/Projects/GnomeShell/Extensions/Writing#Preferences_Window
+/* prefs.js
+*
+* Copyright (c) Mike Knap 2019
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+* SPDX-License-Identifier: GPL-2.0-or-later
+*/
+
+// See https://wiki.gnome.org/Projects/GnomeShell/Extensions/Writing#Preferences_Window
 
 const GLib = imports.gi.GLib;
 const Gtk = imports.gi.Gtk;
@@ -8,11 +27,18 @@ const GObject = imports.gi.GObject;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const ME = Me.metadata.name;
 const Convenience = Me.imports.convenience;
 
+const DEBUG = function (message) {
+    // Enable for debugging purposes.
+    //if(true) global.log(Date().substr(16,8) + Me.metadata.name + message);
+
+    //TODO : make this more versatile with options, info, warn, etc.
+   if(true) global.log( "[" + Me.metadata.name + "] " + message);
+}
+
 function init() {
-    log(`initializing ${Me.metadata.name} Preferences`);
+    DEBUG(` ~-~-={ Initializing ${Me.metadata.name} Preferences }=-~-~ `);
 }
 
 function buildPrefsWidget() {
@@ -25,25 +51,27 @@ function buildPrefsWidget() {
         visible: true
     });
 
-    let prefsTab = new Gtk.Label({
-        visible: true,
-        label: 'Panel Indicator Settings'
-    })
+    //let prefsTab = new Gtk.Label({
+    //     visible: true,
+    //     label: 'Panel Indicator Settings'
+    // })
+
     let aboutTab = new Gtk.Label({
         visible: true,
         label: 'About'
     })
+
     let sectorTab = new Gtk.Label({
         visible: true,
         label: 'Sector Menu Preferences'
     })
 
-    let prefsWidget = new Gtk.Grid({
-        margin: 18,
-        column_spacing: 12,
-        row_spacing: 12,
-        visible: true
-    });
+    //let prefsWidget = new Gtk.Grid({
+    //     margin: 18,
+    //     column_spacing: 12,
+    //     row_spacing: 12,
+    //     visible: true
+    // });
     // let aboutWidget = new Gtk.Grid({
     //     margin: 18,
     //     column_spacing: 12,
@@ -63,13 +91,13 @@ function buildPrefsWidget() {
         visible: true
     })
 
-
+    let grid;
     noteWidget.append_page(frame, sectorTab)
-    noteWidget.append_page(prefsWidget, prefsTab)
+    //noteWidget.append_page(prefsWidget, prefsTab)
 
 
     // prefsWidget:
-    {
+
         // The Reset Button
         // Create a label to describe our button and add it to the prefsWidget
         let buttonLabel = new Gtk.Label({
@@ -77,32 +105,32 @@ function buildPrefsWidget() {
             halign: Gtk.Align.START,
             visible: true
         });
-        prefsWidget.attach(buttonLabel, 0, 1, 1, 1);
+        // prefsWidget.attach(buttonLabel, 0, 1, 1, 1);
 
         // Create a 'Reset' button and add it to the prefsWidget
         let button = new Gtk.Button({
             label: 'Reset Panel',
             visible: true
         });
-        prefsWidget.attach(button, 1, 1, 1, 1);
+        //prefsWidget.attach(button, 1, 1, 1, 1);
 
         // Connect the ::clicked signal to reset the stored settings
         button.connect('clicked', (button) => this.settings.reset('panel-states'));
-    }
+
     // Toggle Switches to show the indicator, panel items, favorites, etc
-    {
+
         let toggleLabel = new Gtk.Label({
             label: 'Show Extension Indicator:',
             halign: Gtk.Align.START,
             visible: true
         });
-        prefsWidget.attach(toggleLabel, 0, 2, 1, 1);
+        //prefsWidget.attach(toggleLabel, 0, 2, 1, 1);
         let toggle = new Gtk.Switch({
             active: this.settings.get_boolean('show-indicator'),
             halign: Gtk.Align.END,
             visible: true
         });
-        prefsWidget.attach(toggle, 1, 2, 1, 1);
+        //prefsWidget.attach(toggle, 1, 2, 1, 1);
         // Bind the switch to the `show-indicator` key
         this.settings.bind(
             'show-indicator',
@@ -124,8 +152,8 @@ function buildPrefsWidget() {
             halign: Gtk.Align.END,
             visible: true
         })
-        prefsWidget.attach(toggleLabel, 0, 3, 1, 1);
-        prefsWidget.attach(favToggle, 1, 3, 1, 1);
+        //prefsWidget.attach(toggleLabel, 0, 3, 1, 1);
+        //prefsWidget.attach(favToggle, 1, 3, 1, 1);
         this.settings.bind(
             'show-favorites',
             favToggle,
@@ -133,7 +161,7 @@ function buildPrefsWidget() {
             Gio.SettingsBindFlags.DEFAULT
         );
 
-    }
+
     // Sector Prefereces tab
     {
         // let frame = new Gtk.VBox({}),
@@ -340,7 +368,7 @@ function buildPrefsWidget() {
                 GObject.TYPE_INT
             ]);
             let model_row = model.append();
-            let binding = settings.get_strv('keybinding')[0];
+            let binding = settings.get_strv('toggle-sector-menu')[0];
             let binding_key, binding_mods;
             if (binding) {
                 [binding_key, binding_mods] = Gtk.accelerator_parse(binding);
@@ -364,7 +392,7 @@ function buildPrefsWidget() {
                 }
 
                 model.set(iterator, [0, 1], [binding_mods, binding_key]);
-                settings.set_strv('keybinding', [value]);
+                settings.set_strv('toggle-sector-menu', [value]);
             });
 
             cellrend.connect('accel-cleared', function(rend, iter, binding_key, binding_mods) {
@@ -375,7 +403,7 @@ function buildPrefsWidget() {
                 }
 
                 model.set(iterator, [0, 1], [0, 0]);
-                settings.set_strv('keybinding', []);
+                settings.set_strv('toggle-sector-menu', []);
             });
 
             let treeview_col = new Gtk.TreeViewColumn({ min_width: 200 });
@@ -386,13 +414,13 @@ function buildPrefsWidget() {
             treeview.set_headers_visible(false);
 
             settings_hbox.pack_start(new Gtk.Label({
-                label: "Key that triggers the bar to be shown.",
+                label: "Key that triggers the sectors to be shown.",
                 use_markup: true,
                 xalign: 0
             }), true, true, 0);
             settings_hbox.pack_end(treeview, false, true, 0);
 
-            settings.connect('changed::keybinding', function(k, b) {
+            settings.connect('changed::toggle-sector-menu', function(k, b) {
                 let model_row = model.get(0);
                 model.set(model_row, [0, 1], settings.get_strv(b));
             });
@@ -409,7 +437,7 @@ function buildPrefsWidget() {
     }
 
     //aboutWidget :
-    let grid = new Gtk.Grid({
+    grid = new Gtk.Grid({
         visible: true,
         row_spacing : 6,
         column_spacing : 8,
@@ -444,6 +472,7 @@ function buildPrefsWidget() {
     grid.attach(name,0,0,2,1);
     grid.attach(icon,0,1,1,1);
     grid.attach(desc,0,2,2,1)
+
 
     noteWidget.append_page(grid, aboutTab)
     // Return our widget which will be added to the window

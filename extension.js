@@ -1,7 +1,7 @@
 /* extension.js
  *
  * Copyright (c) Mike Knap 2019
-
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
@@ -32,6 +32,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 const Convenience = Me.imports.convenience;
+const Fullscreen = Me.imports.fullscreen;
 
 const DEBUG = function (message) {
     // Enable for debugging purposes.
@@ -101,14 +102,17 @@ class Extension {
         );
         Main.panel.addToStatusArea(Me.metadata.name, this.indicator);
 
-
-        DEBUG(' + setting bindings')
+        DEBUG(' + binding our settings and watching for changes')
         this.settings.bind(
             'show-indicator',
             this.indicator,
             'visible',
             Gio.SettingsBindFlags.DEFAULT
         )
+        // this._onKeybindingChangedId = this.settings.connect(
+        //     'changed::keybinding',
+        //     this._onKeybindingChanged.bind(this)
+        // );
 
 
         DEBUG('enable() Done.')
@@ -121,6 +125,10 @@ class Extension {
         if (this.indicator!== null) {
             this.indicator.destroy();
             this.indicator=null;
+        }
+        if (this.fullscreen!== null) {
+            this.fullscreen.destroy();
+            this.fullscreen=null;
         }
 
         DEBUG(' + resetting keybindings')
@@ -139,11 +147,26 @@ class Extension {
     _keyAction() {
         //Toggle the fullscreen meenu with keybinding
         DEBUG('_keyAction()')
-        // if (!this.fullscreen) {
-        //     this.fullscreen = new Fullscreen.Fullscreen(0); //FIXME: monitor 0 temp
-        // }
-        // this.fullscreen.toggle();
+        if (!this.fullscreen) {
+            this.fullscreen = new Fullscreen.Fullscreen(0); //FIXME: monitor 0 temp
+        }
+        this.fullscreen.toggle();
     }
+
+    // _onKeybindingChanged(settings, key){
+    //     DEBUG(`_onKeybindingChanged() ${key}`);
+    //
+    //     Main.wm.addKeybinding(
+    //         "keybinding",
+    //         this.settings,
+    //         Meta.KeyBindingFlags.NONE,
+    //         ShellActionMode.NORMAL |
+    //         ShellActionMode.OVERVIEW,
+    //         /** See https://gitlab.gnome.org/GNOME/gjs/blob/master/doc/Modules.md */
+    //         //Lang.bind(this, this._keyAction)
+    //         this._keyAction.bind(this)
+    //     );
+    // }  //TODO: might need to change these
 }
 
 function init() {
