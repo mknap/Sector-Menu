@@ -43,9 +43,10 @@
     outline: 1px rgba(0, 255, 25, 0.98)
 }
 
-.prefs label{
+.prefs large-label{
     visible: true;
     use_markup: true;
+    font-size: 2em;
 }
 /* search entry from
 label: '<b>Drawing preferences :</b>',
