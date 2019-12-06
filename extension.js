@@ -109,11 +109,6 @@ class Extension {
             'visible',
             Gio.SettingsBindFlags.DEFAULT
         )
-        // this._onKeybindingChangedId = this.settings.connect(
-        //     'changed::keybinding',
-        //     this._onKeybindingChanged.bind(this)
-        // );
-
 
         DEBUG('enable() Done.')
     }
@@ -153,20 +148,6 @@ class Extension {
         this.fullscreen.toggle();
     }
 
-    // _onKeybindingChanged(settings, key){
-    //     DEBUG(`_onKeybindingChanged() ${key}`);
-    //
-    //     Main.wm.addKeybinding(
-    //         "keybinding",
-    //         this.settings,
-    //         Meta.KeyBindingFlags.NONE,
-    //         ShellActionMode.NORMAL |
-    //         ShellActionMode.OVERVIEW,
-    //         /** See https://gitlab.gnome.org/GNOME/gjs/blob/master/doc/Modules.md */
-    //         //Lang.bind(this, this._keyAction)
-    //         this._keyAction.bind(this)
-    //     );
-    // }  //TODO: might need to change these
 }
 
 function init() {

@@ -171,6 +171,52 @@ var Fullscreen = class Fullscreen {
         DEBUG('fullscreen.constructor DONE.')
     }
 
+    destroy() {
+        this.FSMenu.destroy();
+        DEBUG('fullscreen.destroy()')
+
+    }
+
+    close() {
+        DEBUG('fullscreen.close()')
+        this.is_open = false;
+        global.window_group.show();
+        for (let n = 0; n < this.items.length; n++) {
+            this.FSMenu.remove_actor(this.items[n]);
+            this.FSMenu.remove_actor(this.tips[n]);
+
+            if (this.settings.get_boolean('draw-guides')) {
+                this.FSMenu.remove_actor(this.guidelines[n])
+            }
+            this.entry_box.set_text('')
+            this.FSMenu.hide();
+        }
+    }
+
+    open() {
+        DEBUG('fullscreen.open()')
+
+        if (this.is_open) {
+            this.FSMenu.grab_key_focus();
+            this.FSMenu.raise_top();
+            return;
+        }
+        this.is_open = true;
+        //global.window_group.hide(); //makes screen fade
+        this._drawSectors(this.settings.get_int('sectors'));
+        this.FSMenu.show();
+        this.entry_box.grab_key_focus();
+        // this.actor.grab_mouse_focus()
+        this.FSMenu.raise_top();
+    }
+
+    toggle() {
+        if (this.is_open)
+        this.close();
+        else
+        this.open();
+    }
+
     _onScrollEvent(actor, event) {
         this.emit('scroll-event', event);
         return Clutter.EVENT_PROPAGATE;
@@ -314,51 +360,6 @@ var Fullscreen = class Fullscreen {
 
     }
 
-    destroy() {
-        this.FSMenu.destroy();
-        DEBUG('fullscreen.destroy()')
-
-    }
-
-    close() {
-        DEBUG('fullscreen.close()')
-        this.is_open = false;
-        global.window_group.show();
-        for (let n = 0; n < this.items.length; n++) {
-            this.FSMenu.remove_actor(this.items[n]);
-            this.FSMenu.remove_actor(this.tips[n]);
-
-            if (this.settings.get_boolean('draw-guides')) {
-                this.FSMenu.remove_actor(this.guidelines[n])
-            }
-            this.entry_box.set_text('')
-            this.FSMenu.hide();
-        }
-    }
-    open() {
-        DEBUG('fullscreen.open()')
-
-        if (this.is_open) {
-            this.FSMenu.grab_key_focus();
-            this.FSMenu.raise_top();
-            return;
-        }
-        this.is_open = true;
-        //global.window_group.hide(); //makes screen fade
-        this._drawSectors(this.settings.get_int('sectors'));
-        this.FSMenu.show();
-        this.entry_box.grab_key_focus();
-        // this.actor.grab_mouse_focus()
-        this.FSMenu.raise_top();
-    }
-
-    toggle() {
-        if (this.is_open)
-            this.close();
-        else
-            this.open();
-    }
-
     _restart() {
         DEBUG('_restart()')
         if (Meta.is_wayland_compositor()) {
@@ -377,7 +378,6 @@ var Fullscreen = class Fullscreen {
         actor.tip.raise_top();
     }
 }
-
 
 // TODO : I am gathering that this adds methods to handle signals like emit() ?
 Signals.addSignalMethods(Fullscreen.prototype)
