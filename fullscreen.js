@@ -190,13 +190,17 @@ var Fullscreen = class Fullscreen {
         DEBUG('fullscreen.close()')
         this.is_open = false;
         global.window_group.show();
-        for (let n = 0; n < this.items.length; n++) {
-            this.FSMenu.remove_actor(this.items[n]);
-            this.FSMenu.remove_actor(this.tips[n]);
+
+        for (let n = 0; n < this.settings.get_int('radius'); n++) {
+            if(this.items[n]){
+                this.FSMenu.remove_actor(this.items[n]);
+                this.FSMenu.remove_actor(this.tips[n]);
+            }
 
             if (this.settings.get_boolean('draw-guides')) {
                 this.FSMenu.remove_actor(this.guidelines[n])
             }
+
             this.entry_box.set_text('')
             this.FSMenu.hide();
         }
@@ -347,9 +351,9 @@ var Fullscreen = class Fullscreen {
         let symbol = event.get_key_symbol();
         DEBUG(actor);
         DEBUG(symbol);
-        if (symbol === Clutter.Key_Super) {
-            this.close();
-        }
+        // if (symbol === Clutter.Key_Super) {
+        //     this.close();
+        // }
 
     }
 
