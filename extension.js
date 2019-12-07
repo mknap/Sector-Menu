@@ -92,13 +92,16 @@ class Extension {
         DEBUG(' + constructing icon and panel indicator')
         this.gicon = Gio.icon_new_for_string(Me.path + '/icons/sector-icon.svg');
         this.indicator = new PanelMenu.Button(0.0, Me.metadata.name, false);
-        this.indicator.add_child(
+        this.indicator.add_actor(
             new St.Icon({
                 gicon: this.gicon,
                 style_class: 'system-status-icon'
             })
         );
-        Main.panel.addToStatusArea(Me.metadata.name, this.indicator);
+        let pos = Main.sessionMode.panel.left.indexOf('appMenu');
+        if ('apps-menu' in Main.panel.statusArea)
+            pos++;
+        Main.panel.addToStatusArea(Me.metadata.name, this.indicator,pos, 'left');
 
         DEBUG(' + binding our settings and watching for changes')
         this.settings.bind(
@@ -144,6 +147,7 @@ class Extension {
         }
         this.fullscreen.toggle();
     }
+
 
 }
 

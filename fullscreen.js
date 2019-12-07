@@ -89,8 +89,8 @@ const GRAY = new Clutter.Color({
 // const SECTORS = 7;
 // const R = 220;
 
-const X = 1920;
-const Y = 1080;
+// const X = 1920;
+// const Y = 1080;
 
 
 
@@ -181,8 +181,8 @@ var Fullscreen = class Fullscreen {
     }
 
     destroy() {
-        this.FSMenu.destroy();
         DEBUG('fullscreen.destroy()')
+        //this.FSMenu.destroy();
 
     }
 
@@ -231,27 +231,26 @@ var Fullscreen = class Fullscreen {
     @param N the number of sectors to calculate and drawing
     */
     _drawSectors(N) {
-        // DEBUG(N)
+        DEBUG('fullscreen._drawSectors()');
+
         let R = this.settings.get_int('radius');
-        // DEBUG(R);
+        let X = this.monitor.width;
+        let Y = this.monitor.height;
+
         if (this.settings.get_boolean('draw-at-mouse')) {
             var [x0, y0, mask] = global.get_pointer();
+            DEBUG(mask)
         } else {
             var [x0, y0] = [X / 2, Y / 2];
         }
+
         for (let n = 0; n < N; n++) {
-            let x = (R * Math.cos(n * 2 * Math.PI / (N)) + x0); //FIXME no hard code sizes
+            let x = (R * Math.cos(n * 2 * Math.PI / (N)) + x0); 
             let y = (R * Math.sin(n * 2 * Math.PI / (N)) + y0);
 
-            //Labels; were my first attempt:
-            { // this.items[n] = new Clutter.Text({
-                //     "text": "Item " + n.toString(),
-                //     "color":WHITE
-                // });
-            }
-            //from Panel_favorites extension.js@31
-            {
+{
                 let app = this.favs[n];
+
                 this.items[n] = new St.Button({
                     style_class: 'panel-button',
                     reactive: true,
@@ -335,7 +334,6 @@ var Fullscreen = class Fullscreen {
 
             }
 
-
     _onScrollEvent(actor, event) {
         DEBUG('_onScrollEvent()')
         this.emit('scroll-event', event);
@@ -356,7 +354,6 @@ var Fullscreen = class Fullscreen {
         let symbol = event.get_key_symbol();
         DEBUG(actor)
         DEBUG(symbol);
-        if (symbol === Clutter.KEY_Escape) {
             if (actor.get_text()) {
                 actor.set_text('');
                 return Clutter.EVENT_STOP;
