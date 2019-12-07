@@ -143,7 +143,7 @@ class Extension {
     _keyAction() {
         DEBUG('_keyAction()')
         if (!this.fullscreen) {
-            this.fullscreen = new Fullscreen.Fullscreen(this.settings); //FIXME: monitor 0 temp
+            this.fullscreen = new Fullscreen.Fullscreen(); //FIXME: monitor 0 temp
         }
         this.fullscreen.toggle();
     }
