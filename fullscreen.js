@@ -1,22 +1,22 @@
 /* fullscreen.js
-*
-* Copyright (c) Mike Knap 2019
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ *
+ * Copyright (c) Mike Knap 2019
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 
 const Clutter = imports.gi.Clutter;
@@ -31,7 +31,7 @@ const Layout = imports.ui.layout;
 const Main = imports.ui.main;
 
 const ShellEntry = imports.ui.shellEntry;
-const Tweener =imports.ui.tweener;
+const Tweener = imports.ui.tweener;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Util = imports.misc.util;
@@ -39,12 +39,12 @@ const Util = imports.misc.util;
 const Me = ExtensionUtils.getCurrentExtension()
 const Convenience = Me.imports.convenience;
 
-const DEBUG = function (message) {
+const DEBUG = function(message) {
     // Enable for debugging purposes.
     //if(true) global.log(Date().substr(16,8) + Me.metadata.name + message);
 
     //TODO : make this more versatile with options, info, warn, etc.
-   if(true) global.log( "[" + Me.metadata.name + "] " + message);
+    if (true) global.log("[" + Me.metadata.name + "] " + message);
 }
 
 /** Some constants for clutter colors: */
@@ -221,9 +221,9 @@ var Fullscreen = class Fullscreen {
 
     toggle() {
         if (this.is_open)
-        this.close();
+            this.close();
         else
-        this.open();
+            this.open();
     }
 
     /** @_drawSectors
@@ -245,12 +245,13 @@ var Fullscreen = class Fullscreen {
         }
 
         for (let n = 0; n < N; n++) {
-            let x = (R * Math.cos(n * 2 * Math.PI / (N)) + x0); 
+            //positioning
+            let x = (R * Math.cos(n * 2 * Math.PI / (N)) + x0);
             let y = (R * Math.sin(n * 2 * Math.PI / (N)) + y0);
 
-{
-                let app = this.favs[n];
 
+            let app = this.favs[n];
+            if (app) {
                 this.items[n] = new St.Button({
                     style_class: 'panel-button',
                     reactive: true,
@@ -295,44 +296,45 @@ var Fullscreen = class Fullscreen {
                 this.items[n].connect(
                     'notify::hover',
                     this._onHoverChanged.bind(this));
-                }
-                // this.items[n].connect('button-press-event',
-                //         this._onButtonPress.bind(this));
 
-                let [dx,dy] = [128,128];
-                // DEBUG(`dx: ${dx}, dy:${dy}`)
-                this.items[n].set_position(x - dx / 2, y - dy / 2)
-                this.items[n].opacity = 175;
-                // playing around with Tweener
-                Tweener.addTween(this.items[n],
-                    { opacity: 255,
-                        time: .85,
-                        transition: 'easeOutQuad',
-                    });
+            // this.items[n].connect('button-press-event',
+            //         this._onButtonPress.bind(this));
 
-                    this.FSMenu.add_actor(this.items[n])
-                    let [tx,ty] = this.tips[n].get_size();
-                    // DEBUG(`tx: ${tx}, ty:${ty}`)
-                    this.FSMenu.add_actor(this.tips[n])
-                    this.tips[n].set_position(x-(tx/2),y+dy/2 + 5)
-                    //guidelines :
-                    if (this.settings.get_boolean('draw-guides')) {
-                        this.guidelines[n] = new Clutter.Actor({
-                            //"style": "guidelines",   //FIXME: can we do a clutter style?
-                            "background_color": RED,
-                            "width": 300,
-                            "height": 1,
-                            "x": x0,
-                            "y": y0,
-                            "rotation-angle-z": n * 360 / N + .5 * 350 / N
-                        });
-                        //print(guideline.get_pivot_point());
-                        //guideline.set_rotation_angle(2, ( ( Math.PI ) / SECTORS) );
-                        this.FSMenu.add_actor(this.guidelines[n])
-                    }
-                }
+            let [dx, dy] = [128, 128];
+            // DEBUG(`dx: ${dx}, dy:${dy}`)
+            this.items[n].set_position(x - dx / 2, y - dy / 2)
+            this.items[n].opacity = 175;
+            // playing around with Tweener
+            Tweener.addTween(this.items[n], {
+                opacity: 255,
+                time: .85,
+                transition: 'easeOutQuad',
+            });
 
+
+            this.FSMenu.add_actor(this.items[n])
+            let [tx, ty] = this.tips[n].get_size();
+            // DEBUG(`tx: ${tx}, ty:${ty}`)
+            this.FSMenu.add_actor(this.tips[n])
+            this.tips[n].set_position(x - (tx / 2), y + dy / 2 + 5)
+        }
+            //guidelines :
+            if (this.settings.get_boolean('draw-guides')) {
+                this.guidelines[n] = new Clutter.Actor({
+                    //"style": "guidelines",   //FIXME: can we do a clutter style?
+                    "background_color": RED,
+                    "width": 300,
+                    "height": 1,
+                    "x": x0,
+                    "y": y0,
+                    "rotation-angle-z": n * 360 / N + .5 * 350 / N
+                });
+
+                this.FSMenu.add_actor(this.guidelines[n])
             }
+        }
+
+    }
 
     _onScrollEvent(actor, event) {
         DEBUG('_onScrollEvent()')
@@ -340,10 +342,11 @@ var Fullscreen = class Fullscreen {
         return Clutter.EVENT_PROPAGATE;
     }
 
-    _onKeyReleaseEvent(actor,event) {
+    _onKeyReleaseEvent(actor, event) {
         DEBUG('_onKeyReleaseEvent()')
         let symbol = event.get_key_symbol();
-        DEBUG(actor);DEBUG(symbol);
+        DEBUG(actor);
+        DEBUG(symbol);
         if (symbol === Clutter.Key_Super) {
             this.close();
         }
@@ -354,12 +357,11 @@ var Fullscreen = class Fullscreen {
         let symbol = event.get_key_symbol();
         DEBUG(actor)
         DEBUG(symbol);
-            if (actor.get_text()) {
-                actor.set_text('');
-                return Clutter.EVENT_STOP;
-            } else {
-                this.close();
-            }
+        if (actor.get_text()) {
+            actor.set_text('');
+            return Clutter.EVENT_STOP;
+        } else {
+            this.close();
         }
         return Clutter.EVENT_PROPAGATE;
     }
@@ -402,7 +404,7 @@ var Fullscreen = class Fullscreen {
     }
 
     _onHoverChanged(actor) {
-        actor.opacity = actor.hover ? 255 : 200 ;
+        actor.opacity = actor.hover ? 255 : 200;
         actor.tip.opacity = actor.hover ? 255 : 0;
         actor.raise_top();
         actor.tip.raise_top();
