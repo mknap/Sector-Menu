@@ -36,8 +36,6 @@ const Fullscreen = Me.imports.fullscreen;
 
 const DEBUG = function (message) {
     // Enable for debugging purposes.
-    //if(true) global.log(Date().substr(16,8) + Me.metadata.name + message);
-
     //TODO : make this more versatile with options, info, warn, etc.
    if(true) global.log( "[" + Me.metadata.name + "] " + message);
 }
@@ -85,11 +83,11 @@ class Extension {
         // Create a setting for the Handler takeover
 
         //TODO: create a setting for this:
-        Main.wm.setCustomKeybindingHandler(
-            'toggle-overview',
-            ShellActionMode.ALL,
-            this._keyAction.bind(this)
-        )
+        // Main.wm.setCustomKeybindingHandler(
+        //     'toggle-overview',
+        //     ShellActionMode.ALL,
+        //     this._keyAction.bind(this)
+        // )
 
         DEBUG(' + constructing icon and panel indicator')
         this.gicon = Gio.icon_new_for_string(Me.path + '/icons/sector-icon.svg');
@@ -130,20 +128,19 @@ class Extension {
         Main.wm.removeKeybinding('toggle-sector-menu') //TODO: needed ?
         //If we took over the <super> key, give it back
         // from viewselector@228
-        Main.wm.setCustomKeybindingHandler(
-            'toggle-overview',
-            ShellActionMode.ALL,
-            Main.overview.toggle.bind(Main.overview)
-        )
+        // Main.wm.setCustomKeybindingHandler(
+        //     'toggle-overview',
+        //     ShellActionMode.ALL,
+        //     Main.overview.toggle.bind(Main.overview)
+        // )
 
         DEBUG('disable() Done.')
     }
 
     _keyAction() {
-        //Toggle the fullscreen meenu with keybinding
         DEBUG('_keyAction()')
         if (!this.fullscreen) {
-            this.fullscreen = new Fullscreen.Fullscreen(0); //FIXME: monitor 0 temp
+            this.fullscreen = new Fullscreen.Fullscreen(this.settings); //FIXME: monitor 0 temp
         }
         this.fullscreen.toggle();
     }

@@ -127,6 +127,15 @@ var Fullscreen = class Fullscreen {
             style_class: 'sectormenu-fullscreen'
         });
         this.FSMenu.set_size(this.monitor.width, this.monitor.height);
+        this.FSMenu.connect(
+            'key-release-event',
+            this._onKeyReleaseEvent.bind(this)
+        );
+        this.FSMenu.connect(
+            'scroll-event',
+            this._onScrollEvent.bind(this)
+        );
+
         this.entry_box = new St.Entry({
             style_class: 'entry-box',
             hint_text: 'Run command',
@@ -217,40 +226,6 @@ var Fullscreen = class Fullscreen {
         this.open();
     }
 
-    _onScrollEvent(actor, event) {
-        this.emit('scroll-event', event);
-        return Clutter.EVENT_PROPAGATE;
-    }
-
-    _entryKeyPressEvent(actor, event) { //TODO: why is this params (a,e)?
-        let symbol = event.get_key_symbol();
-         DEBUG(symbol);
-        if (symbol === Clutter.KEY_Escape) {
-            if (actor.get_text()) {
-                actor.set_text('');
-                return Clutter.EVENT_STOP;
-            } else {
-                this.close();
-            }
-        }
-        return Clutter.EVENT_PROPAGATE;
-    }
-
-    _entryRun(actor) { //TODO: and this params just (a)?
-
-        DEBUG(`_entryRun().  ${actor}`);
-        //this.popModal();
-        let command = actor.get_text();
-        DEBUG(command)
-
-        if (command == 'r') {
-            this._restart();
-        } else {
-            Util.trySpawnCommandLine(command);
-            this.close();
-        }
-    }
-
     /** @_drawSectors
     Draws N sectors
     @param N the number of sectors to calculate and drawing
@@ -321,43 +296,101 @@ var Fullscreen = class Fullscreen {
                 this.items[n].connect(
                     'notify::hover',
                     this._onHoverChanged.bind(this));
-            }
-            // this.items[n].connect('button-press-event',
-            //         this._onButtonPress.bind(this));
+                }
+                // this.items[n].connect('button-press-event',
+                //         this._onButtonPress.bind(this));
 
-            let [dx,dy] = [128,128];
-            // DEBUG(`dx: ${dx}, dy:${dy}`)
-            this.items[n].set_position(x - dx / 2, y - dy / 2)
-            this.items[n].opacity = 175;
-            // playing around with Tweener
-            Tweener.addTween(this.items[n],
-                         { opacity: 255,
-                           time: .85,
-                           transition: 'easeOutQuad',
-                         });
+                let [dx,dy] = [128,128];
+                // DEBUG(`dx: ${dx}, dy:${dy}`)
+                this.items[n].set_position(x - dx / 2, y - dy / 2)
+                this.items[n].opacity = 175;
+                // playing around with Tweener
+                Tweener.addTween(this.items[n],
+                    { opacity: 255,
+                        time: .85,
+                        transition: 'easeOutQuad',
+                    });
 
-            this.FSMenu.add_actor(this.items[n])
-            let [tx,ty] = this.tips[n].get_size();
-            // DEBUG(`tx: ${tx}, ty:${ty}`)
-            this.FSMenu.add_actor(this.tips[n])
-            this.tips[n].set_position(x-(tx/2),y+dy/2 + 5)
-            //guidelines :
-            if (this.settings.get_boolean('draw-guides')) {
-                this.guidelines[n] = new Clutter.Actor({
-                    //"style": "guidelines",   //FIXME: can we do a clutter style?
-                    "background_color": RED,
-                    "width": 300,
-                    "height": 1,
-                    "x": x0,
-                    "y": y0,
-                    "rotation-angle-z": n * 360 / N + .5 * 350 / N
-                });
-                //print(guideline.get_pivot_point());
-                //guideline.set_rotation_angle(2, ( ( Math.PI ) / SECTORS) );
-                this.FSMenu.add_actor(this.guidelines[n])
+                    this.FSMenu.add_actor(this.items[n])
+                    let [tx,ty] = this.tips[n].get_size();
+                    // DEBUG(`tx: ${tx}, ty:${ty}`)
+                    this.FSMenu.add_actor(this.tips[n])
+                    this.tips[n].set_position(x-(tx/2),y+dy/2 + 5)
+                    //guidelines :
+                    if (this.settings.get_boolean('draw-guides')) {
+                        this.guidelines[n] = new Clutter.Actor({
+                            //"style": "guidelines",   //FIXME: can we do a clutter style?
+                            "background_color": RED,
+                            "width": 300,
+                            "height": 1,
+                            "x": x0,
+                            "y": y0,
+                            "rotation-angle-z": n * 360 / N + .5 * 350 / N
+                        });
+                        //print(guideline.get_pivot_point());
+                        //guideline.set_rotation_angle(2, ( ( Math.PI ) / SECTORS) );
+                        this.FSMenu.add_actor(this.guidelines[n])
+                    }
+                }
+
             }
+
+
+    _onScrollEvent(actor, event) {
+        DEBUG('_onScrollEvent()')
+        this.emit('scroll-event', event);
+        return Clutter.EVENT_PROPAGATE;
+    }
+
+    _onKeyReleaseEvent(actor,event) {
+        DEBUG('_onKeyReleaseEvent()')
+        let symbol = event.get_key_symbol();
+        DEBUG(actor);DEBUG(symbol);
+        if (symbol === Clutter.Key_Super) {
+            this.close();
         }
 
+    }
+
+    _entryKeyPressEvent(actor, event) { //TODO: why is this params (a,e)?
+        let symbol = event.get_key_symbol();
+        DEBUG(actor)
+        DEBUG(symbol);
+        if (symbol === Clutter.KEY_Escape) {
+            if (actor.get_text()) {
+                actor.set_text('');
+                return Clutter.EVENT_STOP;
+            } else {
+                this.close();
+            }
+        }
+        return Clutter.EVENT_PROPAGATE;
+    }
+
+    _entryRun(actor) { //TODO: and this params just (a)?
+
+        DEBUG(`_entryRun().  ${actor}`);
+        //this.popModal();
+        let command = actor.get_text();
+        DEBUG(command)
+
+        //TODO: turn these into configurable settings
+        if (command == 'r') {
+            this._restart();
+        } else if (command == 'w') {
+            Util.trySpawnCommandLine('wakeup');
+            // this.close();
+        } else if (command == 'b') {
+            Util.trySpawnCommandLine('bedtime');
+            // this.close();
+        } else if (command === 'p') {
+            Util.trySpawnCommandLine('gnome-extensions prefs ${Me}');
+            // this.close();
+        } else {
+            Util.trySpawnCommandLine(command);
+            // this.close();
+        }
+        this.close();
     }
 
     _restart() {
@@ -372,7 +405,7 @@ var Fullscreen = class Fullscreen {
     }
 
     _onHoverChanged(actor) {
-        actor.opacity = actor.hover ? 255 : 175;
+        actor.opacity = actor.hover ? 255 : 200 ;
         actor.tip.opacity = actor.hover ? 255 : 0;
         actor.raise_top();
         actor.tip.raise_top();
