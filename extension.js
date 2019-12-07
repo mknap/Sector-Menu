@@ -91,7 +91,7 @@ class Extension {
 
         DEBUG(' + constructing icon and panel indicator')
         this.gicon = Gio.icon_new_for_string(Me.path + '/icons/sector-icon.svg');
-        this.indicator = new PanelMenu.Button(0.0, Me.metadata.name, false);
+        this.indicator = new PanelMenu.Button(0.0, Me.metadata.name);
         this.indicator.add_actor(
             new St.Icon({
                 gicon: this.gicon,
