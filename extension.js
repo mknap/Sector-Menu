@@ -101,7 +101,7 @@ class Extension {
         DEBUG(Me.metadata.name)
         this.indicator = new PanelMenu.Button(0.0, Me.metadata.name);
 
-        // Compatiblity with gshell < 3.30
+        // fixme: Compatiblity with gshell < 3.30
         if (SHELL_MINOR < 30) {
                 this.indicator.actor.add_child(
                     new St.Icon({
@@ -118,13 +118,13 @@ class Extension {
             )
         }
 
-        // this.indicator = _indicator;
         let pos = Main.sessionMode.panel.left.indexOf('appMenu');
         if ('apps-menu' in Main.panel.statusArea)
             pos++;
         Main.panel.addToStatusArea(Me.metadata.name, this.indicator, pos, 'left');
 
         DEBUG(' + binding our settings and watching for changes')
+        // fixme
         if (SHELL_MINOR < 30) {
             this.settings.bind(
                 'show-indicator',
