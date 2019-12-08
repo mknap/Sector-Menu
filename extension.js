@@ -125,12 +125,26 @@ class Extension {
         Main.panel.addToStatusArea(Me.metadata.name, this.indicator, pos, 'left');
 
         DEBUG(' + binding our settings and watching for changes')
-        this.settings.bind(
-            'show-indicator',
-            this.indicator,
-            'visible',
-            Gio.SettingsBindFlags.DEFAULT
-        )
+        if (SHELL_MINOR < 30) {
+            this.settings.bind(
+                'show-indicator',
+                this.indicator.actor,
+                'visible',
+                Gio.SettingsBindFlags.DEFAULT
+            )
+
+        } else {
+            this.settings.bind(
+                'show-indicator',
+                this.indicator,
+                'visible',
+                Gio.SettingsBindFlags.DEFAULT
+            )
+
+        }
+
+
+
 
         DEBUG('enable() Done.')
     }
