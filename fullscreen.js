@@ -191,13 +191,14 @@ var Fullscreen = class Fullscreen {
                 if (this.items[n] != null) {
                     this.FSMenu.remove_actor(this.items[n]);
                     this.FSMenu.remove_actor(this.tips[n]);
+                    this.FSMenu.remove_actor(this.texture[n]);
                 }
 
                 if (this.settings.get_boolean('draw-guides')) {
                     this.FSMenu.remove_actor(this.guidelines[n])
                     //DEBUG(`${n} of ${N}`)
                 }
-                this.FSMenu.remove_actor(this.texture);
+                this.FSMenu.remove_actor(this.texture[n]);
                 this.entry_box.set_text('')
                 this.FSMenu.hide();
             }
@@ -238,12 +239,10 @@ var Fullscreen = class Fullscreen {
             let X = this.monitor.width;
             let Y = this.monitor.height;
 
-            if (this.settings.get_boolean('draw-at-mouse')) {
+            if (this.settings.get_boolean('draw-at-mouse'))
                 var [x0, y0, mask] = global.get_pointer();
-            } else {
+            else
                 var [x0,y0] = [X/2, Y/2]
-            }
-
 
             for (let n = 0; n < N; n++) {
                 //positioning
@@ -322,54 +321,68 @@ var Fullscreen = class Fullscreen {
                         height: 1,
                         x: x0,
                         y: y0,
-                        rotation_angle_z: n * 360 / N + .5 * 350 / N,
+                        //rotation_angle_z: n * 360 / N + .5 * 350 / N,
                         //transition: 'easeOutCubic',
                     });
-
+                    Tweener.addTween(this.guidelines[n],{
+                        time: 1,
+                        rotation_angle_z: n * 360 / N + .5 * 360 / N,
+                    })
                     this.FSMenu.add_actor(this.guidelines[n])
                 }
+
+
             }
-            let p = new Clutter.Point({
-                x:0.5,
-                y:0.5,
-            });
-            DEBUG(p);
 
-            // DEBUG(M);
+            //sector panels:
+            this.texture=[];
+            for (let n = 0; n < N; n++) {
+                let p = new Clutter.Point({
+                    x: 0.0,
+                    y: 0.0,
+                });
 
-            this.texture = new Clutter.Texture({
-                filename: Me.path+ "/ui/sector-gradient-512.svg",
-                reactive: true,
-                width: 3*R,
-                height: 3*R,
-                // pivot_point: p,
-                rotation_angle_x: 0,
-                rotation_angle_y: 0,
-                // rotation_angle_z: 360/N + 3* 180/N,
-                rotation_angle_z: 0,
-                x: x0,
-                y: y0-R,
-                // transition:  'easeOutCubic',
-            });
-            let tweenParams = {
-                time: 15    ,
-                //transition: 'easeOutCubic',
-                width: 3*R,
-                height: 3*R,
-                // pivot_point: p,
-                rotation_angle_x: 45,
-                rotation_angle_y: 45,
-                // rotation_angle_z: 360/N + 3* 180/N,
-                rotation_angle_z: 0,
-                x: x0,
-                y: y0-R,
+                this.texture[n] = new Clutter.Texture({
+                    filename: Me.path+ "/ui/sector-gradient-512.svg",
+                    // border_color: RED,
+                    reactive: true,
+                    width: 3*R,
+                    height: 3*R,
+                    // pivot_point: p,
+                    rotation_angle_x: 0,
+                    rotation_angle_y: 0,
+                    // rotation_angle_z: 360/N + 3* 180/N,
+                    rotation_angle_z: 0,
+                    //anchor_gravity: Clutter.Gravity.CENTER,
+                    x: x0,
+                    y: y0,
+                    // transition:  'easeOutCubic',
+                });
+                let tweenParams = {
+                    time: 2  ,
+                    transition: 'easeOutElastic',
+                    width: 3*R,
+                    height: 3*R,
+                    // pivot_point: p,
+                    rotation_angle_x: 0,
+                    rotation_angle_y: 0,
+                    rotation_angle_z: n*360/N +  180/N,
+                    // rotation_angle_z: 90,
+                }
+                this.FSMenu.add_actor(this.texture[n])
+                this.texture[n].lower_bottom();
+                Tweener.addTween(this.texture[n],tweenParams);
             }
-            this.FSMenu.add_actor(this.texture)
-            this.texture.lower_bottom();
-            Tweener.addTween(this.texture,tweenParams);
-
         }
 
+        /** @_drawApps
+        Draws N sectors
+        TODO
+        ..@param N the number of sectors to calculate and drawing
+        */
+        _drawApps(){
+
+        }
 
         _onScrollEvent(actor, event) {
             DEBUG('_onScrollEvent()')
