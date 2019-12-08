@@ -25,6 +25,11 @@
      St
  } = imports.gi;
 
+ const Config = imports.misc.config;
+
+ const PACKAGE_NAME = Config.PACKAGE_NAME;
+ const PACKAGE_VERSION = Config.PACKAGE_VERSION;
+
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 
@@ -46,7 +51,7 @@ class Extension {
     constructor() {
         DEBUG(' ~-~--={ Starting Sector Menu }=-~-~ ')
         DEBUG('constructor() begin...')
-
+        DEBUG(`${PACKAGE_NAME} version ${PACKAGE_VERSION}` )
         DEBUG(' + getting settings')
         this.settings = Convenience.getSettings();
 
