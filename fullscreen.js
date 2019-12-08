@@ -97,7 +97,7 @@ var Fullscreen = class Fullscreen {
             this.guidelines = [];
             this.items = [];
             this.tips = [];
-            // /** initBackground from coverflow platform.js */
+            /** initBackground from coverflow platform.js */
             // {
             //     let Background = imports.ui.background;
             //
@@ -257,6 +257,8 @@ var Fullscreen = class Fullscreen {
                         reactive: true,
                         visible: true,
                         opacity: 255,
+                        x:x0,
+                        y:y0,
                     });
                     let gicon = app.app_info.get_icon();
                     let icon = new St.Icon({
@@ -277,6 +279,8 @@ var Fullscreen = class Fullscreen {
                     this.tips[n] = new St.Label({
                         style_class: 'panel-launcher-label',
                         opacity: 0,
+                        x: x0,
+                        y: y0
                     });
                     this.tips[n].set_text(text);
                     //this.tips[n].hide();
@@ -296,12 +300,17 @@ var Fullscreen = class Fullscreen {
 
                     let [dx, dy] = [128, 128];
                     // DEBUG(`dx: ${dx}, dy:${dy}`)
-                    this.items[n].set_position(x - dx / 2, y - dy / 2)
+                    //this.items[n].set_position(x - dx / 2, y - dy / 2)
                     this.items[n].opacity = 175;
                     // playing around with Tweener
                     Tweener.addTween(this.items[n], {
                         opacity: 255,
                         time: .85,
+                        height:128,
+                        width:128,
+                        x: x-dx/2,
+                        y:y-dy/2,
+                        gravity: Clutter.Gravity.CENTER,
                         transition: 'easeOutQuad',
                     });
 
@@ -310,6 +319,7 @@ var Fullscreen = class Fullscreen {
                     let [tx, ty] = this.tips[n].get_size();
                     // DEBUG(`tx: ${tx}, ty:${ty}`)
                     this.FSMenu.add_actor(this.tips[n])
+                    //FIXME: some kind of offset bug here
                     this.tips[n].set_position(x - (tx / 2), y + dy / 2 + 5)
                 }
                 //guidelines :
@@ -346,8 +356,9 @@ var Fullscreen = class Fullscreen {
                     filename: Me.path+ "/ui/sector-gradient-512.svg",
                     // border_color: RED,
                     reactive: true,
-                    width: 3*R,
-                    height: 3*R,
+                    opacity: 0,
+                    width: .5*R,
+                    height: .5*R,
                     // pivot_point: p,
                     rotation_angle_x: 0,
                     rotation_angle_y: 0,
@@ -359,18 +370,23 @@ var Fullscreen = class Fullscreen {
                     // transition:  'easeOutCubic',
                 });
                 let tweenParams = {
-                    time: 2  ,
-                    transition: 'easeOutElastic',
-                    width: 3*R,
-                    height: 3*R,
+                    time: 1  ,
+                    transition: 'easeOutExpo',
+                    opacity: 255,
+                    width: 2*R,
+                    height: 2*R,
                     // pivot_point: p,
                     rotation_angle_x: 0,
-                    rotation_angle_y: 0,
+                    rotation_angle_y: 30,
                     rotation_angle_z: n*360/N +  180/N,
                     // rotation_angle_z: 90,
                 }
                 this.FSMenu.add_actor(this.texture[n])
                 this.texture[n].lower_bottom();
+                this.texture[n].connect(
+                    'notify::hover',
+                    this._onPanelHoverChanged.bind(this)
+                );
                 Tweener.addTween(this.texture[n],tweenParams);
             }
         }
@@ -402,6 +418,7 @@ var Fullscreen = class Fullscreen {
         }
 
         _entryKeyPressEvent(actor, event) { //TODO: why is this params (a,e)?
+
             let symbol = event.get_key_symbol();
             DEBUG(actor)
             DEBUG(symbol);
@@ -412,6 +429,9 @@ var Fullscreen = class Fullscreen {
                 } else {
                     this.close();
                 }
+            } else if (symbol == Clutter.KEY_Tab){
+                this.close();
+                Main.overview.toggle();
             }
             return Clutter.EVENT_PROPAGATE;
         }
@@ -454,10 +474,31 @@ var Fullscreen = class Fullscreen {
         }
 
         _onHoverChanged(actor) {
-            actor.opacity = actor.hover ? 255 : 200;
+            DEBUG(`_onHoverChanged( ${actor} )`)
+            Tweener.addTween(actor, {
+                opacity: actor.hover ? 255 : 200,
+                height: actor.hover ? 200 : 128,
+                width: actor.hover ? 200 : 128,
+                gravity: Clutter.Gravity.CENTER,
+                time: .2,
+                transition: 'easeOutBounce',
+            })
+            //actor.opacity = actor.hover ? 255 : 200;
             actor.tip.opacity = actor.hover ? 255 : 0;
             actor.raise_top();
             actor.tip.raise_top();
+        }
+
+        _onPanelHoverChanged(cactor) {
+            DEBUG('_onPanelHoverChanged()')
+            Tweener.addTween(cactor,{
+                time: 1,
+                transition: 'easeOutBounce',
+                x:0,
+                y:0,
+                opacity: 255,
+
+            })
         }
 }
 
