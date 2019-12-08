@@ -50,13 +50,6 @@ class Extension {
         DEBUG(' + getting settings')
         this.settings = Convenience.getSettings();
 
-        DEBUG('constructor() Done.')
-        Main.notify(Me.metadata.name + " loaded.")
-    }
-
-    enable() {
-        DEBUG('enable() begin...')
-
         /* BIG NOTE
         from https://unix.stackexchange.com/questions/388238/how-to-set-super-windows-key-to-show-all-applications-menu-in-gnome-de
 
@@ -79,6 +72,15 @@ class Extension {
             //Lang.bind(this, this._keyAction)
             this._keyAction.bind(this)
         );
+
+        DEBUG('constructor() Done.')
+        Main.notify(Me.metadata.name + " loaded.")
+    }
+
+    enable() {
+        DEBUG('enable() begin...')
+
+
         //Main.wm.allowKeybinding('toggle-overview', Shell.ActionMode.ALL);
         // Create a setting for the Handler takeover
 
@@ -91,17 +93,21 @@ class Extension {
 
         DEBUG(' + constructing icon and panel indicator')
         this.gicon = Gio.icon_new_for_string(Me.path + '/icons/sector-icon.svg');
-        this.indicator = new PanelMenu.Button(0.0, Me.metadata.name);
-        this.indicator.add_actor(
+        DEBUG(Me.metadata.name)
+        let _indicator = new PanelMenu.Button(0.0, Me.metadata.name);
+
+        _indicator.add_actor(
             new St.Icon({
                 gicon: this.gicon,
                 style_class: 'system-status-icon'
             })
         );
+
+        this.indicator = _indicator;
         let pos = Main.sessionMode.panel.left.indexOf('appMenu');
         if ('apps-menu' in Main.panel.statusArea)
             pos++;
-        Main.panel.addToStatusArea(Me.metadata.name, this.indicator,pos, 'left');
+        Main.panel.addToStatusArea(Me.metadata.name, this.indicator, pos, 'left');
 
         DEBUG(' + binding our settings and watching for changes')
         this.settings.bind(
