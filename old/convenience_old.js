@@ -32,6 +32,10 @@ const Gio = imports.gi.Gio;
 const Config = imports.misc.config;
 const ExtensionUtils = imports.misc.extensionUtils;
 
+var DEBUG = function (message) {
+    // Enable for debugging purposes.
+    if(true) global.log(Date().substr(16,8) + " [Sector Menu]: " + message);
+}
 
 /**
  * initTranslations:
