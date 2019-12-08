@@ -18,17 +18,18 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
- const {
-     Gio,
-     Meta,
-     Shell,
-     St
- } = imports.gi;
+const {
+    Gio,
+    Meta,
+    Shell,
+    St
+} = imports.gi;
 
- const Config = imports.misc.config;
+const Config = imports.misc.config;
 
- const PACKAGE_NAME = Config.PACKAGE_NAME;
- const PACKAGE_VERSION = Config.PACKAGE_VERSION;
+const PACKAGE_NAME = Config.PACKAGE_NAME;
+const PACKAGE_VERSION = Config.PACKAGE_VERSION;
+const SHELL_MINOR = parseInt(Config.PACKAGE_VERSION.split('.')[1]);
 
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
@@ -51,7 +52,7 @@ class Extension {
     constructor() {
         DEBUG(' ~-~--={ Starting Sector Menu }=-~-~ ')
         DEBUG('constructor() begin...')
-        DEBUG(`${PACKAGE_NAME} version ${PACKAGE_VERSION}` )
+        DEBUG(`${PACKAGE_NAME}  ${PACKAGE_VERSION}` )
         DEBUG(' + getting settings')
         this.settings = Convenience.getSettings();
 
@@ -85,7 +86,6 @@ class Extension {
     enable() {
         DEBUG('enable() begin...')
 
-
         //Main.wm.allowKeybinding('toggle-overview', Shell.ActionMode.ALL);
         // Create a setting for the Handler takeover
 
@@ -99,16 +99,26 @@ class Extension {
         DEBUG(' + constructing icon and panel indicator')
         this.gicon = Gio.icon_new_for_string(Me.path + '/icons/sector-icon.svg');
         DEBUG(Me.metadata.name)
-        let _indicator = new PanelMenu.Button(0.0, Me.metadata.name);
+        this.indicator = new PanelMenu.Button(0.0, Me.metadata.name);
 
-        _indicator.add_actor(
-            new St.Icon({
-                gicon: this.gicon,
-                style_class: 'system-status-icon'
-            })
-        );
+        // Compatiblity with gshell < 3.30
+        if (SHELL_MINOR < 30) {
+                this.indicator.actor.add_child(
+                    new St.Icon({
+                        gicon: this.gicon,
+                        style_class: 'system-status-icon'
+                    })
+                )
+        } else {
+            this.indicator.add_actor(
+                new St.Icon({
+                    gicon: this.gicon,
+                    style_class: 'system-status-icon'
+                })
+            )
+        }
 
-        this.indicator = _indicator;
+        // this.indicator = _indicator;
         let pos = Main.sessionMode.panel.left.indexOf('appMenu');
         if ('apps-menu' in Main.panel.statusArea)
             pos++;
