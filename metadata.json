@@ -2,7 +2,7 @@
   "name": "Sector Menu",
   "description": "A gnome shell extension which provides quick access to a configurable set of applications and shortcuts. The extension also provides quick access to a command line and developer tool shortcuts. ",
   "uuid": "sectormenu@mknap.github.com",
-  "version": "5-dev",
+  "version": "6-drawsectors",
   "shell-version": ["3.34"],
   "settings-schema": "org.gnome.shell.extensions.sectormenu",
   "url": "http://github.com/mknap/sector-menu",
