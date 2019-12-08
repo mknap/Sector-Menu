@@ -99,26 +99,29 @@ var Fullscreen = class Fullscreen {
             this.tips = [];
             /** initBackground from coverflow platform.js */
             {
-                //     let Background = imports.ui.background;
-                //
-                // 	this._backgroundGroup = new Meta.BackgroundGroup();
-                // Main.layoutManager.uiGroup.add_child(this._backgroundGroup);
-                // this._backgroundGroup.lower_bottom();
-                // this._backgroundGroup.hide();
-                // for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
-                //     new Background.BackgroundManager({
-                //         container: this._backgroundGroup,
-                //         monitorIndex: i,
-                //         vignette: true });
-                //     }
-            }
+                let Background = imports.ui.background;
 
-            this.FSMenu = new St.Widget({
-                visible: true,
-                reactive: true,
-                style_class: 'sectormenu-fullscreen'
-            });
-            this.FSMenu.set_size(this.monitor.width, this.monitor.height);
+                this._backgroundGroup = new Meta.BackgroundGroup();
+                Main.layoutManager.uiGroup.add_child(this._backgroundGroup);
+                this._backgroundGroup.lower_bottom();
+                this._backgroundGroup.hide();
+                for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
+                    new Background.BackgroundManager({
+                        container: this._backgroundGroup,
+                        monitorIndex: i,
+                        vignette: true
+                    });
+                }
+            }
+            this.FSMenu = this._backgroundGroup;
+
+            // this.FSMenu = new St.Widget({
+            //     visible: true,
+            //     reactive: true,
+            //     style_class: 'sectormenu-fullscreen'
+            // });
+            // this.FSMenu.set_size(this.monitor.width, this.monitor.height);
+
             this.FSMenu.connect(
                 'key-release-event',
                 this._onKeyReleaseEvent.bind(this)
