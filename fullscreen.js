@@ -22,7 +22,7 @@
 const Clutter = imports.gi.Clutter;
 const Meta = imports.gi.Meta;
 const St = imports.gi.St;
-
+const Gdk = imports.gi.Gdk;
 const Signals = imports.signals;
 
 const AppFavorites = imports.ui.appFavorites;
@@ -197,7 +197,7 @@ var Fullscreen = class Fullscreen {
                     this.FSMenu.remove_actor(this.guidelines[n])
                     //DEBUG(`${n} of ${N}`)
                 }
-
+                this.FSMenu.remove_actor(this.texture);
                 this.entry_box.set_text('')
                 this.FSMenu.hide();
             }
@@ -240,93 +240,136 @@ var Fullscreen = class Fullscreen {
 
             if (this.settings.get_boolean('draw-at-mouse')) {
                 var [x0, y0, mask] = global.get_pointer();
-
-                for (let n = 0; n < N; n++) {
-                    //positioning
-                    let x = (R * Math.cos(n * 2 * Math.PI / (N)) + x0);
-                    let y = (R * Math.sin(n * 2 * Math.PI / (N)) + y0);
-
-
-                    let app = this.favs[n];
-                    if (app) {
-                        this.items[n] = new St.Button({
-                            style_class: 'panel-button',
-                            reactive: true,
-                            visible: true,
-                            opacity: 255,
-                        });
-                        let gicon = app.app_info.get_icon();
-                        let icon = new St.Icon({
-                            gicon: gicon,
-                            style_class: 'launcher-icon',
-                            //icon-size: this.settings.get_int('icon-size'),
-                            visible: true,
-                            opacity: 255,
-                        });
-                        this.items[n].set_child(icon);
-                        this.items[n]._delegate = this;
-
-                        let text = app.get_name();
-                        if (app.get_description()) {
-                            text += '\n' + app.get_description();
-                        }
-
-                        this.tips[n] = new St.Label({
-                            style_class: 'panel-launcher-label',
-                            opacity: 0,
-                        });
-                        this.tips[n].set_text(text);
-                        //this.tips[n].hide();
-                        this.items[n].tip = this.tips[n];
-
-                        this.items[n].connect('clicked', () => {
-                            app.open_new_window(-1);
-                            if (Main.overview.visible) {
-                                Main.overview.hide();
-                            }
-                            this.toggle();
-                        });
-                        this.items[n].connect(
-                            'notify::hover',
-                            this._onHoverChanged.bind(this));
-
-
-                        let [dx, dy] = [128, 128];
-                        // DEBUG(`dx: ${dx}, dy:${dy}`)
-                        this.items[n].set_position(x - dx / 2, y - dy / 2)
-                        this.items[n].opacity = 175;
-                        // playing around with Tweener
-                        Tweener.addTween(this.items[n], {
-                            opacity: 255,
-                            time: .85,
-                            transition: 'easeOutQuad',
-                        });
-
-
-                        this.FSMenu.add_actor(this.items[n])
-                        let [tx, ty] = this.tips[n].get_size();
-                        // DEBUG(`tx: ${tx}, ty:${ty}`)
-                        this.FSMenu.add_actor(this.tips[n])
-                        this.tips[n].set_position(x - (tx / 2), y + dy / 2 + 5)
-                    }
-                    //guidelines :
-                    if (this.settings.get_boolean('draw-guides')) {
-                        this.guidelines[n] = new Clutter.Actor({
-                            //"style": "guidelines",   //FIXME: can we do a clutter style?
-                            "background_color": RED,
-                            "width": 300,
-                            "height": 1,
-                            "x": x0,
-                            "y": y0,
-                            "rotation-angle-z": n * 360 / N + .5 * 350 / N
-                        });
-
-                        this.FSMenu.add_actor(this.guidelines[n])
-                    }
-                }
-
+            } else {
+                var [x0,y0] = [X/2, Y/2]
             }
+
+
+            for (let n = 0; n < N; n++) {
+                //positioning
+                let x = (R * Math.cos(n * 2 * Math.PI / (N)) + x0);
+                let y = (R * Math.sin(n * 2 * Math.PI / (N)) + y0);
+
+
+                let app = this.favs[n];
+                if (app) {
+                    this.items[n] = new St.Button({
+                        style_class: 'panel-button',
+                        reactive: true,
+                        visible: true,
+                        opacity: 255,
+                    });
+                    let gicon = app.app_info.get_icon();
+                    let icon = new St.Icon({
+                        gicon: gicon,
+                        style_class: 'launcher-icon',
+                        //icon-size: this.settings.get_int('icon-size'),
+                        visible: true,
+                        opacity: 255,
+                    });
+                    this.items[n].set_child(icon);
+                    this.items[n]._delegate = this;
+
+                    let text = app.get_name();
+                    if (app.get_description()) {
+                        text += '\n' + app.get_description();
+                    }
+
+                    this.tips[n] = new St.Label({
+                        style_class: 'panel-launcher-label',
+                        opacity: 0,
+                    });
+                    this.tips[n].set_text(text);
+                    //this.tips[n].hide();
+                    this.items[n].tip = this.tips[n];
+
+                    this.items[n].connect('clicked', () => {
+                        app.open_new_window(-1);
+                        if (Main.overview.visible) {
+                            Main.overview.hide();
+                        }
+                        this.toggle();
+                    });
+                    this.items[n].connect(
+                        'notify::hover',
+                        this._onHoverChanged.bind(this));
+
+
+                    let [dx, dy] = [128, 128];
+                    // DEBUG(`dx: ${dx}, dy:${dy}`)
+                    this.items[n].set_position(x - dx / 2, y - dy / 2)
+                    this.items[n].opacity = 175;
+                    // playing around with Tweener
+                    Tweener.addTween(this.items[n], {
+                        opacity: 255,
+                        time: .85,
+                        transition: 'easeOutQuad',
+                    });
+
+
+                    this.FSMenu.add_actor(this.items[n])
+                    let [tx, ty] = this.tips[n].get_size();
+                    // DEBUG(`tx: ${tx}, ty:${ty}`)
+                    this.FSMenu.add_actor(this.tips[n])
+                    this.tips[n].set_position(x - (tx / 2), y + dy / 2 + 5)
+                }
+                //guidelines :
+                if (this.settings.get_boolean('draw-guides')) {
+                    this.guidelines[n] = new Clutter.Actor({
+                        //"style": "guidelines",   //FIXME: can we do a clutter style?
+                        background_color: RED,
+                        width: 3*R,
+                        height: 1,
+                        x: x0,
+                        y: y0,
+                        rotation_angle_z: n * 360 / N + .5 * 350 / N,
+                        //transition: 'easeOutCubic',
+                    });
+
+                    this.FSMenu.add_actor(this.guidelines[n])
+                }
+            }
+            let p = new Clutter.Point({
+                x:0.5,
+                y:0.5,
+            });
+            DEBUG(p);
+
+            // DEBUG(M);
+
+            this.texture = new Clutter.Texture({
+                filename: Me.path+ "/ui/sector-gradient-512.svg",
+                reactive: true,
+                width: 3*R,
+                height: 3*R,
+                // pivot_point: p,
+                rotation_angle_x: 0,
+                rotation_angle_y: 0,
+                // rotation_angle_z: 360/N + 3* 180/N,
+                rotation_angle_z: 0,
+                x: x0,
+                y: y0-R,
+                // transition:  'easeOutCubic',
+            });
+            let tweenParams = {
+                time: 15    ,
+                //transition: 'easeOutCubic',
+                width: 3*R,
+                height: 3*R,
+                // pivot_point: p,
+                rotation_angle_x: 45,
+                rotation_angle_y: 45,
+                // rotation_angle_z: 360/N + 3* 180/N,
+                rotation_angle_z: 0,
+                x: x0,
+                y: y0-R,
+            }
+            this.FSMenu.add_actor(this.texture)
+            this.texture.lower_bottom();
+            Tweener.addTween(this.texture,tweenParams);
+
         }
+
 
         _onScrollEvent(actor, event) {
             DEBUG('_onScrollEvent()')
