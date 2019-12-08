@@ -97,30 +97,31 @@ var Fullscreen = class Fullscreen {
             this.guidelines = [];
             this.items = [];
             this.tips = [];
-            /** initBackground from coverflow platform.js */
-            {
-                let Background = imports.ui.background;
+            // /** initBackground from coverflow platform.js */
+            // {
+            //     let Background = imports.ui.background;
+            //
+            //     this._backgroundGroup = new Meta.BackgroundGroup();
+            //     Main.layoutManager.uiGroup.add_child(this._backgroundGroup);
+            //     this._backgroundGroup.lower_bottom();
+            //     this._backgroundGroup.hide();
+            //     for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
+            //         new Background.BackgroundManager({
+            //             container: this._backgroundGroup,
+            //             monitorIndex: i,
+            //             vignette: true
+            //         });
+            //     }
+            // }
+            // this.FSMenu = this._backgroundGroup;
 
-                this._backgroundGroup = new Meta.BackgroundGroup();
-                Main.layoutManager.uiGroup.add_child(this._backgroundGroup);
-                this._backgroundGroup.lower_bottom();
-                this._backgroundGroup.hide();
-                for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
-                    new Background.BackgroundManager({
-                        container: this._backgroundGroup,
-                        monitorIndex: i,
-                        vignette: true
-                    });
-                }
-            }
-            this.FSMenu = this._backgroundGroup;
-
-            // this.FSMenu = new St.Widget({
-            //     visible: true,
-            //     reactive: true,
-            //     style_class: 'sectormenu-fullscreen'
-            // });
-            // this.FSMenu.set_size(this.monitor.width, this.monitor.height);
+            this.FSMenu = new St.Widget({
+                visible: true,
+                reactive: true,
+                style_class: 'sectormenu-fullscreen',
+                //vignette: true,
+            });
+            this.FSMenu.set_size(this.monitor.width, this.monitor.height);
 
             this.FSMenu.connect(
                 'key-release-event',
@@ -358,6 +359,7 @@ var Fullscreen = class Fullscreen {
             }
             return Clutter.EVENT_PROPAGATE;
         }
+
         _entryRun(actor) { //TODO: and this params just (a)?
 
             DEBUG(`_entryRun().  ${actor}`);
