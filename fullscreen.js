@@ -349,7 +349,7 @@ var Fullscreen = class Fullscreen {
             for (let n = 0; n < N; n++) {
                 let p = new Clutter.Point({
                     x: 0.0,
-                    y: 0.0,
+                    y: 1.0,
                 });
 
                 this.texture[n] = new Clutter.Texture({
@@ -372,20 +372,25 @@ var Fullscreen = class Fullscreen {
                 let tweenParams = {
                     time: 1  ,
                     transition: 'easeOutExpo',
-                    opacity: 255,
+                    opacity: 76,
                     width: 2*R,
                     height: 2*R,
                     // pivot_point: p,
                     rotation_angle_x: 0,
-                    rotation_angle_y: 30,
-                    rotation_angle_z: n*360/N +  180/N,
+                    rotation_angle_y: 0,
+                    rotation_angle_z: n*360/N +  180/N +45,
                     // rotation_angle_z: 90,
                 }
                 this.FSMenu.add_actor(this.texture[n])
                 this.texture[n].lower_bottom();
+                this.texture[n].delegate=this;
                 this.texture[n].connect(
-                    'notify::hover',
-                    this._onPanelHoverChanged.bind(this)
+                    'enter-event',
+                    this._onMouseEnter.bind(this)
+                );
+                this.texture[n].connect(
+                    'leave-event',
+                    this._onMouseLeave.bind(this)
                 );
                 Tweener.addTween(this.texture[n],tweenParams);
             }
@@ -476,7 +481,7 @@ var Fullscreen = class Fullscreen {
         _onHoverChanged(actor) {
             DEBUG(`_onHoverChanged( ${actor} )`)
             Tweener.addTween(actor, {
-                opacity: actor.hover ? 255 : 200,
+                opacity: actor.hover ? 255 : 225,
                 height: actor.hover ? 200 : 128,
                 width: actor.hover ? 200 : 128,
                 gravity: Clutter.Gravity.CENTER,
@@ -487,18 +492,46 @@ var Fullscreen = class Fullscreen {
             actor.tip.opacity = actor.hover ? 255 : 0;
             actor.raise_top();
             actor.tip.raise_top();
+            return CLutter.EVENT_PROPOGATE;
         }
 
         _onPanelHoverChanged(cactor) {
             DEBUG('_onPanelHoverChanged()')
+
             Tweener.addTween(cactor,{
                 time: 1,
                 transition: 'easeOutBounce',
                 x:0,
                 y:0,
                 opacity: 255,
-
             })
+            cactor.raise_top();
+        }
+
+        _onMouseEnter(cactor) {
+            DEBUG('_onMouseMove()')
+
+            Tweener.addTween(cactor,{
+                time : .1,
+                transition: 'easeOutBounce',
+                scale_x : 1.2,
+                opacity: 255,
+            })
+            cactor.lower_bottom();
+        }
+
+        _onMouseLeave(cactor) {
+            DEBUG('_onMouseLeavee()')
+
+            Tweener.addTween(cactor,{
+                time: 1,
+                scale_x: .5,
+                scale_y: .5,
+
+                transition: 'easeOutBounce',
+                opacity: 76,
+            })
+            cactor.lower_bottom();
         }
 }
 

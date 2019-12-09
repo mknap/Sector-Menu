@@ -41,7 +41,7 @@
        fy="83.533195"
        r="67.865621"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(3.6788803e-5,1.9961013,-1.9961012,-1.4952277e-8,174.95157,39.93854)" />
+       gradientTransform="matrix(1.7820607,1.8396202,-0.33658599,0.32605098,7.7379549,15.212884)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -51,8 +51,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.75900676"
-     inkscape:cx="838.90366"
-     inkscape:cy="128.36171"
+     inkscape:cx="712.42257"
+     inkscape:cy="277.24049"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -98,7 +98,7 @@
      id="layer1"
      transform="translate(-8.0791541,-71.829699)">
     <rect
-       style="fill:url(#radialGradient852);fill-opacity:1;stroke:#31ff00;stroke-width:0.26458332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.18777293"
+       style="fill:url(#radialGradient852);fill-opacity:1;stroke:#31ff00;stroke-width:0.26458332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0"
        id="rect823"
        width="135.46666"
        height="135.46666"
