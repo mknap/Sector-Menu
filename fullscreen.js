@@ -19,6 +19,12 @@
  */
 
 
+ const Config = imports.misc.config;
+
+ const PACKAGE_NAME = Config.PACKAGE_NAME;
+ const PACKAGE_VERSION = Config.PACKAGE_VERSION;
+
+
 const Clutter = imports.gi.Clutter;
 const Meta = imports.gi.Meta;
 const St = imports.gi.St;
@@ -132,9 +138,11 @@ var Fullscreen = class Fullscreen {
                 this._onScrollEvent.bind(this)
             );
 
+
+            //bash entry box
             this.entry_box = new St.Entry({
                 style_class: 'entry-box',
-                hint_text: 'Run command',
+                hint_text: 'Run bash command',
                 track_hover: true,
                 can_focus: true,
                 x: 100,
@@ -151,9 +159,36 @@ var Fullscreen = class Fullscreen {
                 'key-press-event',
                 this._entryKeyPressEvent.bind(this)
             );
-            this.entry_box.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS); //TODO : What does this do?
+            //this.entry_box.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS); //TODO : What does this do?
             this.FSMenu.add_actor(this.entry_box)
 
+            //bash history
+            // TODO: Read imports.misc.history.HistoryManager`.
+            let hist = new St.Label({
+                style_class: 'STLabel-history',
+                x: 100,
+                y: 150,
+                width: this.monitor.width /4,
+                height: this.monitor.height /2,
+                text:'bash history (coming soon)',
+
+            })
+            this.FSMenu.add_actor(hist)
+
+            //TODO: Add a todo,notes,snippets
+            // let notes = new St.Entry({
+            //     style_class: 'STscrollview',
+            //     text: 'Notes, TODO, snips can go here.',
+            //     x: Math.round(this.monitor.width *.6),
+            //     y:100,
+            //     height: 500,
+            //     width: this.monitor.width /2,
+            //
+            // })
+            // this.FSMenu.add_actor(notes)
+
+
+            // info
             let info = new St.Label({
                 visible: true,
                 reactive: false,
@@ -162,16 +197,12 @@ var Fullscreen = class Fullscreen {
             info.set_text(
                 Me.metadata['name'] +
                 ' Version ' +
-                Me.metadata['version']
+                Me.metadata['version'] +
+                '\n' + PACKAGE_NAME +
+                ' Version ' + PACKAGE_VERSION
             );
             this.FSMenu.add_actor(info)
 
-            this.FSMenu.connect(
-                'scroll-event',
-                this._onScrollEvent.bind(this)
-            )
-
-            //Main.layoutManager.uiGroup.add_actor(this.FSMenu);
             Main.layoutManager.addChrome(this.FSMenu);
             DEBUG('fullscreen.constructor DONE.')
         }
@@ -492,7 +523,7 @@ var Fullscreen = class Fullscreen {
             actor.tip.opacity = actor.hover ? 255 : 0;
             actor.raise_top();
             actor.tip.raise_top();
-            return CLutter.EVENT_PROPOGATE;
+            return Clutter.EVENT_PROPOGATE;
         }
 
         _onPanelHoverChanged(cactor) {
