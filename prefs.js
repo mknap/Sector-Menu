@@ -160,19 +160,24 @@ function buildPrefsWidget() {
     );
     hbox.pack_start(label,false,false,0)
     hbox.pack_end(toggle,false,false,0)
+    hbox.set_tooltip_text(
+        this.settings.settings_schema.get_key('draw-guides').get_summary(),
+    )
     frame.pack_start(hbox,false,false,0)
 
     //draw-at-mouse:
     hbox = new Gtk.HBox({margin_left: 18,visible: true});
     label = new Gtk.Label({
-        label: 'Draw the sector menu at mouse',
+        label: 'Draw at mouse',
         use_markup: true,
         halign: Gtk.Align.START,
         visible: true,
+        //font_size: 14,
     })
     toggle = new Gtk.Switch({
         active: this.settings.get_boolean('draw-at-mouse'),
         halign: Gtk.Align.END,
+        valign: Gtk.Align.START,
         visible: true
     })
     this.settings.bind(
@@ -183,6 +188,9 @@ function buildPrefsWidget() {
     );
     hbox.pack_start(label,false,false,0)
     hbox.pack_end(toggle,false,false,0)
+    hbox.set_tooltip_text(
+        this.settings.settings_schema.get_key('draw-at-mouse').get_summary(),
+    )
     frame.pack_start(hbox,false,false,0)
 
     //TODO: Fix the iconsize in fullscreen.js
@@ -209,6 +217,9 @@ function buildPrefsWidget() {
         })
     hbox.pack_start(label,false,false,0)
     hbox.pack_end(spin,false,false,0)
+    hbox.set_tooltip_text(
+        this.settings.settings_schema.get_key('icon-size').get_summary(),
+    )
     frame.pack_start(hbox,false,false,0)
 
     //radius:
@@ -235,6 +246,9 @@ function buildPrefsWidget() {
         })
     hbox.pack_start(label,false,false,0)
     hbox.pack_end(spin,false,false,0)
+    hbox.set_tooltip_text(
+        this.settings.settings_schema.get_key('radius').get_summary(),
+    )
     frame.pack_start(hbox,false,false,0)
 
     //sectors:
@@ -261,6 +275,9 @@ function buildPrefsWidget() {
         })
     hbox.pack_start(label,false,false,0)
     hbox.pack_end(spin,false,false,0)
+    hbox.set_tooltip_text(
+        this.settings.settings_schema.get_key('sectors').get_summary(),
+    )
     frame.pack_start(hbox,false,false,0)
 
     // custom shortcuts:  TODO: fixme.
@@ -431,14 +448,18 @@ function buildPrefsWidget() {
     })
 
 
+
+
+    // DEBUG(v)
+
     // grid.attach (widget,col,row,width,height)
     grid.attach(name,0,0,2,1);
     grid.attach(icon,0,1,1,1);
     grid.attach(meta,1,1,1,1);
     grid.attach(desc,0,2,2,1);
 
-
     noteWidget.append_page(grid, aboutTab)
+
     // Return our widget which will be added to the window
     return noteWidget;
 }

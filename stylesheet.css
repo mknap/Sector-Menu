@@ -50,9 +50,12 @@
     padding: 0px 0px;
     align: center;
 }
-
-.sectormenu-fullscreen *:hover {    /* this is for debugging ST widgets */
-    outline: 1px rgba(0, 255, 25, 0.98)
+/* this is for debugging ST widgets */
+.sectormenu-fullscreen *:hover {
+    outline: 1px rgba(0, 255, 25, 0.07)
+}
+.sectormenu-fullscreen *:focus {    
+    outline: 1px rgba(227, 0, 255, 0.06)
 }
 
 .prefs large-label{

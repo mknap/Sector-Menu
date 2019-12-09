@@ -269,19 +269,20 @@ var Fullscreen = class Fullscreen {
             let R = this.settings.get_int('radius');
             let X = this.monitor.width;
             let Y = this.monitor.height;
+            let iconsize = this.settings.get_int('icon-size');
+            let x,y,x0,y0,app
 
             if (this.settings.get_boolean('draw-at-mouse'))
-                var [x0, y0, mask] = global.get_pointer();
-            else
-                var [x0,y0] = [X/2, Y/2]
+                [x0, y0] = global.get_pointer();
+            else [x0,y0] = [X/2, Y/2]
 
+            //fav apps
             for (let n = 0; n < N; n++) {
                 //positioning
-                let x = (R * Math.cos(n * 2 * Math.PI / (N)) + x0);
-                let y = (R * Math.sin(n * 2 * Math.PI / (N)) + y0);
+                x = (R * Math.cos(n * 2 * Math.PI / (N)) + x0);
+                y = (R * Math.sin(n * 2 * Math.PI / (N)) + y0);
 
-
-                let app = this.favs[n];
+                app = this.favs[n];
                 if (app) {
                     this.items[n] = new St.Button({
                         style_class: 'panel-button',
@@ -353,6 +354,60 @@ var Fullscreen = class Fullscreen {
                     //FIXME: some kind of offset bug here
                     this.tips[n].set_position(x - (tx / 2), y + dy / 2 + 5)
                 }
+            }
+
+            //sector panels:
+            this.texture=[];
+            let tweenParams;
+            let p = new Clutter.Point({
+                    x: 0.0,
+                    y: 1.0,
+                });
+
+            for (let n = 0; n < N; n++) {
+                //sector panels are clutter textures:
+                this.texture[n] = new Clutter.Texture({
+                    filename: Me.path+ "/ui/sector-gradient-512.svg",
+                    // border_color: RED,
+                    reactive: true,
+                    opacity: 0,
+                    width: .5*R,
+                    height: .5*R,
+                    // pivot_point: p,
+                    rotation_angle_x: 0,
+                    rotation_angle_y: 0,
+                    // rotation_angle_z: 360/N + 3* 180/N,
+                    rotation_angle_z: 0,
+                    //anchor_gravity: Clutter.Gravity.CENTER,
+                    x: x0,
+                    y: y0,
+                    // transition:  'easeOutCubic',
+                });
+                this.FSMenu.add_actor(this.texture[n])
+                this.texture[n].lower_bottom();
+                //  this.texture[n].delegate=this;
+                this.texture[n].connect(
+                    'enter-event',
+                    this._onMouseEnter.bind(this)
+                );
+                this.texture[n].connect(
+                    'leave-event',
+                    this._onMouseLeave.bind(this)
+                );
+                tweenParams = {
+                    time: 1  ,
+                    transition: 'easeOutExpo',
+                    opacity: 76,
+                    width: 2*R,
+                    height: 2*R,
+                    // pivot_point: p,
+                    rotation_angle_x: 0,
+                    rotation_angle_y: 0,
+                    rotation_angle_z: n*360/N +  180/N +45,
+                    // rotation_angle_z: 90,
+                }
+                Tweener.addTween(this.texture[n],tweenParams);
+
                 //guidelines :
                 if (this.settings.get_boolean('draw-guides')) {
                     this.guidelines[n] = new Clutter.Actor({
@@ -371,59 +426,6 @@ var Fullscreen = class Fullscreen {
                     })
                     this.FSMenu.add_actor(this.guidelines[n])
                 }
-
-
-            }
-
-            //sector panels:
-            this.texture=[];
-            for (let n = 0; n < N; n++) {
-                let p = new Clutter.Point({
-                    x: 0.0,
-                    y: 1.0,
-                });
-
-                this.texture[n] = new Clutter.Texture({
-                    filename: Me.path+ "/ui/sector-gradient-512.svg",
-                    // border_color: RED,
-                    reactive: true,
-                    opacity: 0,
-                    width: .5*R,
-                    height: .5*R,
-                    // pivot_point: p,
-                    rotation_angle_x: 0,
-                    rotation_angle_y: 0,
-                    // rotation_angle_z: 360/N + 3* 180/N,
-                    rotation_angle_z: 0,
-                    //anchor_gravity: Clutter.Gravity.CENTER,
-                    x: x0,
-                    y: y0,
-                    // transition:  'easeOutCubic',
-                });
-                let tweenParams = {
-                    time: 1  ,
-                    transition: 'easeOutExpo',
-                    opacity: 76,
-                    width: 2*R,
-                    height: 2*R,
-                    // pivot_point: p,
-                    rotation_angle_x: 0,
-                    rotation_angle_y: 0,
-                    rotation_angle_z: n*360/N +  180/N +45,
-                    // rotation_angle_z: 90,
-                }
-                this.FSMenu.add_actor(this.texture[n])
-                this.texture[n].lower_bottom();
-                this.texture[n].delegate=this;
-                this.texture[n].connect(
-                    'enter-event',
-                    this._onMouseEnter.bind(this)
-                );
-                this.texture[n].connect(
-                    'leave-event',
-                    this._onMouseLeave.bind(this)
-                );
-                Tweener.addTween(this.texture[n],tweenParams);
             }
         }
 
@@ -434,23 +436,6 @@ var Fullscreen = class Fullscreen {
         */
         _drawApps(){
 
-        }
-
-        _onScrollEvent(actor, event) {
-            DEBUG('_onScrollEvent()')
-            this.emit('scroll-event', event);
-            return Clutter.EVENT_PROPAGATE;
-        }
-
-        _onKeyReleaseEvent(actor, event) {
-            DEBUG('_onKeyReleaseEvent()')
-            let symbol = event.get_key_symbol();
-            DEBUG(actor);
-            DEBUG(symbol);
-            // if (symbol === Clutter.Key_Super) {
-            //     this.close();
-            // }
-            return Clutter.EVENT_PROPAGATE;
         }
 
         _entryKeyPressEvent(actor, event) { //TODO: why is this params (a,e)?
@@ -507,6 +492,23 @@ var Fullscreen = class Fullscreen {
             //this._shouldFadeOut = false;
             this.close();
             Meta.restart(_("Restarting…"));
+        }
+
+        _onScrollEvent(actor, event) {
+            DEBUG('_onScrollEvent()')
+            this.emit('scroll-event', event);
+            return Clutter.EVENT_PROPAGATE;
+        }
+
+        _onKeyReleaseEvent(actor, event) {
+            DEBUG('_onKeyReleaseEvent()')
+            let symbol = event.get_key_symbol();
+            DEBUG(actor);
+            DEBUG(symbol);
+            // if (symbol === Clutter.Key_Super) {
+            //     this.close();
+            // }
+            return Clutter.EVENT_PROPAGATE;
         }
 
         _onHoverChanged(actor) {
