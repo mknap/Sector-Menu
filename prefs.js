@@ -37,6 +37,12 @@ const DEBUG = function (message) {
    if(true) global.log( "[" + Me.metadata.name + "] " + message);
 }
 
+const Config = imports.misc.config;
+
+const PACKAGE_NAME = Config.PACKAGE_NAME;
+const PACKAGE_VERSION = Config.PACKAGE_VERSION;
+
+
 function init() {
     DEBUG(` ~-~-={ Initializing ${Me.metadata.name} Preferences }=-~-~ `);
 }
@@ -400,6 +406,22 @@ function buildPrefsWidget() {
         halign: Gtk.Align.START,
         valign: Gtk.Align.START,
     })
+    meta = new Gtk.Label({
+        name: 'meta-information',
+        visible: true,
+        margin: 12,
+        label: 'name: ' + Me.metadata['name'] +
+        '\n version: ' +
+        Me.metadata['version'] +
+        '\n' + PACKAGE_NAME +
+        ' Version ' + PACKAGE_VERSION +
+        '\n uuid: ' + Me.metadata['uuid'] +
+        '\n setting-schema: ' + Me.metadata['settings-schema'] +
+        '\n\n Copyright Mike Knap' +
+        '\n url: '+ Me.metadata['url'],
+        single_line_mode: false,
+
+    })
     desc=new Gtk.Label({
         visible: true,
         margin: 32,
@@ -412,7 +434,8 @@ function buildPrefsWidget() {
     // grid.attach (widget,col,row,width,height)
     grid.attach(name,0,0,2,1);
     grid.attach(icon,0,1,1,1);
-    grid.attach(desc,0,2,2,1)
+    grid.attach(meta,1,1,1,1);
+    grid.attach(desc,0,2,2,1);
 
 
     noteWidget.append_page(grid, aboutTab)
