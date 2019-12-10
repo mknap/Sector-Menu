@@ -96,6 +96,7 @@ var Fullscreen = class Fullscreen {
 
         constructor(settings) {
             DEBUG(`fullscreen.constructor()...`)
+
             this.is_open = false;
             this.monitor = Main.layoutManager.currentMonitor;
             this.favs = AppFavorites.getAppFavorites().getFavorites();
@@ -104,23 +105,26 @@ var Fullscreen = class Fullscreen {
             this.items = [];
             this.tips = [];
             /** initBackground from coverflow platform.js */
-            // {
-            //     let Background = imports.ui.background;
-            //
-            //     this._backgroundGroup = new Meta.BackgroundGroup();
-            //     Main.layoutManager.uiGroup.add_child(this._backgroundGroup);
-            //     this._backgroundGroup.lower_bottom();
-            //     this._backgroundGroup.hide();
-            //     for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
-            //         new Background.BackgroundManager({
-            //             container: this._backgroundGroup,
-            //             monitorIndex: i,
-            //             vignette: true
-            //         });
-            //     }
-            // }
-            // this.FSMenu = this._backgroundGroup;
+            /*
+{
+                let Background = imports.ui.background;
 
+                this._backgroundGroup = new Meta.BackgroundGroup();
+                Main.layoutManager.uiGroup.add_child(this._backgroundGroup);
+                this._backgroundGroup.lower_bottom();
+                this._backgroundGroup.hide();
+                for (let i = 0; i < Main.layoutManager.monitors.length; i++) {
+                    new Background.BackgroundManager({
+                        container: this._backgroundGroup,
+                        monitorIndex: i,
+                        vignette: true
+                    });
+                }
+            }
+            this.FSMenu = this._backgroundGroup;
+*/
+
+            // Main screen Widget
             this.FSMenu = new St.Widget({
                 visible: true,
                 reactive: true,
@@ -128,16 +132,18 @@ var Fullscreen = class Fullscreen {
                 //vignette: true,
             });
             this.FSMenu.set_size(this.monitor.width, this.monitor.height);
-
             this.FSMenu.connect(
                 'key-release-event',
                 this._onKeyReleaseEvent.bind(this)
             );
             this.FSMenu.connect(
+                'key-press-event',
+                this._onKeyPressEvent.bind(this)
+            );
+            this.FSMenu.connect(
                 'scroll-event',
                 this._onScrollEvent.bind(this)
             );
-
 
             //bash entry box
             this.entry_box = new St.Entry({
@@ -175,18 +181,20 @@ var Fullscreen = class Fullscreen {
             })
             this.FSMenu.add_actor(hist)
 
-            //TODO: Add a todo,notes,snippets
-            // let notes = new St.Entry({
-            //     style_class: 'STscrollview',
-            //     text: 'Notes, TODO, snips can go here.',
-            //     x: Math.round(this.monitor.width *.6),
-            //     y:100,
-            //     height: 500,
-            //     width: this.monitor.width /2,
-            //
-            // })
-            // this.FSMenu.add_actor(notes)
+            /*
+TODO: Add a todo,notes,snippets
+            let notes = new St.Entry({
+                style_class: 'STscrollview',
+                text: 'Notes, TODO, snips can go here.',
+                x: Math.round(this.monitor.width *.6),
+                y:100,
+                height: 500,
+                width: this.monitor.width /2,
 
+            })
+            this.FSMenu.add_actor(notes)
+
+*/
 
             // info
             let info = new St.Label({
@@ -203,13 +211,14 @@ var Fullscreen = class Fullscreen {
             );
             this.FSMenu.add_actor(info)
 
+            // Add the screen
             Main.layoutManager.addChrome(this.FSMenu);
             DEBUG('fullscreen.constructor DONE.')
         }
 
         destroy() {
             DEBUG('fullscreen.destroy()')
-            //this.FSMenu.destroy();
+            This.FSMenu.destroy();
 
         }
 
@@ -237,7 +246,6 @@ var Fullscreen = class Fullscreen {
 
         open() {
             DEBUG('fullscreen.open()')
-
             if (this.is_open) {
                 this.FSMenu.grab_key_focus();
                 this.FSMenu.raise_top();
@@ -246,8 +254,9 @@ var Fullscreen = class Fullscreen {
             this.is_open = true;
             //global.window_group.hide(); //makes screen fade
             this._drawSectors(this.settings.get_int('sectors'));
+            //this._drawApps(this.settings.get_int('sectors'))
             this.FSMenu.show();
-            this.entry_box.grab_key_focus();
+            //this.entry_box.grab_key_focus();
             // this.actor.grab_mouse_focus()
             this.FSMenu.raise_top();
         }
@@ -269,7 +278,8 @@ var Fullscreen = class Fullscreen {
             let R = this.settings.get_int('radius');
             let X = this.monitor.width;
             let Y = this.monitor.height;
-            let iconsize = this.settings.get_int('icon-size');
+            let iconSize = this.settings.get_int('icon-size');
+
             let x,y,x0,y0,app
 
             if (this.settings.get_boolean('draw-at-mouse'))
@@ -283,31 +293,33 @@ var Fullscreen = class Fullscreen {
                 y = (R * Math.sin(n * 2 * Math.PI / (N)) + y0);
 
                 app = this.favs[n];
-                if (app) {
-                    this.items[n] = new St.Button({
-                        style_class: 'panel-button',
-                        reactive: true,
-                        visible: true,
-                        opacity: 255,
-                        x:x0,
-                        y:y0,
-                    });
+                if (app != null) {
+                    // this.items[n] = new St.Button({
+                    //     style_class: 'panel-button',
+                    //     reactive: true,
+                    //     visible: true,
+                    //     opacity: 255,
+                    //     x:x0,
+                    //     y:y0,
+                    // });
                     let gicon = app.app_info.get_icon();
-                    let icon = new St.Icon({
+                    this.items[n] = new St.Icon({
                         gicon: gicon,
                         style_class: 'launcher-icon',
-                        //icon-size: this.settings.get_int('icon-size'),
+                        reactive: true,
+                        icon_size: iconSize,
                         visible: true,
                         opacity: 255,
+                        track_hover: true,
                     });
-                    this.items[n].set_child(icon);
-                    this.items[n]._delegate = this;
+                    // this.items[n].set_child(icon);
+                    //this.items[n]._delegate = this;
 
+                    // tooltips
                     let text = app.get_name();
                     if (app.get_description()) {
                         text += '\n' + app.get_description();
                     }
-
                     this.tips[n] = new St.Label({
                         style_class: 'panel-launcher-label',
                         opacity: 0,
@@ -317,34 +329,29 @@ var Fullscreen = class Fullscreen {
                     this.tips[n].set_text(text);
                     //this.tips[n].hide();
                     this.items[n].tip = this.tips[n];
-
-                    this.items[n].connect('clicked', () => {
-                        app.open_new_window(-1);
-                        if (Main.overview.visible) {
-                            Main.overview.hide();
-                        }
-                        this.toggle();
-                    });
                     this.items[n].connect(
                         'notify::hover',
                         this._onHoverChanged.bind(this));
+                    this.items[n].connect(
+                        'notify::clicked',
+                        this._onclicked.bind(this));
 
-
-                    let [dx, dy] = [128, 128];
+                    //positioning:rr
+                    let [dx, dy] = [iconSize, iconSize];
                     // DEBUG(`dx: ${dx}, dy:${dy}`)
-                    //this.items[n].set_position(x - dx / 2, y - dy / 2)
-                    this.items[n].opacity = 175;
+                    this.items[n].set_position(x - dx / 2, y - dy / 2)
+                    // this.items[n].opacity = 175;
                     // playing around with Tweener
-                    Tweener.addTween(this.items[n], {
-                        opacity: 255,
-                        time: .85,
-                        height:128,
-                        width:128,
-                        x: x-dx/2,
-                        y:y-dy/2,
-                        gravity: Clutter.Gravity.CENTER,
-                        transition: 'easeOutQuad',
-                    });
+                    // Tweener.addTween(this.items[n], {
+                    //     opacity: 255,
+                    //     time: .85,
+                    //     height:128,
+                    //     width:128,
+                    //     x: x-dx/2,rr
+                    //     y:y-dy/2,
+                    //     gravity: Clutter.Gravity.CENTER,
+                    //     transition: 'easeOutQuad',
+                    // });
 
 
                     this.FSMenu.add_actor(this.items[n])
@@ -353,10 +360,10 @@ var Fullscreen = class Fullscreen {
                     this.FSMenu.add_actor(this.tips[n])
                     //FIXME: some kind of offset bug here
                     this.tips[n].set_position(x - (tx / 2), y + dy / 2 + 5)
+                    }
                 }
-            }
 
-            //sector panels:
+           //sector panels:
             this.texture=[];
             let tweenParams;
             let p = new Clutter.Point({
@@ -432,9 +439,9 @@ var Fullscreen = class Fullscreen {
         /** @_drawApps
         Draws N sectors
         TODO
-        ..@param N the number of sectors to calculate and drawing
+        @param N the number of sectors to calculate and drawing
         */
-        _drawApps(){
+        _drawApps(N){
 
         }
 
@@ -502,6 +509,17 @@ var Fullscreen = class Fullscreen {
 
         _onKeyReleaseEvent(actor, event) {
             DEBUG('_onKeyReleaseEvent()')
+            let symbol = event.get_key_symbol();
+            DEBUG(actor);
+            DEBUG(symbol);
+            // if (symbol === Clutter.Key_Super) {
+            //     this.close();
+            // }
+            return Clutter.EVENT_PROPAGATE;
+        }
+
+        _onKeyPressEvent(actor, event) {
+            DEBUG('_onKeyPressEvent()')
             let symbol = event.get_key_symbol();
             DEBUG(actor);
             DEBUG(symbol);
