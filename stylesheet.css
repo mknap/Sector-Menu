@@ -22,9 +22,9 @@
     background-color: rgba(0, 0, 0, 0.69);
     border-color: rgba(0, 0, 0, 0.81);
     color: inherit;
-    theme: inherit;
-    track-hover: inherit;
-    can-focus: true;
+    /* theme: inherit; */
+    /* track-hover: inherit; */
+    /* can-focus: true; */
 
 }
 .sectormenu-fullscreen .guidelines {
@@ -48,7 +48,7 @@
     /* icon-size: 128px; */
     /* border-radius: 7px; */
     padding: 0px 0px;
-    align: center;
+    /* align: center; */
 }
 /* this is for debugging ST widgets */
 .sectormenu-fullscreen *:hover {
@@ -59,7 +59,7 @@
 }
 
 .prefs large-label{
-    visible: true;
-    use_markup: true;
+    /* visible: true; */
+    /* use_markup: true; */
     font-size: 2em;
 }
