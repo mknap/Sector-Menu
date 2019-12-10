@@ -524,8 +524,8 @@ TODO: Add a todo,notes,snippets
             // DEBUG(actor.name)
             // DEBUG(symbol);
             if (symbol === Clutter.KEY_Escape) {
-                if (actor.get_text()) {    //fixme: check for focus instead?
-                    actor.set_text('');
+                if (this.entry_box.get_text()) {    //fixme: check for focus instead?
+                    this.entry_box.set_text('');
                     return Clutter.EVENT_STOP;
                 } else {
                     this.close();
@@ -535,7 +535,7 @@ TODO: Add a todo,notes,snippets
                 Main.overview.toggle();
             } else {
                 this.entry_box.grab_key_focus();
-                //return Clutter.EVENT_PROPAGATE;
+                return Clutter.EVENT_PROPAGATE;
             }
         }
 
