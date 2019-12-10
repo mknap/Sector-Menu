@@ -56,28 +56,6 @@ class Extension {
         DEBUG(' + getting settings')
         this.settings = Convenience.getSettings();
 
-        /* BIG NOTE
-        from https://unix.stackexchange.com/questions/388238/how-to-set-super-windows-key-to-show-all-applications-menu-in-gnome-de
-
-        Running
-            settings set org.gnome.mutter overlay-key ''
-        removes the hard keybind of the win key. This can be undone with
-             gsettings set org.gnome.mutter overlay-key "['Super_L']"
-        And this should be able to be done within the javascript.
-
-        One problem that occurs is that other key combinations are then usurped. We should be able to wirte a pass-thru function ?
-        */
-        DEBUG(' + setting keybinding')
-        Main.wm.addKeybinding(
-            "toggle-sector-menu",
-            this.settings,
-            Meta.KeyBindingFlags.NONE,
-            ShellActionMode.NORMAL |
-            ShellActionMode.OVERVIEW,
-            /** See https://gitlab.gnome.org/GNOME/gjs/blob/master/doc/Modules.md */
-            //Lang.bind(this, this._keyAction)
-            this._keyAction.bind(this)
-        );
 
         DEBUG('constructor() Done.')
         Main.notify(Me.metadata.name + " loaded.")
@@ -124,6 +102,29 @@ class Extension {
         Main.panel.addToStatusArea(Me.metadata.name, this.indicator, pos, 'left');
 
         DEBUG(' + binding our settings and watching for changes')
+        /* BIG NOTE
+        from https://unix.stackexchange.com/questions/388238/how-to-set-super-windows-key-to-show-all-applications-menu-in-gnome-de
+
+        Running
+        settings set org.gnome.mutter overlay-key ''
+        removes the hard keybind of the win key. This can be undone with
+        gsettings set org.gnome.mutter overlay-key "['Super_L']"
+        And this should be able to be done within the javascript.
+
+        One problem that occurs is that other key combinations are then usurped. We should be able to wirte a pass-thru function ?
+        */
+        DEBUG(' + setting keybinding')
+        Main.wm.addKeybinding(
+            "toggle-sector-menu",
+            this.settings,
+            Meta.KeyBindingFlags.NONE,
+            ShellActionMode.NORMAL |
+            ShellActionMode.OVERVIEW,
+            /** See https://gitlab.gnome.org/GNOME/gjs/blob/master/doc/Modules.md */
+            //Lang.bind(this, this._keyAction)
+            this._keyAction.bind(this)
+        );
+
         // fixme
         if (SHELL_MINOR < 30) {
             this.settings.bind(
@@ -142,9 +143,6 @@ class Extension {
             )
 
         }
-
-
-
 
         DEBUG('enable() Done.')
     }

@@ -37,6 +37,12 @@ const DEBUG = function (message) {
    if(true) global.log( "[" + Me.metadata.name + "] " + message);
 }
 
+const Config = imports.misc.config;
+
+const PACKAGE_NAME = Config.PACKAGE_NAME;
+const PACKAGE_VERSION = Config.PACKAGE_VERSION;
+
+
 function init() {
     DEBUG(` ~-~-={ Initializing ${Me.metadata.name} Preferences }=-~-~ `);
 }
@@ -154,19 +160,24 @@ function buildPrefsWidget() {
     );
     hbox.pack_start(label,false,false,0)
     hbox.pack_end(toggle,false,false,0)
+    hbox.set_tooltip_text(
+        this.settings.settings_schema.get_key('draw-guides').get_summary(),
+    )
     frame.pack_start(hbox,false,false,0)
 
     //draw-at-mouse:
     hbox = new Gtk.HBox({margin_left: 18,visible: true});
     label = new Gtk.Label({
-        label: 'Draw the sector menu at mouse',
+        label: 'Draw at mouse',
         use_markup: true,
         halign: Gtk.Align.START,
         visible: true,
+        //font_size: 14,
     })
     toggle = new Gtk.Switch({
         active: this.settings.get_boolean('draw-at-mouse'),
         halign: Gtk.Align.END,
+        valign: Gtk.Align.START,
         visible: true
     })
     this.settings.bind(
@@ -177,6 +188,9 @@ function buildPrefsWidget() {
     );
     hbox.pack_start(label,false,false,0)
     hbox.pack_end(toggle,false,false,0)
+    hbox.set_tooltip_text(
+        this.settings.settings_schema.get_key('draw-at-mouse').get_summary(),
+    )
     frame.pack_start(hbox,false,false,0)
 
     //TODO: Fix the iconsize in fullscreen.js
@@ -194,7 +208,7 @@ function buildPrefsWidget() {
         visible: true,
     })
     spin.set_range(16,256);
-    spin.set_increments(2,16);
+    spin.set_increments(1,10);
     spin.set_value(this.settings.get_int('icon-size'))
     spin.connect(
         'changed',
@@ -203,6 +217,9 @@ function buildPrefsWidget() {
         })
     hbox.pack_start(label,false,false,0)
     hbox.pack_end(spin,false,false,0)
+    hbox.set_tooltip_text(
+        this.settings.settings_schema.get_key('icon-size').get_summary(),
+    )
     frame.pack_start(hbox,false,false,0)
 
     //radius:
@@ -221,7 +238,7 @@ function buildPrefsWidget() {
     })
     spin.set_range(16,512);
     spin.set_value(this.settings.get_int('radius'))
-    spin.set_increments(2,16);
+    spin.set_increments(1,20);
     spin.connect(
         'changed',
         (a) => {
@@ -229,6 +246,9 @@ function buildPrefsWidget() {
         })
     hbox.pack_start(label,false,false,0)
     hbox.pack_end(spin,false,false,0)
+    hbox.set_tooltip_text(
+        this.settings.settings_schema.get_key('radius').get_summary(),
+    )
     frame.pack_start(hbox,false,false,0)
 
     //sectors:
@@ -255,6 +275,9 @@ function buildPrefsWidget() {
         })
     hbox.pack_start(label,false,false,0)
     hbox.pack_end(spin,false,false,0)
+    hbox.set_tooltip_text(
+        this.settings.settings_schema.get_key('sectors').get_summary(),
+    )
     frame.pack_start(hbox,false,false,0)
 
     // custom shortcuts:  TODO: fixme.
@@ -400,6 +423,22 @@ function buildPrefsWidget() {
         halign: Gtk.Align.START,
         valign: Gtk.Align.START,
     })
+    meta = new Gtk.Label({
+        name: 'meta-information',
+        visible: true,
+        margin: 12,
+        label: 'name: ' + Me.metadata['name'] +
+        '\n version: ' +
+        Me.metadata['version'] +
+        '\n' + PACKAGE_NAME +
+        ' Version ' + PACKAGE_VERSION +
+        '\n uuid: ' + Me.metadata['uuid'] +
+        '\n setting-schema: ' + Me.metadata['settings-schema'] +
+        '\n\n Copyright Mike Knap' +
+        '\n url: '+ Me.metadata['url'],
+        single_line_mode: false,
+
+    })
     desc=new Gtk.Label({
         visible: true,
         margin: 32,
@@ -409,13 +448,18 @@ function buildPrefsWidget() {
     })
 
 
+
+
+    // DEBUG(v)
+
     // grid.attach (widget,col,row,width,height)
     grid.attach(name,0,0,2,1);
     grid.attach(icon,0,1,1,1);
-    grid.attach(desc,0,2,2,1)
-
+    grid.attach(meta,1,1,1,1);
+    grid.attach(desc,0,2,2,1);
 
     noteWidget.append_page(grid, aboutTab)
+
     // Return our widget which will be added to the window
     return noteWidget;
 }
