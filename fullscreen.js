@@ -221,7 +221,7 @@ TODO: Add a todo,notes,snippets
 
         destroy() {
             DEBUG('fullscreen.destroy()')
-            This.FSMenu.destroy();
+            this.FSMenu.destroy();
 
         }
 
@@ -478,9 +478,11 @@ TODO: Add a todo,notes,snippets
             } else if (command == 'b') {
                 Util.trySpawnCommandLine('bedtime');
                 // this.close();
-            } else if (command === 'p') {
-                Util.trySpawnCommandLine('gnome-extensions prefs ${Me}');
+            } else if (command == 'p') {
+                Util.trySpawnCommandLine('gnome-extensions prefs ${Me.metatdata["path"]}');
                 // this.close();
+            } else if (command == 'lg') {
+                 Main.createLookingGlass().open()
             } else {
                 Util.trySpawnCommandLine(command);
                 // this.close();
@@ -500,16 +502,16 @@ TODO: Add a todo,notes,snippets
         }
 
         _onScrollEvent(actor, event) {
-            DEBUG('_onScrollEvent()')
+            // DEBUG('_onScrollEvent()')
             this.emit('scroll-event', event);
             return Clutter.EVENT_PROPAGATE;
         }
 
         _onKeyReleaseEvent(actor, event) {
-            DEBUG('_onKeyReleaseEvent()')
+            // DEBUG('_onKeyReleaseEvent()')
             let symbol = event.get_key_symbol();
-            DEBUG(actor);
-            DEBUG(symbol);
+            // DEBUG(actor);
+            // DEBUG(symbol);
             // if (symbol === Clutter.Key_Super) {
             //     this.close();
             // }
@@ -517,10 +519,10 @@ TODO: Add a todo,notes,snippets
         }
 
         _onKeyPressEvent(actor, event) {
-            DEBUG('_onKeyPressEvent()')
+            // DEBUG('_onKeyPressEvent()')
             let symbol = event.get_key_symbol();
-            DEBUG(actor.name)
-            DEBUG(symbol);
+            // DEBUG(actor.name)
+            // DEBUG(symbol);
             if (symbol === Clutter.KEY_Escape) {
                 if (actor.get_text()) {
                     actor.set_text('');
@@ -538,10 +540,10 @@ TODO: Add a todo,notes,snippets
         }
 
         _onHoverChanged(actor) {
-            DEBUG(`_onHoverChanged( ${actor} )`)
+            // DEBUG(`_onHoverChanged( ${actor} )`)
+            // DEBUG(actor.anchor_x)
+            // DEBUG(actor.anchor_y)
             let iconSize = this.settings.get_int('icon-size');
-            DEBUG(actor.anchor_x)
-            DEBUG(actor.anchor_y)
             Tweener.addTween(actor, {
                 gravity: Clutter.Gravity.CENTER,
                 opacity: actor.hover ? 255 : 225,
@@ -556,7 +558,8 @@ TODO: Add a todo,notes,snippets
             return Clutter.EVENT_PROPOGATE;
         }
 
-        _onPanelHoverChanged(cactor) {
+        /*
+    _onPanelHoverChanged(cactor) {
             DEBUG('_onPanelHoverChanged()')
 
             Tweener.addTween(cactor,{
@@ -568,13 +571,14 @@ TODO: Add a todo,notes,snippets
             })
             cactor.raise_top();
         }
+*/
 
         _onMouseEnter(cactor) {
             // DEBUG('_onMouseMove()')
 
             Tweener.addTween(cactor,{
                 time : .1,
-                transition: 'easeOutBounce',
+                transition: 'easeOutExpo',
                 scale_x : 1.5,
                 scale_y : 1.5,
                 opacity: 255,
@@ -589,9 +593,8 @@ TODO: Add a todo,notes,snippets
                 time: 1,
                 scale_x: 1,
                 scale_y: 1,
-
                 transition: 'easeOutBounce',
-                opacity: 128,
+                opacity: 84,
             })
             cactor.lower_bottom();
         }
