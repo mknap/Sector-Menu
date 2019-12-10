@@ -414,7 +414,7 @@ function buildPrefsWidget() {
         // font: "Sans Bold 40"
     })
     icon = new Gtk.Image({
-        file: `${Me.path}/icons/sector-icon.svg`,
+        file: `${Me.path}/ui/icons/sector-icon.svg`,
         // style_class: 'system-status-icon',
         visible: true,
         pixel_size: 0,
