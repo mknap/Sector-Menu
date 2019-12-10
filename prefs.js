@@ -208,7 +208,7 @@ function buildPrefsWidget() {
         visible: true,
     })
     spin.set_range(16,256);
-    spin.set_increments(2,16);
+    spin.set_increments(1,10);
     spin.set_value(this.settings.get_int('icon-size'))
     spin.connect(
         'changed',
@@ -238,7 +238,7 @@ function buildPrefsWidget() {
     })
     spin.set_range(16,512);
     spin.set_value(this.settings.get_int('radius'))
-    spin.set_increments(2,16);
+    spin.set_increments(1,20);
     spin.connect(
         'changed',
         (a) => {

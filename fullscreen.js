@@ -101,6 +101,7 @@ var Fullscreen = class Fullscreen {
             this.monitor = Main.layoutManager.currentMonitor;
             this.favs = AppFavorites.getAppFavorites().getFavorites();
             this.settings = Convenience.getSettings();
+            // const module = require('module');this.iconSize = this.settings.get_int('icon-size')
             this.guidelines = [];
             this.items = [];
             this.tips = [];
@@ -126,9 +127,11 @@ var Fullscreen = class Fullscreen {
 
             // Main screen Widget
             this.FSMenu = new St.Widget({
+                name: 'FSMenu',
                 visible: true,
                 reactive: true,
                 style_class: 'sectormenu-fullscreen',
+                //gravity: Clutter.Gravity.CENTER,
                 //vignette: true,
             });
             this.FSMenu.set_size(this.monitor.width, this.monitor.height);
@@ -148,7 +151,7 @@ var Fullscreen = class Fullscreen {
             //bash entry box
             this.entry_box = new St.Entry({
                 style_class: 'entry-box',
-                hint_text: 'Run bash command',
+                hint_text: 'Type a command to run. Tab to overview. Esc to quit',
                 track_hover: true,
                 can_focus: true,
                 x: 100,
@@ -256,8 +259,8 @@ TODO: Add a todo,notes,snippets
             this._drawSectors(this.settings.get_int('sectors'));
             //this._drawApps(this.settings.get_int('sectors'))
             this.FSMenu.show();
-            //this.entry_box.grab_key_focus();
-            // this.actor.grab_mouse_focus()
+            this.FSMenu.grab_key_focus();
+
             this.FSMenu.raise_top();
         }
 
@@ -279,8 +282,9 @@ TODO: Add a todo,notes,snippets
             let X = this.monitor.width;
             let Y = this.monitor.height;
             let iconSize = this.settings.get_int('icon-size');
-
-            let x,y,x0,y0,app
+            let app=[];
+            let x,y,x0,y0
+            let [dx, dy] = [iconSize, iconSize];
 
             if (this.settings.get_boolean('draw-at-mouse'))
                 [x0, y0] = global.get_pointer();
@@ -292,33 +296,53 @@ TODO: Add a todo,notes,snippets
                 x = (R * Math.cos(n * 2 * Math.PI / (N)) + x0);
                 y = (R * Math.sin(n * 2 * Math.PI / (N)) + y0);
 
-                app = this.favs[n];
-                if (app != null) {
-                    // this.items[n] = new St.Button({
-                    //     style_class: 'panel-button',
-                    //     reactive: true,
-                    //     visible: true,
-                    //     opacity: 255,
-                    //     x:x0,
-                    //     y:y0,
-                    // });
-                    let gicon = app.app_info.get_icon();
-                    this.items[n] = new St.Icon({
-                        gicon: gicon,
-                        style_class: 'launcher-icon',
+                app[n] = this.favs[n];
+                if (app[n] != null) {
+                    this.items[n] = new St.Button({
+                        style_class: 'panel-button',
+                        label: app[n].get_name(),
                         reactive: true,
-                        icon_size: iconSize,
                         visible: true,
                         opacity: 255,
-                        track_hover: true,
+                        x_fill: true,
+                        y_fill: true,
+                        height: iconSize,
+                        width: iconSize,
+                        // x: x - dx/2,
+                        // y: y - dy/2,
+                        x: x,
+                        y: y,
+                        anchor_gravity: Clutter.Gravity.CENTER,
                     });
-                    // this.items[n].set_child(icon);
-                    //this.items[n]._delegate = this;
+                    let gicon = app[n].app_info.get_icon();
+                    let icon = new St.Icon({
+                        gicon: gicon,
+                        style_class: 'launcher-icon',
+                        //reactive: true,
+                        icon_size: 512,
+                        visible: true,
+                        opacity: 255,
+                        // x:x-dx/2,
+                        // y:y-dx/2,
+                        //track_hover: true,
+                    });
+                    this.items[n].set_child(icon);
+                    this.items[n]._delegate = this;
+                    this.items[n].connect(
+                        'notify::hover',
+                        this._onHoverChanged.bind(this));
+                    this.items[n].connect(
+                            'clicked',
+                            ()=>{
+                                app[n].open_new_window(-1);
+                                this.toggle();
+                            });
+                    this.FSMenu.add_actor(this.items[n])
 
                     // tooltips
-                    let text = app.get_name();
-                    if (app.get_description()) {
-                        text += '\n' + app.get_description();
+                    let text = app[n].get_name();
+                    if (app[n].get_description()) {
+                        text += '\n' + app[n].get_description();
                     }
                     this.tips[n] = new St.Label({
                         style_class: 'panel-launcher-label',
@@ -329,37 +353,11 @@ TODO: Add a todo,notes,snippets
                     this.tips[n].set_text(text);
                     //this.tips[n].hide();
                     this.items[n].tip = this.tips[n];
-                    this.items[n].connect(
-                        'notify::hover',
-                        this._onHoverChanged.bind(this));
-                    this.items[n].connect(
-                        'notify::clicked',
-                        this._onclicked.bind(this));
-
-                    //positioning:rr
-                    let [dx, dy] = [iconSize, iconSize];
-                    // DEBUG(`dx: ${dx}, dy:${dy}`)
-                    this.items[n].set_position(x - dx / 2, y - dy / 2)
-                    // this.items[n].opacity = 175;
-                    // playing around with Tweener
-                    // Tweener.addTween(this.items[n], {
-                    //     opacity: 255,
-                    //     time: .85,
-                    //     height:128,
-                    //     width:128,
-                    //     x: x-dx/2,rr
-                    //     y:y-dy/2,
-                    //     gravity: Clutter.Gravity.CENTER,
-                    //     transition: 'easeOutQuad',
-                    // });
-
-
-                    this.FSMenu.add_actor(this.items[n])
                     let [tx, ty] = this.tips[n].get_size();
-                    // DEBUG(`tx: ${tx}, ty:${ty}`)
-                    this.FSMenu.add_actor(this.tips[n])
                     //FIXME: some kind of offset bug here
-                    this.tips[n].set_position(x - (tx / 2), y + dy / 2 + 5)
+                    // this.tips[n].set_position(x - (tx / 2), y + dy / 2 + 5)
+                    this.tips[n].set_position(x, y + dy / 2 )
+                    this.FSMenu.add_actor(this.tips[n])
                     }
                 }
 
@@ -404,13 +402,13 @@ TODO: Add a todo,notes,snippets
                 tweenParams = {
                     time: 1  ,
                     transition: 'easeOutExpo',
-                    opacity: 76,
-                    width: 2*R,
-                    height: 2*R,
+                    opacity: 128,
+                    width: 3*R,
+                    height: 3*R,
                     // pivot_point: p,
                     rotation_angle_x: 0,
                     rotation_angle_y: 0,
-                    rotation_angle_z: n*360/N +  180/N +45,
+                    rotation_angle_z: n*360/N +  180/N,
                     // rotation_angle_z: 90,
                 }
                 Tweener.addTween(this.texture[n],tweenParams);
@@ -448,7 +446,7 @@ TODO: Add a todo,notes,snippets
         _entryKeyPressEvent(actor, event) { //TODO: why is this params (a,e)?
 
             let symbol = event.get_key_symbol();
-            DEBUG(actor)
+            DEBUG(actor.name)
             DEBUG(symbol);
             if (symbol === Clutter.KEY_Escape) {
                 if (actor.get_text()) {
@@ -461,7 +459,7 @@ TODO: Add a todo,notes,snippets
                 this.close();
                 Main.overview.toggle();
             }
-            return Clutter.EVENT_PROPAGATE;
+            //return Clutter.EVENT_PROPAGATE;
         }
 
         _entryRun(actor) { //TODO: and this params just (a)?
@@ -515,31 +513,43 @@ TODO: Add a todo,notes,snippets
             // if (symbol === Clutter.Key_Super) {
             //     this.close();
             // }
-            return Clutter.EVENT_PROPAGATE;
+            // return Clutter.EVENT_PROPAGATE;
         }
 
         _onKeyPressEvent(actor, event) {
             DEBUG('_onKeyPressEvent()')
             let symbol = event.get_key_symbol();
-            DEBUG(actor);
+            DEBUG(actor.name)
             DEBUG(symbol);
-            // if (symbol === Clutter.Key_Super) {
-            //     this.close();
-            // }
-            return Clutter.EVENT_PROPAGATE;
+            if (symbol === Clutter.KEY_Escape) {
+                if (actor.get_text()) {
+                    actor.set_text('');
+                    return Clutter.EVENT_STOP;
+                } else {
+                    this.close();
+                }
+            } else if (symbol == Clutter.KEY_Tab){
+                this.close();
+                Main.overview.toggle();
+            } else {
+                this.entry_box.grab_key_focus();
+                //return Clutter.EVENT_PROPAGATE;
+            }
         }
 
         _onHoverChanged(actor) {
             DEBUG(`_onHoverChanged( ${actor} )`)
+            let iconSize = this.settings.get_int('icon-size');
+            DEBUG(actor.anchor_x)
+            DEBUG(actor.anchor_y)
             Tweener.addTween(actor, {
-                opacity: actor.hover ? 255 : 225,
-                height: actor.hover ? 200 : 128,
-                width: actor.hover ? 200 : 128,
                 gravity: Clutter.Gravity.CENTER,
-                time: .2,
-                transition: 'easeOutBounce',
+                opacity: actor.hover ? 255 : 225,
+                height: actor.hover ? iconSize*1.5 : iconSize,
+                width: actor.hover ? iconSize*1.5 : iconSize,
+                time: .1,
+                transition: 'easeOutExpo',
             })
-            //actor.opacity = actor.hover ? 255 : 200;
             actor.tip.opacity = actor.hover ? 255 : 0;
             actor.raise_top();
             actor.tip.raise_top();
@@ -560,27 +570,28 @@ TODO: Add a todo,notes,snippets
         }
 
         _onMouseEnter(cactor) {
-            DEBUG('_onMouseMove()')
+            // DEBUG('_onMouseMove()')
 
             Tweener.addTween(cactor,{
                 time : .1,
                 transition: 'easeOutBounce',
-                scale_x : 1.2,
+                scale_x : 1.5,
+                scale_y : 1.5,
                 opacity: 255,
             })
             cactor.lower_bottom();
         }
 
         _onMouseLeave(cactor) {
-            DEBUG('_onMouseLeavee()')
+            // DEBUG('_onMouseLeave()')
 
             Tweener.addTween(cactor,{
                 time: 1,
-                scale_x: .5,
-                scale_y: .5,
+                scale_x: 1,
+                scale_y: 1,
 
                 transition: 'easeOutBounce',
-                opacity: 76,
+                opacity: 128,
             })
             cactor.lower_bottom();
         }
