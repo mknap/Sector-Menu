@@ -105,6 +105,7 @@ var Fullscreen = class Fullscreen {
 			this.guidelines = [];
 			this.items = [];
 			this.tips = [];
+			this.previews = [];
 			/** initBackground from coverflow platform.js */
 			/*
 {
@@ -274,7 +275,7 @@ var Fullscreen = class Fullscreen {
 			this._drawSectors(this.settings.get_int('sectors'));
 			//this._drawApps(this.settings.get_int('sectors'))
 			this.FSMenu.show();
-			this.FSMenu.grab_key_focus();
+			this.entry_box.grab_key_focus();
 
 			this.FSMenu.raise_top();
 		}
@@ -353,7 +354,64 @@ var Fullscreen = class Fullscreen {
 								this.toggle();
 							});
 					this.FSMenu.add_actor(this.items[n])
+					
+					// If app is running, show a preview 
+					this.items[n].state = app[n].state;
+					if (this.items[n].state){
+						let metawin = app[n].get_windows();
+						// let compositor = metawin.get_compositor_private();
+						DEBUG('~-=-~-=-~-=-~')
+						DEBUG(app[n].get_name());
+						DEBUG(app[n].get_app_info());
+						DEBUG(metawin)
+						DEBUG(metawin.length)
+						for (let i in metawin) {
+							let compositor=metawin[i].get_compositor_private();
+							if(compositor){
+								let texture=compositor.get_texture();
+								let width, height
+								if (texture.get_size) {
+									[width, height] = texture.get_size()
+								} else {
+									let preferred_size_ok
+									[preferred_size_ok, width, height] = texture.get_preferred_size();
+								}
 
+								let scale = 1.0;
+								const PREVIEW_SCALE = .1;
+								let previewWidth = this.monitor.width * PREVIEW_SCALE;
+								let previewHeight = this.monitor.height * PREVIEW_SCALE;
+								if (width > previewWidth || height > previewHeight)
+									scale = Math.min(previewWidth / width, previewHeight / height);
+
+								let clone = new Clutter.Clone({
+									opacity:255,
+									source: texture.get_size ? texture : compositor,
+									//reactive: true,
+									//anchor_gravity: Clutter.Gravity.CENTER,
+									width: this.monitor.width * PREVIEW_SCALE,
+									height: this.monitor.height * PREVIEW_SCALE,
+									x: 1.5 * R * Math.cos(n * 2 * Math.PI / (N)) + x0,
+									y: 1.5 * R * Math.sin(n * 2 * Math.PI / (N)) + x0,
+								});
+
+								/* clone.target_width = Math.round(width * scale);
+								clone.target_height = Math.round(height * scale);
+								clone.target_width_side = clone.target_width * 2 / 3;
+								clone.target_height_side = clone.target_height; */
+								this.FSMenu.add_actor(clone);
+							}
+							
+						
+						
+
+						//this.previews[n] = get.texture
+
+						//this.FSMenu.add_actor(this.previews[n]);
+						//this.previews[n].hide();
+						}
+					
+					}
 					// tooltips
 					let text = app[n].get_name();
 					if (app[n].get_description()) {
@@ -461,7 +519,7 @@ var Fullscreen = class Fullscreen {
 
 		}
 
-		_entryKeyPressEvent(actor, event) { //TODO: why is this params (a,e)?
+		_entryKeyPressEvent(actor, event) { 
 
 			let symbol = event.get_key_symbol();
 			DEBUG(actor.name)
@@ -480,7 +538,7 @@ var Fullscreen = class Fullscreen {
 			//return Clutter.EVENT_PROPAGATE;
 		}
 
-		_entryRun(actor) { //TODO: and this params just (a)?
+		_entryRun(actor) { 
 
 			DEBUG(`_entryRun().  ${actor}`);
 			//this.popModal();
@@ -521,8 +579,40 @@ var Fullscreen = class Fullscreen {
 
 		_onScrollEvent(actor, event) {
 			// DEBUG('_onScrollEvent()')
-			this.emit('scroll-event', event);
-			return Clutter.EVENT_PROPAGATE;
+			let direction;
+			switch (event.get_scroll_direction()) {
+			case Clutter.ScrollDirection.UP:
+				if (this._isHorizontal && this._settings.get_boolean('horizontal-workspace-switching')) {
+					direction = Meta.MotionDirection.LEFT;
+				} else {
+					direction = Meta.MotionDirection.UP;
+				}
+			break;
+			case Clutter.ScrollDirection.DOWN:
+				if (this._isHorizontal && this._settings.get_boolean('horizontal-workspace-switching')) {
+					direction = Meta.MotionDirection.RIGHT;
+				} else {
+					direction = Meta.MotionDirection.DOWN;
+				}
+			break;
+			case Clutter.ScrollDirection.LEFT:
+				if (this._isHorizontal && this._settings.get_boolean('horizontal-workspace-switching')) {
+					direction = Meta.MotionDirection.LEFT;
+				}
+			break;
+			case Clutter.ScrollDirection.RIGHT:
+				if (this._isHorizontal && this._settings.get_boolean('horizontal-workspace-switching')) {
+					direction = Meta.MotionDirection.RIGHT;
+				}
+			break;
+			}
+			//TODO: add this setting to schema and prefs
+			//if (this.settings.get_boolean('scroll-workspace')){
+			if (true && direction ) {
+				let activeWS = global.workspace_manager.get_active_workspace();
+				let ws=activeWS.get_neighbor(direction)
+				Main.wm.actionMoveWorkspace(ws)
+			}
 		}
 
 		_onKeyReleaseEvent(actor, event) {
