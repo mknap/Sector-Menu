@@ -7,6 +7,7 @@ A gnome shell extension which provides quick access to a configurable set of app
 This extension is currently in early development.
 
 ## Usage
+
 The default accelerator to show the extension is `<super>-z`.
 
 #### The sectors
@@ -15,7 +16,8 @@ Currently, the extension only shows a list of favorite apps in the sectors aroun
 #### The text entry
 The text entry box is *not* like the dash text entry box. This box will try to run the entered text as if it were typed on the command line. A `<Tab>` press will close the extension and switch to the default overview. `<Esc>` clears the text box; a second `<Esc>` press will close the extension.
 
-## Ideas coming up :
+## Ideas coming up
+
 * command history
 * pretty stuff
 * monitoring and other info in background
@@ -26,4 +28,5 @@ The text entry box is *not* like the dash text entry box. This box will try to r
 * custom typing shortcuts for the text entry box
 
 ## A handy hack
+
 It is possible to set the keyboard shortcut to the single '<Win>' or `<Super_L>` key with `dconf-editor`. This makes for a very quick way to access the favorites and a quick command line.  

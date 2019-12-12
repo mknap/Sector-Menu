@@ -462,9 +462,9 @@ var Fullscreen = class Fullscreen {
 					x: x0,
 					y: y0,
 				});
-				this.FSMenu.add_actor(this.texture[n])
+				this.FSMenu.add_child(this.texture[n])
 				this.texture[n].lower_bottom();
-				// this.texture[n].delegate=this;
+				this.texture[n].delegate=this;
 				this.texture[n].connect(
 					'enter-event',
 					this._onMouseEnter.bind(this, this.texture[n], n)
