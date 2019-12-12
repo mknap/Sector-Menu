@@ -190,7 +190,7 @@ var Fullscreen = class Fullscreen {
 
 			//bash history
 			// TODO: Read imports.misc.history.HistoryManager`.
-			let hist = new St.Label({
+			/* let hist = new St.Label({
 				style_class: 'STLabel-history',
 				x: 100,
 				y: 150,
@@ -199,7 +199,7 @@ var Fullscreen = class Fullscreen {
 				text:'bash history (coming soon)',
 
 			})
-			this.FSMenu.add_actor(hist)
+			this.FSMenu.add_actor(hist) */
 
 			/*
 			TODO: Add a todo,notes,snippets
@@ -315,8 +315,8 @@ var Fullscreen = class Fullscreen {
 				app[n] = this.favs[n];
 				if (app[n] != null) {
 					this.items[n] = new St.Button({
-						style_class: 'panel-button',
-						label: app[n].get_name(),
+						// style_class: 'panel-button',
+						//label: app[n].get_name(),
 						reactive: true,
 						visible: true,
 						opacity: 255,
@@ -354,17 +354,18 @@ var Fullscreen = class Fullscreen {
 								this.toggle();
 							});
 					this.FSMenu.add_actor(this.items[n])
-					
+					this.items[n].delegate = this;
 					// If app is running, show a preview 
 					this.items[n].state = app[n].state;
+					//TODO Here is where we do the previews for now
 					if (this.items[n].state){
 						let metawin = app[n].get_windows();
 						// let compositor = metawin.get_compositor_private();
-						DEBUG('~-=-~-=-~-=-~')
-						DEBUG(app[n].get_name());
-						DEBUG(app[n].get_app_info());
-						DEBUG(metawin)
-						DEBUG(metawin.length)
+						// DEBUG('~-=-~-=-~-=-~')
+						// DEBUG(app[n].get_name());
+						// DEBUG(app[n].get_app_info());
+						// DEBUG(metawin)
+						// DEBUG(metawin.length)
 						for (let i in metawin) {
 							let compositor=metawin[i].get_compositor_private();
 							if(compositor){
@@ -392,7 +393,7 @@ var Fullscreen = class Fullscreen {
 									width: this.monitor.width * PREVIEW_SCALE,
 									height: this.monitor.height * PREVIEW_SCALE,
 									x: 1.5 * R * Math.cos(n * 2 * Math.PI / (N)) + x0,
-									y: 1.5 * R * Math.sin(n * 2 * Math.PI / (N)) + x0,
+									y: 1.5 * R * Math.sin(n * 2 * Math.PI / (N)) + y0,
 								});
 
 								/* clone.target_width = Math.round(width * scale);
@@ -400,6 +401,7 @@ var Fullscreen = class Fullscreen {
 								clone.target_width_side = clone.target_width * 2 / 3;
 								clone.target_height_side = clone.target_height; */
 								this.FSMenu.add_actor(clone);
+								clone.delegate=this;
 							}
 							
 						
@@ -418,12 +420,13 @@ var Fullscreen = class Fullscreen {
 						text += '\n' + app[n].get_description();
 					}
 					this.tips[n] = new St.Label({
-						style_class: 'panel-launcher-label',
+						// style_class: 'panel-launcher-label',
 						opacity: 0,
 						x: x0,
 						y: y0
 					});
 					this.tips[n].set_text(text);
+					this.tips[n].delegate=this;
 					//this.tips[n].hide();
 					this.items[n].tip = this.tips[n];
 					let [tx, ty] = this.tips[n].get_size();
@@ -461,7 +464,7 @@ var Fullscreen = class Fullscreen {
 				});
 				this.FSMenu.add_actor(this.texture[n])
 				this.texture[n].lower_bottom();
-				//  this.texture[n].delegate=this;
+				// this.texture[n].delegate=this;
 				this.texture[n].connect(
 					'enter-event',
 					this._onMouseEnter.bind(this, this.texture[n], n)
@@ -480,9 +483,9 @@ var Fullscreen = class Fullscreen {
 					rotation_angle_x: 60,
 					rotation_angle_y: 60,
 					rotation_angle_z: n*360/N -180/N ,
-					translate_x: 0 ,
-					translate_y: 0 ,
-					translate_z: 0,
+					// translate_x: 0 ,
+					// translate_y: 0 ,
+					// translate_z: 0,
 				}
 				Tweener.addTween(this.texture[n],tweenParams);
 
@@ -653,7 +656,7 @@ var Fullscreen = class Fullscreen {
 			// DEBUG(actor.anchor_y)
 			let iconSize = this.settings.get_int('icon-size');
 			Tweener.addTween(actor, {
-				gravity: Clutter.Gravity.CENTER,
+				// gravity: Clutter.Gravity.CENTER,
 				opacity: actor.hover ? 255 : 225,
 				height: actor.hover ? iconSize*1.5 : iconSize,
 				width: actor.hover ? iconSize*1.5 : iconSize,
@@ -663,7 +666,7 @@ var Fullscreen = class Fullscreen {
 			actor.tip.opacity = actor.hover ? 255 : 0;
 			actor.raise_top();
 			actor.tip.raise_top();
-			return Clutter.EVENT_PROPOGATE;
+			// return Clutter.EVENT_PROPOGATE;
 		}
 
 		/*
@@ -682,9 +685,9 @@ var Fullscreen = class Fullscreen {
 		*/
 
 		_onMouseEnter(cactor, n) {
-			DEBUG('_onMouseEnter()')
-			DEBUG(cactor)
-			DEBUG(n)
+			// DEBUG('_onMouseEnter()')
+			// DEBUG(cactor)
+			// DEBUG(n)
 
 			Tweener.addTween(cactor, {
 				time : .1,
@@ -713,9 +716,9 @@ var Fullscreen = class Fullscreen {
 		}
 
 		_onMouseLeave(cactor, n) {
-			DEBUG('_onMouseLeave()')
+			// DEBUG('_onMouseLeave()')
 			// let m = new ClutterMatrix();
-			DEBUG(n);
+			// DEBUG(n);
 			Tweener.addTween(cactor,{
 				time: 1,
 				scale_x: 1,
