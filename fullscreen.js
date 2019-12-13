@@ -45,12 +45,12 @@ const Util = imports.misc.util;
 const Me = ExtensionUtils.getCurrentExtension()
 const Convenience = Me.imports.convenience;
 
-const DEBUG = function(message) {
+DEBUG = function (message, message2) {
 	// Enable for debugging purposes.
-	//if(true) global.log(Date().substr(16,8) + Me.metadata.name + message);
-
-	//TODO : make this more versatile with options, info, warn, etc.
-	if (true) global.log("[" + Me.metadata.name + "] " + message);
+	// TODO : make this more versatile with options, info, warn, etc. 
+	if (!message2) message2 = ""
+	else message2 = ", " + message2;
+	if (true) global.log("[" + Me.metadata.name + "] " + message + message2);
 }
 
 const WHITE = new Clutter.Color({
@@ -104,8 +104,8 @@ const GRAY = new Clutter.Color({
 			this.tips = [];
 			this.previews = [];
 			
-			// TODO: Show the background or not. Make a setting for this
-			if(false){
+			// TODO: Ways to get a container to draw in.  Make a setting for this?
+			if(false){ // * works ok but doesn't seem to do mouse-wheel events, and text color is off
 				/** initBackground from coverflow platform.js */
 			
 				let Background = imports.ui.background;
@@ -122,11 +122,23 @@ const GRAY = new Clutter.Color({
 					});
 				}			
 				this.FSMenu = this._backgroundGroup;
-			} else if (false) { // TODO this would make our screen a clutter stage 
+			} else if (false) { // * this would make our screen a clutter stage (not exactly what we want)
 				// Main screen Widget
-			 	this.FSMenu = new Clutter.Stage(); //does work, lots of tweak to do
-				this.FSMenu.set_fullscreen(true);
-			} else if (true) {   // * this is the approach I've had the best results with
+			 	this.FSMenu = new Clutter.Stage({
+					//  style_class: 'sectormenu-fullscreen',
+					 name: 'FSMenu-stage',
+					//  fullscreen: true,
+					 color: TRANS,
+					 visible: true,
+					 reactive: true,
+					 use_alpha: true,
+					 //accept_focus: true,
+					 //perspective: 
+
+				 }); //does work, lots of tweak to do
+				//this.FSMenu.activeate();
+				 //this.FSMenu.set_fullscreen(true);
+			} else if (true) {   // * this is the approach I've had the best results
 				this.FSMenu = new St.Widget({
 					name: 'FSMenu',
 					visible: true,
@@ -154,22 +166,8 @@ const GRAY = new Clutter.Color({
 				"button-press-event",
 				this._onButtonPressEvent.bind(this)
 			);
-			/* this.FSMenu.set_perspective(new Clutter.Perspective({
-				z_far: 100,
-				z_near: 1
-			})
-			) */
-			
-			// Make another widget just for our sectormenu
-			this.SectorMenu=new St.Widget({
-				name: "SectorMenu",
-				visible: true,
-				reactive: true,
-				style_class: 'sector-debug',
-
-			})
-			this.FSMenu.add_actor(this.SectorMenu);
-
+				
+				
 			//bash entry box
 			this.entry_box = new St.Entry({
 				style_class: 'entry-box',
@@ -192,22 +190,22 @@ const GRAY = new Clutter.Color({
 			);
 			//this.entry_box.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS); //TODO : What does this do?
 			this.FSMenu.add_actor(this.entry_box)
-
+				
 			//bash history
 			// TODO: Read imports.misc.history.HistoryManager`.
-			/* let hist = new St.Label({
+			let hist = new St.Label({
 				style_class: 'STLabel-history',
 				x: 100,
 				y: 150,
 				width: this.monitor.width /4,
 				height: this.monitor.height /2,
 				text:'bash history (coming soon)',
-
+				
 			})
-			this.FSMenu.add_actor(hist) */
-
-			/*
-			TODO: Add a todo,notes,snippets
+			this.FSMenu.add_actor(hist) 
+				
+						
+			// TODO: Add a todo,notes,snippets
 			let notes = new St.Entry({
 				style_class: 'STscrollview',
 				text: 'Notes, TODO, snips can go here.',
@@ -215,11 +213,12 @@ const GRAY = new Clutter.Color({
 				y:100,
 				height: 500,
 				width: this.monitor.width /2,
-
+				reactive: true,
+				
 			})
 			this.FSMenu.add_actor(notes)
-			*/
-
+				
+				
 			// info
 			let info = new St.Label({
 				visible: true,
@@ -234,20 +233,28 @@ const GRAY = new Clutter.Color({
 				' Version ' + PACKAGE_VERSION
 			);
 			this.FSMenu.add_actor(info)
+					
+			// Make another widget just for our sectormenu
+			this.SectorMenu=new St.Widget({
+				name: "SectorMenu",
+				visible: true,
+				reactive: true,
+				style_class: 'sector-debug',
 
-			// Add the screen
+			})
+			this.FSMenu.add_actor(this.SectorMenu);
+			
+			// Add the screen to the uiGroup
 			Main.layoutManager.addChrome(this.FSMenu);
 			//Main.uiGroup.add_actor(this.FSMenu)
 			DEBUG('fullscreen.constructor DONE.')
-		
-		
 		}
-
+				
 		destroy() {
 			DEBUG('fullscreen.destroy()')
 			this.FSMenu.destroy();
 		}
-
+		
 		close() {
 			DEBUG('fullscreen.close()')
 			this.is_open = false;
@@ -259,12 +266,12 @@ const GRAY = new Clutter.Color({
 					this.FSMenu.remove_actor(this.tips[n]);
 					this.FSMenu.remove_actor(this.texture[n]);
 				}
-
+				
 				if (this.settings.get_boolean('draw-guides')) {
-					this.FSMenu.remove_actor(this.guidelines[n])
-					//DEBUG(`${n} of ${N}`)
-				}
-				//rthis.FSMenu.remove_actor(this.texture[n]);
+				this.FSMenu.remove_actor(this.guidelines[n])
+				//DEBUG(`${n} of ${N}`)
+			}
+//rthis.FSMenu.remove_actor(this.texture[n]);
 			} */
 			let kids=this.SectorMenu.get_children();
 			kids.forEach( function (kids) {
@@ -302,6 +309,7 @@ const GRAY = new Clutter.Color({
 				this.open();
 		}
 
+		// TODO: move this code to separate file/class
 		/** @_drawSectors
 		Draws N sectors
 		@param N the number of sectors to calculate and drawing
@@ -314,8 +322,14 @@ const GRAY = new Clutter.Color({
 			let Y = this.monitor.height;
 			let iconSize = this.settings.get_int('icon-size');
 			let app=[];
-			let x,y,x0,y0
+			let x,y,x0,y0,angle
 			let [dx, dy] = [iconSize, iconSize];
+			let p = new Clutter.Point({
+				x:.5,
+				y:.5,
+			})
+			DEBUG(p)
+			DEBUG(p.x,p.y) 
 
 			if (this.settings.get_boolean('draw-at-mouse'))
 				[x0, y0] = global.get_pointer();
@@ -325,9 +339,13 @@ const GRAY = new Clutter.Color({
 			//this.SectorMenu.set_y(y0);
 		    //fav apps
 			for (let n = 0; n < N; n++) {
-				//positioning
-				x = (R * Math.cos(n * 2 * Math.PI / (N)) + x0);
-				y = (R * Math.sin(n * 2 * Math.PI / (N)) + y0);
+				//positioning 
+				let Theta = n*2* Math.PI / N;
+				let CosTheta=Math.cos(Theta);
+				let SinTheta=Math.sin(Theta)
+				
+				x = R*CosTheta + x0;
+				y = R*SinTheta + y0;
 
 				app[n] = this.favs[n];
 				if (app[n] != null) {
@@ -341,13 +359,15 @@ const GRAY = new Clutter.Color({
 						y_fill: true,
 						height: iconSize,
 						width: iconSize,
+						pivot_point: p,
 						// x: x - dx/2,
 						// y: y - dy/2,
 						x: x,
 						y: y,
-						anchor_gravity: Clutter.Gravity.CENTER,
+						anchor_gravity: Clutter.Gravity.CENTER, // FIXME pivot_point doesn't seem to work for ST.Widgets 
 					});
 					let gicon = app[n].app_info.get_icon();
+					
 					let icon = new St.Icon({
 						gicon: gicon,
 						style_class: 'launcher-icon',
@@ -355,6 +375,7 @@ const GRAY = new Clutter.Color({
 						icon_size: 512,
 						visible: true,
 						opacity: 255,
+						pivot_point: p,
 						// x:x-dx/2,
 						// y:y-dx/2,
 						//track_hover: true,
@@ -370,11 +391,31 @@ const GRAY = new Clutter.Color({
 								app[n].open_new_window(-1);
 								this.toggle();
 							});
+					
 					this.SectorMenu.add_actor(this.items[n])
-					this.items[n].delegate = this;
+					//this.items[n].delegate = this;
 					// If app is running, show a preview 
+
+					/* this.cl_items[n]=new Clutter.Texture({
+						//filename: gicon.path,
+						// border_color: RED,
+						reactive: true,
+						opacity: 255,
+						width: .5 * R,
+						height: .5 * R,
+						pivot_point: p,
+						rotation_angle_x: 0,
+						rotation_angle_y: 0,
+						// rotation_angle_z: 360/N + 3* 180/N,
+						rotation_angle_z: 0,
+						//anchor_gravity: Clutter.Gravity.CENTER,
+						x: x0,
+						y: y0,
+					}) */
 					this.items[n].state = app[n].state;
+					
 					//TODO Here is where we do the previews for now
+					DEBUG('   +drawing preview')
 					if (this.items[n].state){
 						let metawin = app[n].get_windows();
 						// let compositor = metawin.get_compositor_private();
@@ -401,24 +442,36 @@ const GRAY = new Clutter.Color({
 								let previewHeight = this.monitor.height * PREVIEW_SCALE;
 								if (width > previewWidth || height > previewHeight)
 									scale = Math.min(previewWidth / width, previewHeight / height);
+								
+								//this.SectorMenu.set_x_align(1)
+								//this.SectorMenu.set_y_align(.5)
+
 
 								let clone = new Clutter.Clone({
 									opacity:255,
 									source: texture.get_size ? texture : compositor,
-									//reactive: true,
-									//anchor_gravity: Clutter.Gravity.CENTER,
+									reactive: true,
+									anchor_gravity: Clutter.Gravity.CENTER,
+									pivot_point: p,
 									width: this.monitor.width * PREVIEW_SCALE,
 									height: this.monitor.height * PREVIEW_SCALE,
-									x: 1.5 * R * Math.cos(n * 2 * Math.PI / (N)) + x0,
-									y: 1.5 * R * Math.sin(n * 2 * Math.PI / (N)) + y0,
+									//x_align: 1,
+									//y_align: 1,
+									x: 1.5 * R*CosTheta + x0 ,
+									y: 1.5 * R*SinTheta + y0 ,
+									rotation_angle_x: 0*SinTheta,
+									rotation_angle_y: -30*CosTheta,
 								});
-
 								/* clone.target_width = Math.round(width * scale);
 								clone.target_height = Math.round(height * scale);
 								clone.target_width_side = clone.target_width * 2 / 3;
 								clone.target_height_side = clone.target_height; */
 								this.SectorMenu.add_child(clone);
-								clone.delegate=this;
+								Tweener.addTween(clone,{
+									translation_x: iconSize*CosTheta,
+									translation_y: 10,
+								})
+								//clone.delegate=this;
 							}
 							
 						
@@ -454,15 +507,13 @@ const GRAY = new Clutter.Color({
 					this.SectorMenu.add_actor(this.tips[n])
 					}
 				}
-		   //sector panels:
+			
+			//sector panels:
 			this.texture=[];
 			let tweenParams;
-			let p = new Clutter.Point({
-					x: 0.0,
-					y: 0.0,
-				});
-
+			
 			for (let n = 0; n < N; n++) {
+				p.init(0,0);
 				//sector panels are clutter textures:
 				this.texture[n] = new Clutter.Texture({
 					filename: Me.path+ "/ui/sector-gradient-512.svg",
@@ -476,7 +527,7 @@ const GRAY = new Clutter.Color({
 					rotation_angle_y: 0,
 					// rotation_angle_z: 360/N + 3* 180/N,
 					rotation_angle_z: 0,
-					//anchor_gravity: Clutter.Gravity.CENTER,
+					// anchor_gravity: Clutter.Gravity.CENTER,
 					x: x0,
 					y: y0,
 				});
@@ -536,9 +587,7 @@ const GRAY = new Clutter.Color({
 		TODO
 		@param N the number of sectors to calculate and drawing
 		*/
-		_drawApps(N){
-
-		}
+		_drawApps(N){}
 
 		_entryKeyPressEvent(actor, event) { 
 
@@ -576,7 +625,8 @@ const GRAY = new Clutter.Color({
 				Util.trySpawnCommandLine('bedtime');
 				// this.close();
 			} else if (command == 'p') {
-				Util.trySpawnCommandLine('gnome-extensions prefs ${Me.metatdata["path"]}');
+				Util.spawn(["gnome-shell-extension-prefs", Me.metadata.uuid]);
+				//Util.trySpawnCommandLine('gnome-shell-extension-prefs ${Me.metatdata["uuid"]}');
 				// this.close();
 			} else if (command == 'lg') {
 				 Main.createLookingGlass().open()
@@ -648,7 +698,7 @@ const GRAY = new Clutter.Color({
 		}
 
 		_onKeyPressEvent(actor, event) {
-			// DEBUG('_onKeyPressEvent()')
+			// DEBUG('fullscreen._onKeyPressEvent()')
 			let symbol = event.get_key_symbol();
 			// DEBUG(actor.name)
 			// DEBUG(symbol);
