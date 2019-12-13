@@ -1,4 +1,4 @@
-/* Add your custom extension styling here */
+
 
 .sectormenu-fullscreen {
     background-color: rgba(0, 0, 0, 0.82);
@@ -9,6 +9,15 @@
     color: white;
 }
 
+.sector-debug {
+    background-color: hsla(0, 100%, 50%, 0.075);
+    border-color: rgb(255, 0, 0);
+    border: 4;
+    padding: 4px;
+    opacity: 255;
+    color: #13c92211;
+}
+
 .sectormenu-fullscreen .content {
     border-color: red;
     color: white;
@@ -17,6 +26,18 @@
 .sectormenu-fullscreen .info {
     border-color: red;
     color: rgba(255, 255, 255, 1);
+}
+
+.sectormenu-fullscreen .tooltip {
+     color: green;
+     width: 300;
+     height: 1;
+}
+    
+.StLabel .tooltip {
+    color: rgb(126, 2, 241);
+    width: 300;
+    height: 1;
 }
 .sectormenu-fullscreen .STscrollview {
     background-color: rgba(0, 0, 0, 0.69);
@@ -32,7 +53,6 @@
     width: 300;
     height: 1;
 }
-
 .sectormenu-fullscreen .entry-box{
     width: 320px;
     padding: 7px,9px;
@@ -43,7 +63,6 @@
     padding: 7px,9px;
     border-radius: 18px;
 }
-
 .sectormenu-fullscreen .launcher-icon{
     /* icon-size: 128px; */
     /* border-radius: 7px; */
@@ -54,11 +73,9 @@
 .sectormenu-fullscreen *:hover {
     outline: 1px rgba(0, 255, 26,1)
 }
-
 .sectormenu-fullscreen *:focus {
     outline: 1px rgba(225, 0, 255,1)  ;
 }
-
 .prefs large-label{
     /* visible: true; */
     /* use_markup: true; */

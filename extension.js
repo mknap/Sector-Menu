@@ -40,12 +40,15 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Fullscreen = Me.imports.fullscreen;
 
-const DEBUG = function (message) {
-    // Enable for debugging purposes.
-    //TODO : make this more versatile with options, info, warn, etc.
-   if(true) global.log( "[" + Me.metadata.name + "] " + message);
-}
 const ShellActionMode = (Shell.ActionMode) ? Shell.ActionMode : Shell.KeyBindingMode;
+const 
+DEBUG = function (message,message2) {
+    // Enable for debugging purposes.
+    // TODO : make this more versatile with options, info, warn, etc. 
+   if(!message2) message2="" 
+   else message2= ", " + message2;
+    if(true) global.log( "[" + Me.metadata.name + "] " + message + message2) ;
+}
 
 
 class Extension {

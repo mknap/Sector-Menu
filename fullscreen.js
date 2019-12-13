@@ -53,38 +53,36 @@ const DEBUG = function(message) {
 	if (true) global.log("[" + Me.metadata.name + "] " + message);
 }
 
-/** Some constants for clutter colors: */
-
 const WHITE = new Clutter.Color({
 	'red': 255,
 	'blue': 255,
 	'green': 255,
 	'alpha': 255
-});
+	});
 const BLACK = new Clutter.Color({
 	'red': 0,
 	'blue': 0,
 	'green': 0,
 	'alpha': 255
-});
+	});
 const RED = new Clutter.Color({
 	'red': 255,
 	'blue': 0,
 	'green': 0,
 	'alpha': 255
-});
+	});
 const TRANS = new Clutter.Color({
 	'red': 255,
 	'blue': 255,
 	'green': 255,
 	'alpha': 0
-});
+	});
 const SEMITRANS = new Clutter.Color({
 	'red': 0,
 	'blue': 0,
 	'green': 0,
 	'alpha': 200
-});
+	});
 const GRAY = new Clutter.Color({
 	'red': 127,
 	'blue': 127,
@@ -92,23 +90,24 @@ const GRAY = new Clutter.Color({
 	'alpha': 127
 });
 
-var Fullscreen = class Fullscreen {
+	var Fullscreen = class Fullscreen {
 
-		constructor(settings) {
+		constructor() {
 			DEBUG(`fullscreen.constructor()...`)
 
 			this.is_open = false;
 			this.monitor = Main.layoutManager.currentMonitor;
 			this.favs = AppFavorites.getAppFavorites().getFavorites();
 			this.settings = Convenience.getSettings();
-			// const module = require('module');this.iconSize = this.settings.get_int('icon-size')
 			this.guidelines = [];
 			this.items = [];
 			this.tips = [];
 			this.previews = [];
-			/** initBackground from coverflow platform.js */
-			/*
-{
+			
+			// TODO: Show the background or not. Make a setting for this
+			if(false){
+				/** initBackground from coverflow platform.js */
+			
 				let Background = imports.ui.background;
 
 				this._backgroundGroup = new Meta.BackgroundGroup();
@@ -121,24 +120,23 @@ var Fullscreen = class Fullscreen {
 						monitorIndex: i,
 						vignette: true
 					});
-				}
+				}			
+				this.FSMenu = this._backgroundGroup;
+			} else if (false) { // TODO this would make our screen a clutter stage 
+				// Main screen Widget
+			 	this.FSMenu = new Clutter.Stage(); //does work, lots of tweak to do
+				this.FSMenu.set_fullscreen(true);
+			} else if (true) {   // * this is the approach I've had the best results with
+				this.FSMenu = new St.Widget({
+					name: 'FSMenu',
+					visible: true,
+					reactive: true,
+					style_class: 'sectormenu-fullscreen',
+					//gravity: Clutter.Gravity.CENTER,
+					//vignette: true,
+				});
 			}
-			this.FSMenu = this._backgroundGroup;
-*/
-
-			// Main screen Widget
-			// this.FSMenu = new Clutter.Stage(); //does work, lots of tweak to do
-			// this.FSMenu.set_fullscreen(true);
-
-
-			this.FSMenu = new St.Widget({
-				name: 'FSMenu',
-				visible: true,
-				reactive: true,
-				style_class: 'sectormenu-fullscreen',
-				//gravity: Clutter.Gravity.CENTER,
-				//vignette: true,
-			});
+			
 			this.FSMenu.set_size(this.monitor.width, this.monitor.height);
 			this.FSMenu.connect(
 				'key-release-event',
@@ -159,12 +157,19 @@ var Fullscreen = class Fullscreen {
 			/* this.FSMenu.set_perspective(new Clutter.Perspective({
 				z_far: 100,
 				z_near: 1
-
 			})
 			) */
-			// DEBUG(this.FSMenu.get_perspective())
 			
-			
+			// Make another widget just for our sectormenu
+			this.SectorMenu=new St.Widget({
+				name: "SectorMenu",
+				visible: true,
+				reactive: true,
+				style_class: 'sector-debug',
+
+			})
+			this.FSMenu.add_actor(this.SectorMenu);
+
 			//bash entry box
 			this.entry_box = new St.Entry({
 				style_class: 'entry-box',
@@ -174,13 +179,13 @@ var Fullscreen = class Fullscreen {
 				x: 100,
 				y: 100,
 				width: this.monitor.width / 4,
-			})
-			//ShellEntry.addContextMenu(this.entry_box)     //TODO: what does this do
+			});
+			ShellEntry.addContextMenu(this.entry_box)  ; 
 			this.entry_text = this.entry_box.clutter_text;
 			this.entry_text.connect(
 				'activate',
 				this._entryRun.bind(this)
-			)
+			);
 			this.entry_text.connect(
 				'key-press-event',
 				this._entryKeyPressEvent.bind(this)
@@ -232,13 +237,15 @@ var Fullscreen = class Fullscreen {
 
 			// Add the screen
 			Main.layoutManager.addChrome(this.FSMenu);
+			//Main.uiGroup.add_actor(this.FSMenu)
 			DEBUG('fullscreen.constructor DONE.')
+		
+		
 		}
 
 		destroy() {
 			DEBUG('fullscreen.destroy()')
 			this.FSMenu.destroy();
-
 		}
 
 		close() {
@@ -246,7 +253,7 @@ var Fullscreen = class Fullscreen {
 			this.is_open = false;
 			global.window_group.show();
 			let N = this.settings.get_int('sectors');
-			for (let n = 0; n < N; n++) {
+			/* for (let n = 0; n < N; n++) {
 				if (this.items[n] != null) {
 					this.FSMenu.remove_actor(this.items[n]);
 					this.FSMenu.remove_actor(this.tips[n]);
@@ -257,26 +264,34 @@ var Fullscreen = class Fullscreen {
 					this.FSMenu.remove_actor(this.guidelines[n])
 					//DEBUG(`${n} of ${N}`)
 				}
-				this.FSMenu.remove_actor(this.texture[n]);
-				this.entry_box.set_text('')
-				this.FSMenu.hide();
-			}
+				//rthis.FSMenu.remove_actor(this.texture[n]);
+			} */
+			let kids=this.SectorMenu.get_children();
+			kids.forEach( function (kids) {
+				try{
+					//this.FSMenu.remove_actor(kid);
+					kids.destroy();
+				} catch (e) {
+					DEBUG(e);
+				}
+			} );
+			this.FSMenu.hide();
+			this.entry_box.set_text('')
+		
 		}
 
 		open() {
 			DEBUG('fullscreen.open()')
-			if (this.is_open) {
-				this.FSMenu.grab_key_focus();
+			/* if (this.is_open) {
 				this.FSMenu.raise_top();
-				return;
-			}
+		
+			} */
 			this.is_open = true;
 			//global.window_group.hide(); //makes screen fade
 			this._drawSectors(this.settings.get_int('sectors'));
 			//this._drawApps(this.settings.get_int('sectors'))
 			this.FSMenu.show();
 			this.entry_box.grab_key_focus();
-
 			this.FSMenu.raise_top();
 		}
 
@@ -306,6 +321,8 @@ var Fullscreen = class Fullscreen {
 				[x0, y0] = global.get_pointer();
 			else [x0,y0] = [X/2, Y/2]
 
+			//this.SectorMenu.set_x(x0);
+			//this.SectorMenu.set_y(y0);
 		    //fav apps
 			for (let n = 0; n < N; n++) {
 				//positioning
@@ -353,7 +370,7 @@ var Fullscreen = class Fullscreen {
 								app[n].open_new_window(-1);
 								this.toggle();
 							});
-					this.FSMenu.add_actor(this.items[n])
+					this.SectorMenu.add_actor(this.items[n])
 					this.items[n].delegate = this;
 					// If app is running, show a preview 
 					this.items[n].state = app[n].state;
@@ -400,7 +417,7 @@ var Fullscreen = class Fullscreen {
 								clone.target_height = Math.round(height * scale);
 								clone.target_width_side = clone.target_width * 2 / 3;
 								clone.target_height_side = clone.target_height; */
-								this.FSMenu.add_actor(clone);
+								this.SectorMenu.add_child(clone);
 								clone.delegate=this;
 							}
 							
@@ -409,7 +426,7 @@ var Fullscreen = class Fullscreen {
 
 						//this.previews[n] = get.texture
 
-						//this.FSMenu.add_actor(this.previews[n]);
+						//this.SectorMenu.add_actor(this.previews[n]);
 						//this.previews[n].hide();
 						}
 					
@@ -420,20 +437,21 @@ var Fullscreen = class Fullscreen {
 						text += '\n' + app[n].get_description();
 					}
 					this.tips[n] = new St.Label({
-						// style_class: 'panel-launcher-label',
+						style_class: 'tooltip',
+						theme: null,
 						opacity: 0,
 						x: x0,
 						y: y0
 					});
 					this.tips[n].set_text(text);
-					this.tips[n].delegate=this;
+					//this.tips[n].delegate=this;
 					//this.tips[n].hide();
 					this.items[n].tip = this.tips[n];
 					let [tx, ty] = this.tips[n].get_size();
 					//FIXME: some kind of offset bug here
 					// this.tips[n].set_position(x - (tx / 2), y + dy / 2 + 5)
 					this.tips[n].set_position(x, y + dy / 2 )
-					this.FSMenu.add_actor(this.tips[n])
+					this.SectorMenu.add_actor(this.tips[n])
 					}
 				}
 		   //sector panels:
@@ -462,9 +480,9 @@ var Fullscreen = class Fullscreen {
 					x: x0,
 					y: y0,
 				});
-				this.FSMenu.add_child(this.texture[n])
+				this.SectorMenu.add_actor(this.texture[n])
 				this.texture[n].lower_bottom();
-				this.texture[n].delegate=this;
+				//this.texture[n].delegate=this;
 				this.texture[n].connect(
 					'enter-event',
 					this._onMouseEnter.bind(this, this.texture[n], n)
@@ -505,7 +523,7 @@ var Fullscreen = class Fullscreen {
 						time: 1,
 						rotation_angle_z: n * 360 / N + .5 * 360 / N,
 					})
-					this.FSMenu.add_actor(this.guidelines[n])
+					this.SectorMenu.add_actor(this.guidelines[n])
 				}
 			}
 		}
@@ -748,5 +766,5 @@ var Fullscreen = class Fullscreen {
 		}
 }
 
-// TODO : I am gathering that this adds methods to handle signals like emit() ?
+// * I am gathering that this adds methods to handle signals like emit() ?
 Signals.addSignalMethods(Fullscreen.prototype)
