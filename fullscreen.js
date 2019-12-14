@@ -164,10 +164,10 @@ var Fullscreen = class Fullscreen {
 			'scroll-event',
 			this._onScrollEvent.bind(this)
 		);
-		this.FSMenu.connect(
-			"button-press-event",
-			this._onButtonPressEvent.bind(this)
-		);
+		// this.FSMenu.connect(
+		// 	"button-press-event",
+		// 	this._onButtonPressEvent.bind(this)
+		// );
 			
 			
 		//bash entry box
@@ -319,9 +319,10 @@ var Fullscreen = class Fullscreen {
 		//this._drawApps(this.settings.get_int('sectors'))
 		this.FSMenu.show();
 		this.FSMenu.raise_top();
-		this.SectorMenu.show();
-		this.entry_box.raise_top();
 		this.entry_box.grab_key_focus();
+		this.entry_box.raise_top();
+		
+		this.SectorMenu.show();
 		
 	}
 
@@ -706,7 +707,7 @@ var Fullscreen = class Fullscreen {
 		DEBUG(actor);
 		DEBUG(symbol);
 		if (symbol == 65515) {
-		    this.close();
+		    //this.close();
 		}
 		//return Clutter.EVENT_PROPAGATE;
 	}

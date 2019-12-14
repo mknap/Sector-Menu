@@ -65,6 +65,7 @@ class SectorMenu {
 		this.R=this.settings.get_int('radius')
 		this.angle=360/this.N;
 
+		// A few different ways to create the main widget:
 		this.SMactorSTWidget = new St.Widget({
 			name: "SectorMenu",
 			visible: true,
@@ -72,14 +73,21 @@ class SectorMenu {
 			//style_class: 'sector-debug',
 		})
 		this.SMactorClutter = new Clutter.Actor({
+			width: this.monitor.width,
+			height: this.monitor.height,
 			visible: true,
 			reactive: true,
-			content_gravity: Clutter.ContentGravity.LEFT,
+			//ontent_gravity: Clutter.ContentGravity.LEFT,
 		})
 		
 		this.SMactor = this.SMactorClutter; 
 		this.SMactor.hide();
 		
+		// Connections
+		this.SMactor.connect(
+			"button-press-event",
+			this._onButtonPressEvent.bind(this)
+		);
 				
 		DEBUG('SectorMenu.constructor() Done.')
 	}
@@ -115,9 +123,9 @@ class SectorMenu {
 
 
 		this._drawGuides();
-		this._drawTests();
+		//this._drawTests();
 		
-		// this._drawPanels();
+		this._drawPanels();
 		// this._drawApps();
 		// this._drawSectors();
 		
@@ -221,7 +229,12 @@ class SectorMenu {
 		let tweenParams;
 		let R = this.R;
 		let N = this.N;
-		
+		let angle = this.angle;
+
+		let h = 2*R*Math.sqrt(1+Math.pow(Math.cos(.5*angle),2))  ;
+		DEBUG(h);
+		let w = 512
+
 		// So the angle between each guide is 360/N.
 		// we want to center at half that.
 		let p=new Clutter.Point({
@@ -233,20 +246,42 @@ class SectorMenu {
 
 		let panel = new Clutter.Texture({
 			filename: Me.path + "/ui/sector-gradientc-512.svg",
-			// pivot_point_x: 0,
-			// pivot_point_y: .5,
 			pivot_point: p,
-			anchor_x: 0,
-			anchor_y: .5,
+			pivot_point_z: -10,
+			width: w,
+			height: h,
 			opacity: 255,
 			reactive: true,
-			// height: 100,
-			// width: 400,
 			x: this.cx,
 			y: this.cy,
+			z_position: 10,
+			translation_x: 0,
+			translation_y: -p.y*h,
+			rotation_angle_x:0,
+			rotation_angle_y:0,
+			rotation_angle_z:0,
 		})
 		this.SMactor.add_actor(panel);
+		
+		stepTween(panel,{
+			rotation_angle_z : angle,
+			rotation_angle_y : 90,
+			translation_z : 10
+		})
+		
+		
+		// Tweener.addTween(panel,{
+		// 	delay: 1,
+		// 	time:3,
+		// 	rotation_angle_z: angle,
+		// })
 
+		// Tweener.addTween(panel,{
+		// 	time: 3,
+		// 	delay: 3,
+		// 	rotation_angle_y: -60,
+		// 	//translation_z:10,
+		// })
 
 		/* for (let n = 0; n < N; n++) {
 			this.panels[n] = new Clutter.Texture({
@@ -325,6 +360,21 @@ class SectorMenu {
 	
 	}
 	
+	_moveSectors(x,y){
+		DEBUG('sectormenu._moveSectors()')
+		this.SMactor.get_children().forEach(
+			function (k) {
+				Tweener.addTween(k,{
+					time: 1,
+						transition: 'linear',
+						x: x,
+						y: y,
+				})
+			}
+		)
+		
+	}
+	
 	_onMouseLeave(cactor,n){
 		DEBUG('sectormenu._onMouseLeave()',n)
 		Tweener.addTween(cactor, {
@@ -351,4 +401,34 @@ class SectorMenu {
 		
 	}
 
+	_onButtonPressEvent(cactor,event) {
+		DEBUG('sectormenu._onButtonPressEvent() ');
+		DEBUG(global.get_pointer(), event )
+		DEBUG(event.get_button())
+		switch( event.get_button() ){
+			case 1:
+				break;
+			case 2:
+				break;
+			case 3:
+				let [x,y]=global.get_pointer();
+				this._moveSectors(x,y);
+			break;
+		}
+	}
+}
+	
+function stepTween(actor, params) {
+	 
+	// for (let n=0; n < Object.keys(params).length; n++) {
+	// 	DEBUG( params[key[n]] )
+
+	// }}
+	for(let key in params) {
+		let stepparams={time:2,delay:1}
+		DEBUG(key, params[key])
+		stepparams[key] = params[key];
+		DEBUG(stepparams)
+		Tweener.addTween(actor, stepparams)
+	}	
 }
