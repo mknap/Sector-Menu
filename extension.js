@@ -60,7 +60,7 @@ class Extension {
         this.settings = Convenience.getSettings();
         DEBUG('constructor() Done.')
         Main.notify(Me.metadata.name + " loaded.")
-    }
+    }   
 
     enable() {
         DEBUG('enable() begin...')
@@ -125,7 +125,9 @@ class Extension {
             //Lang.bind(this, this._keyAction)
             this._keyAction.bind(this)
         );
-
+        DEBUG(' + constructing fullscreen menu')
+        this.fullscreen = new Fullscreen.Fullscreen();
+        
         // fixme
         if (SHELL_MINOR < 30) {
             this.settings.bind(

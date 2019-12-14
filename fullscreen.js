@@ -45,6 +45,8 @@ const Util = imports.misc.util;
 const Me = ExtensionUtils.getCurrentExtension()
 const Convenience = Me.imports.convenience;
 
+const SectorMenu = Me.imports.sectormenu;
+
 DEBUG = function (message, message2) {
 	// Enable for debugging purposes.
 	// TODO : make this more versatile with options, info, warn, etc. 
@@ -235,23 +237,48 @@ const GRAY = new Clutter.Color({
 			this.FSMenu.add_actor(info)
 					
 			// Make another widget just for our sectormenu
-			this.SectorMenu=new St.Widget({
+			
+			//TODO 
+			this.SectorMenu=new SectorMenu.SectorMenu();
+			/* this.SectorMenu=new St.Widget({
 				name: "SectorMenu",
 				visible: true,
 				reactive: true,
 				style_class: 'sector-debug',
 
-			})
-			this.FSMenu.add_actor(this.SectorMenu);
+			}) */
+			this.FSMenu.add_actor(this.SectorMenu.SMactor);
 			
 			// Add the screen to the uiGroup
+			this.FSMenu.hide();
 			Main.layoutManager.addChrome(this.FSMenu);
 			//Main.uiGroup.add_actor(this.FSMenu)
+			
+			//Get the stage for the FSMenu, and see if we can tweak a few things
+			/* this.stage = this.FSMenu.get_stage();
+			DEBUG(this.stage)
+			let oldperspective=this.stage.get_perspective();
+			DEBUG(oldperspective.aspect, oldperspective.fovy);
+			DEBUG(oldperspective.z_far, oldperspective.z_near);
+			
+			this.perspective=new Clutter.Perspective({
+				aspect: 16/9,
+				fovy: 40,
+				z_far:  450,
+				z_near: 1,
+			})
+			this.stage.set_perspective(this.perspective);
+			oldperspective = this.stage.get_perspective();
+			DEBUG(oldperspective.aspect, oldperspective.fovy);
+			DEBUG(oldperspective.z_far, oldperspective.z_near); */
+
+			
 			DEBUG('fullscreen.constructor DONE.')
 		}
 				
 		destroy() {
 			DEBUG('fullscreen.destroy()')
+			this.SectorMenu.destroy();
 			this.FSMenu.destroy();
 		}
 		
@@ -259,7 +286,7 @@ const GRAY = new Clutter.Color({
 			DEBUG('fullscreen.close()')
 			this.is_open = false;
 			global.window_group.show();
-			let N = this.settings.get_int('sectors');
+			//let N = this.settings.get_int('sectors');
 			/* for (let n = 0; n < N; n++) {
 				if (this.items[n] != null) {
 					this.FSMenu.remove_actor(this.items[n]);
@@ -273,15 +300,7 @@ const GRAY = new Clutter.Color({
 			}
 //rthis.FSMenu.remove_actor(this.texture[n]);
 			} */
-			let kids=this.SectorMenu.get_children();
-			kids.forEach( function (kids) {
-				try{
-					//this.FSMenu.remove_actor(kid);
-					kids.destroy();
-				} catch (e) {
-					DEBUG(e);
-				}
-			} );
+			/* f */
 			this.FSMenu.hide();
 			this.entry_box.set_text('')
 		
@@ -295,11 +314,13 @@ const GRAY = new Clutter.Color({
 			} */
 			this.is_open = true;
 			//global.window_group.hide(); //makes screen fade
-			this._drawSectors(this.settings.get_int('sectors'));
+			// * this._drawSectors(this.settings.get_int('sectors'));
 			//this._drawApps(this.settings.get_int('sectors'))
 			this.FSMenu.show();
-			this.entry_box.grab_key_focus();
 			this.FSMenu.raise_top();
+			this.SectorMenu.show();
+			this.entry_box.raise_top();
+			this.entry_box.grab_key_focus();
 		}
 
 		toggle() {
@@ -316,6 +337,7 @@ const GRAY = new Clutter.Color({
 		*/
 		_drawSectors(N) {
 			DEBUG('fullscreen._drawSectors()');
+			DEBUG(this.SectorMenu.x,this.SectorMenu.y)
 
 			let R = this.settings.get_int('radius');
 			let X = this.monitor.width;
@@ -516,7 +538,7 @@ const GRAY = new Clutter.Color({
 				p.init(0,0);
 				//sector panels are clutter textures:
 				this.texture[n] = new Clutter.Texture({
-					filename: Me.path+ "/ui/sector-gradient-512.svg",
+					filename: Me.path+ "/ui/sector-gradientb-512.svg",
 					// border_color: RED,
 					reactive: true,
 					opacity: 0,
@@ -545,8 +567,8 @@ const GRAY = new Clutter.Color({
 				tweenParams = {
 					time: 1  ,
 					transition: 'easeOutExpo',
-					opacity: 128,
-					width: 3*R,
+					opacity: 228,
+					width: 10*R,
 					height: 3*R,
 					// pivot_point: p,
 					rotation_angle_x: 60,
