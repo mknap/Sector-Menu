@@ -9,11 +9,11 @@
     color: white;
 }
 
-.sector-debug {
-    background-color: hsla(0, 100%, 50%, 0.075);
+.sectormenu-fullscreen .sector-debug  {
+    background-color: rgba(255, 0, 0, 0.26);
     border-color: rgb(255, 0, 0);
-    border: 4;
-    padding: 4px;
+    border: 0;
+    padding: 0px;
     opacity: 255;
     color: #13c92211;
 }

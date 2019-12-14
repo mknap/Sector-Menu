@@ -302,6 +302,7 @@ const GRAY = new Clutter.Color({
 			} */
 			/* f */
 			this.FSMenu.hide();
+			this.SectorMenu.close();
 			this.entry_box.set_text('')
 		
 		}
@@ -321,6 +322,7 @@ const GRAY = new Clutter.Color({
 			this.SectorMenu.show();
 			this.entry_box.raise_top();
 			this.entry_box.grab_key_focus();
+			
 		}
 
 		toggle() {
