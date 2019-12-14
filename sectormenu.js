@@ -65,12 +65,19 @@ class SectorMenu {
 		this.R=this.settings.get_int('radius')
 		this.angle=360/this.N;
 
-		this.SMactor = new St.Widget({
+		this.SMactorSTWidget = new St.Widget({
 			name: "SectorMenu",
 			visible: true,
 			reactive: true,
 			//style_class: 'sector-debug',
 		})
+		this.SMactorClutter = new Clutter.Actor({
+			visible: true,
+			reactive: true,
+			content_gravity: Clutter.ContentGravity.LEFT,
+		})
+		
+		this.SMactor = this.SMactorClutter; 
 		this.SMactor.hide();
 		
 				
@@ -98,17 +105,21 @@ class SectorMenu {
 			[this.cx, this.cy] = this.monitor.width/2, this.monitor.length/2;
 		
 		
-		DEBUG(this.SMactor.get_child_transform())
+	/* 	DEBUG(this.SMactor.get_child_transform())
 		DEBUG(this.SMactor.get_transformed_position())
-		let cz=-50;
+		let cz=-0;
 		this.SMactor.set_translation(0,0,cz)
-		DEBUG(this.SMactor.get_transformed_position())
+		DEBUG(this.SMactor.get_transformed_position()) */
 		
-		
+		DEBUG(this.SMactor);
+
+
 		this._drawGuides();
-		this._drawPanels();
-		//this._drawApps();
-		//this._drawSectors();
+		this._drawTests();
+		
+		// this._drawPanels();
+		// this._drawApps();
+		// this._drawSectors();
 		
 		this.SMactor.show();
 			
@@ -205,6 +216,83 @@ class SectorMenu {
 
 	}
 
+	_drawTests(){
+		DEBUG('sectormenu._drawTests()')
+		let tweenParams;
+		let R = this.R;
+		let N = this.N;
+		
+		// So the angle between each guide is 360/N.
+		// we want to center at half that.
+		let p=new Clutter.Point({
+			x:0,
+			y:.5,
+		})
+		DEBUG(p)
+		DEBUG(p.x,p.y)
+
+		let panel = new Clutter.Texture({
+			filename: Me.path + "/ui/sector-gradientc-512.svg",
+			// pivot_point_x: 0,
+			// pivot_point_y: .5,
+			pivot_point: p,
+			anchor_x: 0,
+			anchor_y: .5,
+			opacity: 255,
+			reactive: true,
+			// height: 100,
+			// width: 400,
+			x: this.cx,
+			y: this.cy,
+		})
+		this.SMactor.add_actor(panel);
+
+
+		/* for (let n = 0; n < N; n++) {
+			this.panels[n] = new Clutter.Texture({
+				filename: Me.path + "/ui/sector-gradienta-512.svg",
+				// border_color: RED,
+				reactive: true,
+				opacity: 0,
+				width: .5 * R,
+				height: .5 * R,
+				//pivot_point: p,
+				rotation_angle_x: 0,
+				rotation_angle_y: 0,
+				// rotation_angle_z: 360/N + 3* 180/N,
+				rotation_angle_z: 0,
+				// anchor_gravity: Clutter.Gravity.CENTER,
+				x: this.cx,
+				y: this.cy,
+			});
+			this.SMactor.add_actor(this.panels[n]);
+			this.panels[n].lower_bottom();
+			this.panels[n].connect(
+				'enter-event',
+				this._onMouseEnter.bind(this, this.panels[n], n)
+			);
+			this.panels[n].connect(
+				'leave-event',
+				this._onMouseLeave.bind(this, this.panels[n], n)
+			);
+			tweenParams = {
+				time: 1,
+				transition: 'easeOutExpo',
+				opacity: 255,
+				width: 10 * R,
+				height: 3 * R,
+				opacity: 64,
+				// pivot_point: p,
+				rotation_angle_x: 0,
+				rotation_angle_y: 0,
+				rotation_angle_z: n * 360 / N - 180 / N,
+				// translate_x: 0 ,
+				// translate_y: 0 ,
+				// transl ate_z: 0,
+			}
+			Tweener.addTween(this.panels[n], tweenParams);
+		}*/
+	}
 	_get_previews(){}
 
 	_onMouseEnter(cactor,n){
