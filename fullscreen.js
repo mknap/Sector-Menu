@@ -279,6 +279,9 @@ var Fullscreen = class Fullscreen {
 	destroy() {
 		DEBUG('fullscreen.destroy()')
 		this.SectorMenu.destroy();
+		
+		// thanks andyholmes
+		Main.layoutManager.removeChrome(this.FSMenu)
 		this.FSMenu.destroy();
 	}
 	
