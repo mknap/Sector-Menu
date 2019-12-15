@@ -77,6 +77,8 @@ class SectorMenu {
 			height: this.monitor.height,
 			visible: true,
 			reactive: true,
+			z_position: 0,
+			//background_color: //TODO
 			//ontent_gravity: Clutter.ContentGravity.LEFT,
 		})
 		
@@ -169,6 +171,7 @@ class SectorMenu {
 	_defineSectors(){
 
 	}
+
 	_drawPanels(){
 		DEBUG('sectormenu._drawPanels()')
 		let tweenParams;
@@ -176,7 +179,7 @@ class SectorMenu {
 		let N=this.N;
 		for (let n = 0; n < N; n++) {
 			this.panels[n] = new Clutter.Texture({
-				filename: Me.path + "/ui/sector-gradienta-512.svg",
+				filename: Me.path + "/ui/sector-gradientb-512.svg",
 				// border_color: RED,
 				reactive: true,
 				opacity: 0,
@@ -210,7 +213,7 @@ class SectorMenu {
 				opacity: 64,
 				// pivot_point: p,
 				rotation_angle_x: 0,
-				rotation_angle_y: 0,
+				rotation_angle_y: 60,
 				rotation_angle_z: n * 360 / N - 180 / N,
 				// translate_x: 0 ,
 				// translate_y: 0 ,
@@ -409,6 +412,10 @@ class SectorMenu {
 			case 1:
 				break;
 			case 2:
+				Tweener.addTween(cactor,{
+					time: 2,
+					transition: 'linear',
+					scale_z: -.1})
 				break;
 			case 3:
 				let [x,y]=global.get_pointer();
