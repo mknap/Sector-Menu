@@ -44,6 +44,7 @@ const RED = new Clutter.Color({
 	'green': 0,
 	'alpha': 128
 });
+
 var SectorMenu = class SectorMenu {
 	
     constructor(){
@@ -113,13 +114,6 @@ var SectorMenu = class SectorMenu {
 			[this.cx, this.cy] = global.get_pointer();
 		else
 			[this.cx, this.cy] = this.monitor.width/2, this.monitor.length/2;
-		
-		
-	/* 	DEBUG(this.SMactor.get_child_transform())
-		DEBUG(this.SMactor.get_transformed_position())
-		let cz=-0;
-		this.SMactor.set_translation(0,0,cz)
-		DEBUG(this.SMactor.get_transformed_position()) */
 		
 		DEBUG(this.SMactor);
 
@@ -331,6 +325,7 @@ var SectorMenu = class SectorMenu {
 			Tweener.addTween(this.panels[n], tweenParams);
 		}*/
 	}
+
 	_get_previews(){}
 
 	_onMouseEnter(cactor,n){
