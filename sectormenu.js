@@ -30,6 +30,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension()
 const Convenience = Me.imports.convenience;
 
+const System = imports.system; // * For debugging ? 
 DEBUG = function (message, message2) {
 	// Enable for debugging purposes.
 	// TODO : make this more versatile with options, info, warn, etc. 
@@ -50,7 +51,7 @@ var SectorMenu = class SectorMenu {
     constructor(){
 		DEBUG('SectorMenu.constructor() ...')
 				
-		this.is_open = false;
+		this.isOpen = false;
 		this.monitor = Main.layoutManager.currentMonitor;
 		this.favs = AppFavorites.getAppFavorites().getFavorites();
 		this.settings = Convenience.getSettings();
@@ -64,6 +65,7 @@ var SectorMenu = class SectorMenu {
 
 		this.N=this.settings.get_int('sectors')
 		this.R=this.settings.get_int('radius')
+		this.iconSize = this.settings.get_int('icon-size');
 		this.angle=360/this.N;
 
 		// A few different ways to create the main widget:
@@ -106,6 +108,7 @@ var SectorMenu = class SectorMenu {
 				DEBUG(e);
 			}
 		});
+		this.isOpen=false;
 	};
 
 	show(){
@@ -116,17 +119,29 @@ var SectorMenu = class SectorMenu {
 			[this.cx, this.cy] = this.monitor.width/2, this.monitor.length/2;
 		
 		DEBUG(this.SMactor);
-
-
+		this.N=this.settings.get_int('sectors')
+		this.R=this.settings.get_int('radius')
+		this.iconSize=this.settings.get_int('icon-size')
+		
 		this._drawGuides();
 		//this._drawTests();
 		
 		this._drawPanels();
-		// this._drawApps();
+		this._drawApps();
+		this._drawCenter();
+		this._drawPreviews();
+
 		// this._drawSectors();
 		
 		this.SMactor.show();
-			
+		this.isOpen=true;
+	}
+	toggle(){
+		DEBUG('sectormenu.toggle()');
+		if (this.isOpen == true)
+			this.close();
+		else if (this.isOpen == false)
+			this.open();
 	}
 
     destroy(){
@@ -135,6 +150,7 @@ var SectorMenu = class SectorMenu {
 		this.SMactor.destroy;
     }
 
+	// * Drawing methods
 	_drawGuides(){
 		DEBUG('SectorMenu._drawGuides()')
 		if (this.settings.get_boolean('draw-guides')) {
@@ -166,6 +182,58 @@ var SectorMenu = class SectorMenu {
 
 	}
 
+	_drawCenter(){
+		
+		DEBUG('sectormenu._drawCenter()')
+		let center = new Clutter.Texture({
+			filename: Me.path + '/ui/icons/sector-icon.svg',
+			reactive: true,
+			opacity: 50,
+			width: this.iconSize,
+			height: this.iconSize,
+			//pivot_point: p,
+			rotation_angle_x: 0,
+			rotation_angle_y: 0,
+			// rotation_angle_z: 360/N + 3* 180/N,
+			rotation_angle_z: 0,
+			anchor_gravity: Clutter.Gravity.CENTER,
+			x: this.cx,
+			y: this.cy,
+		}) ;
+		this.SMactor.add_actor(center);
+		//center.lower_bottom();
+		let base={
+			onStartParams: [],
+			count: 2,
+			time: 1,
+			transition: 'linear',
+			scale_x: 1,
+			scale_y: 1,
+			opacity: 128,
+			// ? not sure how theese work yet
+			//onCompleteParams: [],
+			//onComplete: Tweener.addTween(this, pulseParams),
+			//onCompleteScope: this
+		}
+		Tweener.addTween(center,{
+			//base: base,
+			delay: .1,
+			count: 3,
+			time: 3,
+			color: 0xffdd33 ,
+			transition: 'linear',
+			scale_x: 3,
+			scale_y: 3,
+			opacity: 255,
+			//autoreverse: true,
+			//loop: true,
+			// ? not sure how theese work yet
+			//nCompleteParams: [],
+			//onComplete: Tweener.addTween(this, pulseParams),
+			//onCompleteScope: this,
+		})
+	}
+
 	_drawPanels(){
 		DEBUG('sectormenu._drawPanels()')
 		let tweenParams;
@@ -173,7 +241,7 @@ var SectorMenu = class SectorMenu {
 		let N=this.N;
 		for (let n = 0; n < N; n++) {
 			this.panels[n] = new Clutter.Texture({
-				filename: Me.path + "/ui/sector-gradientb-512.svg",
+				filename: Me.path + "/ui/sector-gradient-512.svg",
 				// border_color: RED,
 				reactive: true,
 				opacity: 0,
@@ -217,8 +285,154 @@ var SectorMenu = class SectorMenu {
 		}
 	}
 
-	_drawApps(){
+	_drawPreviews(){
+		DEBUG("sectormenu._drawPreviews()")
+		for( let n=0; n < this.N; n++){
+			let app=[];
+			app[n] = this.favs[n];
+			let p = new Clutter.Point({
+				x:.5,
+				y:.5
+			})
+			let R=this.R;
 
+			if (this.items[n].state) {
+				let Theta = n * 2 * Math.PI / this.N;
+				let CosTheta = Math.cos(Theta);
+				let SinTheta = Math.sin(Theta);
+				let x = R * CosTheta + this.cx;
+				let y = R * SinTheta + this.cy;
+				
+				
+				let metawin = app[n].get_windows();
+				// let compositor = metawin.get_compositor_private();
+				DEBUG('~-=-~-=-~-=-~')
+				// DEBUG(app[n].get_name());
+				// DEBUG(app[n].get_app_info());
+				// DEBUG(metawin)
+				// DEBUG(metawin.length)
+				for (let i in metawin) {
+					let compositor = metawin[i].get_compositor_private();
+					if (compositor) {
+						let texture = compositor.get_texture();
+						let width, height
+						if (texture.get_size) {
+							[width, height] = texture.get_size()
+						} else {
+							let preferred_size_ok
+							[preferred_size_ok, width, height] = texture.get_preferred_size();
+						}
+
+						let scale = 1.0;
+						const PREVIEW_SCALE = .1;
+						let previewWidth = this.monitor.width * PREVIEW_SCALE;
+						let previewHeight = this.monitor.height * PREVIEW_SCALE;
+						if (width > previewWidth || height > previewHeight)
+							scale = Math.min(previewWidth / width, previewHeight / height);
+
+						//this.SectorMenu.set_x_align(1)
+						//this.SectorMenu.set_y_align(.5)
+
+
+						let clone = new Clutter.Clone({
+							opacity: 255,
+							source: texture.get_size ? texture : compositor,
+							reactive: true,
+							anchor_gravity: Clutter.Gravity.CENTER,
+							pivot_point: p,
+							width: this.monitor.width * PREVIEW_SCALE,
+							height: this.monitor.height * PREVIEW_SCALE,
+							//x_align: 1,
+							//y_align: 1,
+							x: 1.5 * R * CosTheta + this.cx,
+							y: 1.5 * R * SinTheta + this.cy,
+							rotation_angle_x: 0 * SinTheta,
+							rotation_angle_y: -30 * CosTheta,
+						});
+						/* clone.target_width = Math.round(width * scale);
+						clone.target_height = Math.round(height * scale);
+						clone.target_width_side = clone.target_width * 2 / 3;
+						clone.target_height_side = clone.target_height; */
+						this.SMactor.add_child(clone);
+						Tweener.addTween(clone, {
+							translation_x: this.iconSize * CosTheta,
+							translation_y: 10,
+						})
+						//clone.delegate=this;
+					}
+					//this.previews[n] = get.texture
+
+					// this.SMactor.add_actor(this.previews[n]);
+					//this.previews[n].hide();
+				}
+
+			}
+	
+		}
+	}
+
+	_drawApps(){
+		DEBUG("sectormenu._drawApps()")
+		let tweenParams;
+		let R = this.R;
+		let N = this.N;
+		let iconSize = this.iconSize;
+		let app=[];
+		let p
+		
+		for (let n = 0; n < N; n++) {
+			//positioning 
+			let Theta = n * 2 * Math.PI / N;
+			let CosTheta = Math.cos(Theta);
+			let SinTheta = Math.sin(Theta)
+			let x = R * CosTheta + this.cx;
+			let y = R * SinTheta + this.cy;
+			
+			
+			app[n] = this.favs[n];
+			if (app[n] != null) {
+				this.items[n] = new St.Button({
+					// style_class: 'panel-button',
+					//label: app[n].get_name(),
+					reactive: true,
+					visible: true,
+					opacity: 255,
+					x_fill: true,
+					y_fill: true,
+					height: iconSize,
+					width: iconSize,
+					//pivot_point: p,
+					// x: x - dx/2,
+					// y: y - dy/2,
+					x: x,
+					y: y,
+					anchor_gravity: Clutter.Gravity.CENTER, // FIXME pivot_point doesn't seem to work for ST.Widgets 
+				});
+				let gicon = app[n].app_info.get_icon();
+				let icon = new St.Icon({
+					gicon: gicon,
+					style_class: 'launcher-icon',
+					//reactive: true,
+					icon_size: 512,
+					visible: true,
+					opacity: 255,
+					//pivot_point: p,
+					// x:x-dx/2,
+					// y:y-dx/2,
+					//track_hover: true,
+				});
+				this.items[n].set_child(icon);
+				this.items[n].connect(
+					'clicked',
+					() => {
+						app[n].open_new_window(-1);
+						this.toggle();
+					});
+
+				this.SMactor.add_actor(this.items[n])
+				this.items[n].state = app[n].state;  // * for the previews
+			}
+		}
 	}
 
 	_drawTests(){
@@ -325,11 +539,28 @@ var SectorMenu = class SectorMenu {
 			Tweener.addTween(this.panels[n], tweenParams);
 		}*/
 	}
-
+	_moveSectors(x,y){
+		DEBUG('sectormenu._moveSectors()')
+		this.SMactor.get_children().forEach(
+			function (k) {
+				Tweener.addTween(k,{
+					time: 1,
+						transition: 'linear',
+						x: x,
+						y: y,
+				})
+			}
+		)
+		
+	}
+	
+	// * Helper methods	
 	_get_previews(){}
-
+	
+	
+	// * event handlers
 	_onMouseEnter(cactor,n){
-		DEBUG('sectormenu._onMouseEnter()',n)
+		//DEBUG('sectormenu._onMouseEnter()',n)
 		Tweener.addTween(cactor, {
 			time: .1,
 			transition: 'easeOutExpo',
@@ -347,34 +578,20 @@ var SectorMenu = class SectorMenu {
 			opacity: 255,
 		})
 		cactor.lower_bottom();
-		/* Tweener.addTween(this.items[n], {
-			time: .1,
-			transition: 'easeInExpo',
-			scale_x: 1.5,
-			scale_y: 1.5,
-			// rotation_x:0,
-		}) */
-	
-	
+			if(n) {
+				Tweener.addTween(this.items[n], {
+				time: .1,
+				transition: 'easeInExpo',
+				scale_x: 1.5,
+				scale_y: 1.5,
+				// rotation_x:0,
+			})
+		} 
 	}
 	
-	_moveSectors(x,y){
-		DEBUG('sectormenu._moveSectors()')
-		this.SMactor.get_children().forEach(
-			function (k) {
-				Tweener.addTween(k,{
-					time: 1,
-						transition: 'linear',
-						x: x,
-						y: y,
-				})
-			}
-		)
-		
-	}
 	
 	_onMouseLeave(cactor,n){
-		DEBUG('sectormenu._onMouseLeave()',n)
+		//DEBUG('sectormenu._onMouseLeave()',n)
 		Tweener.addTween(cactor, {
 			time: 1,
 			scale_x: 1,
@@ -388,15 +605,16 @@ var SectorMenu = class SectorMenu {
 			pivot_point_z: 0,
 			opacity: 64,
 		})
-		/* Tweener.addTween(this.items[n], {
-			time: .5,
-			transition: 'easeOutExpo',
-			scale_x: 1,
-			scale_y: 1,
-			// rotation_x: 0,
-		}) */
 		cactor.lower_bottom();
-		
+			if (n) {
+				Tweener.addTween(this.items[n], {
+				time: .5,
+				transition: 'easeOutExpo',
+				scale_x: 1,
+				scale_y: 1,
+				// rotation_x: 0,
+			}) 
+		}
 	}
 
 	_onButtonPressEvent(cactor,event) {

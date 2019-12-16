@@ -94,6 +94,7 @@ DEBUG = function (message, message2) {
 
 var Fullscreen = class Fullscreen {
 
+	// #region mains
 	constructor() {
 		DEBUG(`fullscreen.constructor()...`)
 
@@ -336,6 +337,7 @@ var Fullscreen = class Fullscreen {
 			this.open();
 	}
 
+	// #endregion mains
 	_entryKeyPressEvent(actor, event) { 
 
 		let symbol = event.get_key_symbol();
@@ -363,7 +365,7 @@ var Fullscreen = class Fullscreen {
 		DEBUG(command)
 
 		//TODO: turn these into configurable settings
-		if (command == 'r' || "R") {
+		if (command == 'r' | "R") {
 			this._restart();
 		} else if (command == 'w') {
 			Util.trySpawnCommandLine('wakeup');

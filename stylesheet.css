@@ -71,10 +71,10 @@
 }
 /* this is for debugging ST widgets */
 .sectormenu-fullscreen *:hover {
-    outline: 1px rgba(0, 255, 26,1)
+    /* outline: 1px rgba(0, 255, 26,1) */
 }
 .sectormenu-fullscreen *:focus {
-    outline: 1px rgba(225, 0, 255,1)  ;
+    /* outline: 1px rgba(225, 0, 255,1)  ; */
 }
 .prefs large-label{
     /* visible: true; */
