@@ -450,7 +450,7 @@ var Fullscreen = class Fullscreen {
 		DEBUG(actor.name)
 		// DEBUG(symbol);
 		if (symbol === Clutter.KEY_Escape) {
-			if (actor.get_text()) {    //fixme: check for focus instead?
+			if (actor.get_text()) {    
 				actor.set_text('');
 				return Clutter.EVENT_STOP;
 			} else {

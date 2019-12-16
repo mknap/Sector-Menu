@@ -82,8 +82,7 @@ var SectorMenu = class SectorMenu {
 			visible: true,
 			reactive: true,
 			z_position: 0,
-			//background_color: //TODO
-			//ontent_gravity: Clutter.ContentGravity.LEFT,
+			
 		})
 		
 		this.SMactor = this.SMactorClutter; 
@@ -110,6 +109,7 @@ var SectorMenu = class SectorMenu {
 			}
 		});
 		this.isOpen=false;
+		this.super.toggle();
 	};
 
 	show(){
@@ -433,7 +433,8 @@ var SectorMenu = class SectorMenu {
 					// y: y - dy/2,
 					x: x,
 					y: y,
-					anchor_gravity: Clutter.Gravity.CENTER, // FIXME pivot_point doesn't seem to work for ST.Widgets 
+					anchor_gravity: Clutter.Gravity.CENTER, 
+					// ? pivot_point doesn't seem to work for ST.Widgets 
 				});
 				let gicon = app[n].app_info.get_icon();
 				let icon = new St.Icon({

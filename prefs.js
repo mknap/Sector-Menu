@@ -193,8 +193,6 @@ function buildPrefsWidget() {
     )
     frame.pack_start(hbox,false,false,0)
 
-    //TODO: Fix the iconsize in fullscreen.js
-    //icon-size:
     hbox = new Gtk.HBox({margin_left: 18,visible: true});
     label = new Gtk.Label({
         label: 'Icon size :',

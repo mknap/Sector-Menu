@@ -80,7 +80,7 @@ class Extension {
         DEBUG(Me.metadata.name)
         this.indicator = new PanelMenu.Button(0.0, Me.metadata.name);
 
-        // fixme: Compatiblity with gshell < 3.30
+        // Compatiblity with gshell < 3.30
         if (SHELL_MINOR < 30) {
                 this.indicator.actor.add_child(
                     new St.Icon({
@@ -121,14 +121,12 @@ class Extension {
             Meta.KeyBindingFlags.NONE,
             ShellActionMode.NORMAL |
             ShellActionMode.OVERVIEW,
-            /** See https://gitlab.gnome.org/GNOME/gjs/blob/master/doc/Modules.md */
-            //Lang.bind(this, this._keyAction)
             this._keyAction.bind(this)
         );
         DEBUG(' + constructing fullscreen menu')
         this.fullscreen = new Fullscreen.Fullscreen();
         
-        // fixme
+        // Compatabilty
         if (SHELL_MINOR < 30) {
             this.settings.bind(
                 'show-indicator',
@@ -164,7 +162,7 @@ class Extension {
         }
 
         DEBUG(' + resetting keybindings')
-        Main.wm.removeKeybinding('toggle-sector-menu') //TODO: needed ?
+        Main.wm.removeKeybinding('toggle-sector-menu') 
         //If we took over the <super> key, give it back
         // from viewselector@228
         // Main.wm.setCustomKeybindingHandler(
@@ -179,7 +177,7 @@ class Extension {
     _keyAction() {
         // DEBUG('_keyAction()')
         if (!this.fullscreen) {
-            this.fullscreen = new Fullscreen.Fullscreen(); //FIXME: monitor 0 temp
+            this.fullscreen = new Fullscreen.Fullscreen(); 
         }
         this.fullscreen.toggle();
     }
