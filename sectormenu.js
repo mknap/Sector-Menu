@@ -201,37 +201,60 @@ var SectorMenu = class SectorMenu {
 			y: this.cy,
 		}) ;
 		this.SMactor.add_actor(center);
-		//center.lower_bottom();
-		let base={
-			onStartParams: [],
-			count: 2,
-			time: 1,
-			transition: 'linear',
-			scale_x: 1,
-			scale_y: 1,
-			opacity: 128,
-			// ? not sure how theese work yet
-			//onCompleteParams: [],
-			//onComplete: Tweener.addTween(this, pulseParams),
-			//onCompleteScope: this
+		
+		let startParams={
+			time:.1,
+			scale_x:1,
+			scale_y:1,
+			opacity:0
 		}
-		Tweener.addTween(center,{
-			//base: base,
-			delay: .1,
-			count: 3,
-			time: 3,
-			color: 0xffdd33 ,
-			transition: 'linear',
-			scale_x: 3,
-			scale_y: 3,
+		let pulseParams;
+		pulseParams={
+			time:.5,
+			scale_x: 1.2,
+			scale_y: 1.2,
 			opacity: 255,
-			//autoreverse: true,
-			//loop: true,
-			// ? not sure how theese work yet
-			//nCompleteParams: [],
-			//onComplete: Tweener.addTween(this, pulseParams),
-			//onCompleteScope: this,
-		})
+			transition: 'easeOutSine',
+			onComplete: function() {
+				this.scale_x=1;
+				this.scale_y=1;
+				this.opacity=64;
+				Tweener.addTween(this,pulseParams);
+			}
+		}
+		Tweener.addTween(center,startParams);
+		Tweener.addTween(center,pulseParams);
+		// pulse 5 times
+		
+		for (let n=0; n<5; n++){
+			Tweener.addTween(center,startParams);
+			//Tweener.removeTweens(center);
+			Tweener.addTween(center,pulseParams);
+			//Tweener.removeTweens(center);
+			DEBUG(n);
+			//Tweener.removeTweens(center)
+		}
+
+		
+		
+		// Tweener.addCaller(center,{
+		// 	//base: base,
+		// 	delay: .1,
+		// 	count: 10,
+		// 	time: 1,
+		// 	color: 0xffdd33 ,
+		// 	transition: 'linear',
+		// 	scale_x: 3,
+		// 	scale_y: 3,
+		// 	opacity: 255,
+		// 	onUpdate: DEBUG('test'),
+		// 	//autoreverse: true,
+		// 	//loop: true,
+		// 	// ? not sure how theese work yet
+		// 	//nCompleteParams: [],
+		// 	//onComplete: Tweener.addTween(this, pulseParams),
+		// 	//onCompleteScope: this,
+		// })
 	}
 
 	_drawPanels(){
@@ -430,6 +453,7 @@ var SectorMenu = class SectorMenu {
 					});
 
 				this.SMactor.add_actor(this.items[n])
+				this.items[n].raise_top();
 				this.items[n].state = app[n].state;  // * for the previews
 			}
 		}
@@ -540,18 +564,20 @@ var SectorMenu = class SectorMenu {
 		}*/
 	}
 	_moveSectors(x,y){
+		let [dx,dy] = [this.cx -x, this.cy - y]
+
 		DEBUG('sectormenu._moveSectors()')
 		this.SMactor.get_children().forEach(
 			function (k) {
 				Tweener.addTween(k,{
 					time: 1,
-						transition: 'linear',
-						x: x,
-						y: y,
+						transition: 'easeInOutSine',
+						x: k.x-dx,
+						y: k.y-dy,
 				})
 			}
 		)
-		
+		this.cx=x,this.cy=y
 	}
 	
 	// * Helper methods	
