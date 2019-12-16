@@ -76,6 +76,7 @@ var SectorMenu = class SectorMenu {
 			//style_class: 'sector-debug',
 		})
 		this.SMactorClutter = new Clutter.Actor({
+			name: 'SMactor',
 			width: this.monitor.width,
 			height: this.monitor.height,
 			visible: true,
@@ -125,15 +126,16 @@ var SectorMenu = class SectorMenu {
 		
 		this._drawGuides();
 		//this._drawTests();
+		this._drawCenter();
 		
 		this._drawPanels();
 		this._drawApps();
-		this._drawCenter();
 		this._drawPreviews();
 
 		// this._drawSectors();
 		
 		this.SMactor.show();
+		//this.SMactor.lower_bottom();
 		this.isOpen=true;
 	}
 	toggle(){
@@ -206,34 +208,34 @@ var SectorMenu = class SectorMenu {
 			time:.1,
 			scale_x:1,
 			scale_y:1,
-			opacity:0
+			opacity:255
 		}
 		let pulseParams;
 		pulseParams={
-			time:.5,
-			scale_x: 1.2,
-			scale_y: 1.2,
-			opacity: 255,
+			time:1.5,
+			scale_x: 3,
+			scale_y: 3,
+			opacity: 0,
 			transition: 'easeOutSine',
 			onComplete: function() {
 				this.scale_x=1;
 				this.scale_y=1;
-				this.opacity=64;
+				this.opacity=255;
 				Tweener.addTween(this,pulseParams);
 			}
 		}
-		Tweener.addTween(center,startParams);
+		// Tweener.addTween(center,startParams);
 		Tweener.addTween(center,pulseParams);
-		// pulse 5 times
+		// // pulse 5 times
 		
-		for (let n=0; n<5; n++){
-			Tweener.addTween(center,startParams);
-			//Tweener.removeTweens(center);
-			Tweener.addTween(center,pulseParams);
-			//Tweener.removeTweens(center);
-			DEBUG(n);
-			//Tweener.removeTweens(center)
-		}
+		// for (let n=0; n<5; n++){
+		// 	Tweener.addTween(center,startParams);
+		// 	//Tweener.removeTweens(center);
+		// 	Tweener.addTween(center,pulseParams);
+		// 	//Tweener.removeTweens(center);
+		// 	DEBUG(n);
+		// 	//Tweener.removeTweens(center)
+		// }
 
 		
 		
@@ -264,7 +266,7 @@ var SectorMenu = class SectorMenu {
 		let N=this.N;
 		for (let n = 0; n < N; n++) {
 			this.panels[n] = new Clutter.Texture({
-				filename: Me.path + "/ui/sector-gradient-512.svg",
+				filename: Me.path + "/ui/sector-gradientb-512.svg",
 				// border_color: RED,
 				reactive: true,
 				opacity: 0,
@@ -358,6 +360,7 @@ var SectorMenu = class SectorMenu {
 
 
 						let clone = new Clutter.Clone({
+							name: 'panel'+n.toString(),
 							opacity: 255,
 							source: texture.get_size ? texture : compositor,
 							reactive: true,
@@ -381,6 +384,7 @@ var SectorMenu = class SectorMenu {
 							translation_x: this.iconSize * CosTheta,
 							translation_y: 10,
 						})
+						clone.lower_bottom();
 						//clone.delegate=this;
 					}
 					//this.previews[n] = get.texture
@@ -629,7 +633,7 @@ var SectorMenu = class SectorMenu {
 			//translation_x: 0,
 			translation_x: 0,
 			pivot_point_z: 0,
-			opacity: 64,
+			opacity: 0,
 		})
 		cactor.lower_bottom();
 			if (n) {
@@ -649,6 +653,7 @@ var SectorMenu = class SectorMenu {
 		DEBUG(event.get_button())
 		switch( event.get_button() ){
 			case 1:
+				
 				break;
 			case 2:
 				Tweener.addTween(cactor,{

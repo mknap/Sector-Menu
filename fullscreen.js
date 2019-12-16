@@ -17,13 +17,10 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
+const Config = imports.misc.config;
 
-
- const Config = imports.misc.config;
-
- const PACKAGE_NAME = Config.PACKAGE_NAME;
- const PACKAGE_VERSION = Config.PACKAGE_VERSION;
-
+const PACKAGE_NAME = Config.PACKAGE_NAME;
+const PACKAGE_VERSION = Config.PACKAGE_VERSION;
 
 const Clutter = imports.gi.Clutter;
 const Meta = imports.gi.Meta;
@@ -55,42 +52,6 @@ DEBUG = function (message, message2) {
 	if (true) global.log("[" + Me.metadata.name + "] " + message + message2);
 }
 
-// const WHITE = new Clutter.Color({
-// 	'red': 255,
-// 	'blue': 255,
-// 	'green': 255,
-// 	'alpha': 255
-// 	});
-// const BLACK = new Clutter.Color({
-// 	'red': 0,
-// 	'blue': 0,
-// 	'green': 0,
-// 	'alpha': 255
-// 	});
-// const RED = new Clutter.Color({
-// 	'red': 255,
-// 	'blue': 0,
-// 	'green': 0,
-// 	'alpha': 255
-// 	});
-// const TRANS = new Clutter.Color({
-// 	'red': 255,
-// 	'blue': 255,
-// 	'green': 255,
-// 	'alpha': 0
-// 	});
-// const SEMITRANS = new Clutter.Color({
-// 	'red': 0,
-// 	'blue': 0,
-// 	'green': 0,
-// 	'alpha': 200
-// 	});
-// const GRAY = new Clutter.Color({
-// 	'red': 127,
-// 	'blue': 127,
-// 	'green': 127,
-// 	'alpha': 127
-// });
 
 var Fullscreen = class Fullscreen {
 
@@ -197,6 +158,7 @@ var Fullscreen = class Fullscreen {
 		//bash history
 		// TODO: Read imports.misc.history.HistoryManager`.
 		let hist = new St.Label({
+			name : 'hist',
 			style_class: 'STLabel-history',
 			x: 100,
 			y: 150,
@@ -207,21 +169,60 @@ var Fullscreen = class Fullscreen {
 		})
 		this.FSMenu.add_actor(hist) 
 			
-					
+		// TODO: var somecolor = new Clutter.Color(); for scope?
+		let white=new Clutter.Color();
+		white.init(255,255,255,255);			
+		
 		// TODO: Add a todo,notes,snippets
-		let notes = new St.Entry({
-			style_class: 'STscrollview',
-			text: 'Notes, TODO, snips can go here.',
-			x: Math.round(this.monitor.width *.6),
-			y:100,
+		let notesClutter = new Clutter.Text({
+			name: 'notesClutter',
+			editable: true,
+			selectable: true,
+			cursor_visible: true,
+			color: white,
+			text: this.settings.get_string('notes'),
+			x: Math.round(this.monitor.width * .75),
+			y: 100,
 			height: 500,
-			width: this.monitor.width /2,
+			width: this.monitor.width / 4,
 			reactive: true,
-			
+			//border_color: white,
 		})
-		this.FSMenu.add_actor(notes)
-			
-			
+		let notesSt = new St.Entry({
+			name: 'notesSt',
+			// clutter_text: notesClutter,
+			//style_class: 'STscrollview',
+			// editable: true,
+			// selectable: true,
+			// cursor_visible: true,
+			// color: white,
+			// text: this.settings.get_string('notes'),
+			// x: Math.round(this.monitor.width * .75),
+			// y: 100,
+			// height: 500,
+			// width: this.monitor.width / 4,
+			// reactive: true,
+		})
+		
+		this.notes=notesClutter;
+		//ShellEntry.addContextMenu(this.notes);
+		//this.notes.set_text(this.settings.get_string('notes'))
+		this.FSMenu.add_actor(this.notes)
+		this.notes.connect(
+			'enter-event',
+			() => {
+				this.notes.raise_top();
+				this.notes.grab_key_focus()
+			}
+		)
+		this.notes.connect(
+			'key-press-event',
+			() => {
+				DEBUG('notes key-press-event')
+				// return Clutter.EVENT_STOP;
+			}
+		)
+		// TODO this could be a Clutter.Text for simplicty and style consistency	
 		// info
 		let info = new St.Label({
 			visible: true,
@@ -237,17 +238,8 @@ var Fullscreen = class Fullscreen {
 		);
 		this.FSMenu.add_actor(info)
 				
-		// Make another widget just for our sectormenu
-		
-		//TODO 
+		// Make our SectorMenu actor 
 		this.SectorMenu=new SectorMenu.SectorMenu();
-		/* this.SectorMenu=new St.Widget({
-			name: "SectorMenu",
-			visible: true,
-			reactive: true,
-			style_class: 'sector-debug',
-
-		}) */
 		this.FSMenu.add_actor(this.SectorMenu.SMactor);
 		
 		// Add the screen to the uiGroup
@@ -255,6 +247,7 @@ var Fullscreen = class Fullscreen {
 		Main.layoutManager.addChrome(this.FSMenu);
 		//Main.uiGroup.add_actor(this.FSMenu)
 		
+		//#region old
 		//Get the stage for the FSMenu, and see if we can tweak a few things
 		/* this.stage = this.FSMenu.get_stage();
 		DEBUG(this.stage)
@@ -272,7 +265,7 @@ var Fullscreen = class Fullscreen {
 		oldperspective = this.stage.get_perspective();
 		DEBUG(oldperspective.aspect, oldperspective.fovy);
 		DEBUG(oldperspective.z_far, oldperspective.z_near); */
-
+		//#endregion old
 		
 		DEBUG('fullscreen.constructor DONE.')
 	}
@@ -289,6 +282,9 @@ var Fullscreen = class Fullscreen {
 	close() {
 		DEBUG('fullscreen.close()')
 		this.is_open = false;
+		
+		this.settings.set_string('notes',this.notes.get_text())
+		
 		global.window_group.show();
 		//let N = this.settings.get_int('sectors');
 		/* for (let n = 0; n < N; n++) {
@@ -297,7 +293,6 @@ var Fullscreen = class Fullscreen {
 				this.FSMenu.remove_actor(this.tips[n]);
 				this.FSMenu.remove_actor(this.texture[n]);
 			}
-			
 			if (this.settings.get_boolean('draw-guides')) {
 			this.FSMenu.remove_actor(this.guidelines[n])
 			//DEBUG(`${n} of ${N}`)
@@ -308,7 +303,7 @@ var Fullscreen = class Fullscreen {
 		this.FSMenu.hide();
 		this.SectorMenu.close();
 		this.entry_box.set_text('')
-	
+		
 	}
 
 	open() {
@@ -328,6 +323,7 @@ var Fullscreen = class Fullscreen {
 		
 		this.SectorMenu.show();
 		
+		this.notes.raise_top();
 	}
 
 	toggle() {
@@ -338,6 +334,7 @@ var Fullscreen = class Fullscreen {
 	}
 
 	// #endregion mains
+	
 	_entryKeyPressEvent(actor, event) { 
 
 		let symbol = event.get_key_symbol();
@@ -447,9 +444,10 @@ var Fullscreen = class Fullscreen {
 	}
 
 	_onKeyPressEvent(actor, event) {
-		// DEBUG('fullscreen._onKeyPressEvent()')
+		DEBUG('fullscreen._onKeyPressEvent()')
 		let symbol = event.get_key_symbol();
-		// DEBUG(actor.name)
+		DEBUG(actor)
+		DEBUG(actor.name)
 		// DEBUG(symbol);
 		if (symbol === Clutter.KEY_Escape) {
 			if (actor.get_text()) {    //fixme: check for focus instead?
@@ -459,14 +457,16 @@ var Fullscreen = class Fullscreen {
 				this.close();
 			}
 		} else if (symbol == Clutter.KEY_Tab){
-			this.close();
-			Main.overview.show();
+			//this.close();
+			//Main.overview.show();
+			//return Clutter.EVENT_PROPOGATE;
 		} else {
-			this.entry_box.grab_key_focus();
+			//this.entry_box.grab_key_focus();
 			//return Clutter.EVENT_PROPAGATE;
 		}
 	}
 
+	//#region old
 	// _onHoverChanged(actor) {
 	// 	// DEBUG(`_onHoverChanged( ${actor} )`)
 	// 	// DEBUG(actor.anchor_x)
@@ -485,7 +485,7 @@ var Fullscreen = class Fullscreen {
 	// 	actor.tip.raise_top();
 	// 	// return Clutter.EVENT_PROPOGATE;
 	// }
-
+	//#endregion old
 	// TODO this event handler is also in sectormenu.js
 // 	_onButtonPressEvent(cactor){
 // 		DEBUG('_onButtonPressEvent() ');

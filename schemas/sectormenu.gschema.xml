@@ -2,17 +2,15 @@
 <schemalist>
   <schema id="org.gnome.shell.extensions.sectormenu" path="/org/gnome/shell/extensions/sectormenu/">
 
-    <key name="panel-states" type="a{sb}">
+    <!-- <key name="panel-states" type="a{sb}">
       <default>{}</default>
-    </key>
-
+    </key> -->
     <key name="show-indicator" type="b">
       <default>true</default>
     </key>
     <key name="show-favorites" type="b">
       <default>true</default>
     </key>
-
     <key name="draw-guides" type="b">
         <default>false</default>
         <summary>Boolean to draw | not draw the guidelines of the sector menu.</summary>
@@ -41,6 +39,12 @@
         <summary>Integer[3 - 16]: The number of sectors.</summary>
         <description></description>
     </key>
+    <key name="notes" type="s">
+      <default>'Type Notes, TODOs, snppets here...'</default>
+        <summary>Save some notes and things. </summary>
+        <description></description>
+    </key>
+
 
     <!-- An array of string arrays: [['this', 'that'],['name','cmd']] -->
     <key type="aas" name="menu-entries">
