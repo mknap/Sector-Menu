@@ -71,9 +71,11 @@
 }
 /* this is for debugging ST widgets */
 .sectormenu-fullscreen *:hover {
+    padding: 0px 0px;
     /* outline: 1px rgba(0, 255, 26,1) */
 }
 .sectormenu-fullscreen *:focus {
+    padding: 0px 0px;
     /* outline: 1px rgba(225, 0, 255,1)  ; */
 }
 .prefs large-label{
