@@ -353,7 +353,7 @@ var SectorMenu = class SectorMenu {
 						}
 
 						let scale = 1.0;
-						const PREVIEW_SCALE = .1;
+						const PREVIEW_SCALE = 2/this.N;
 						let previewWidth = this.monitor.width * PREVIEW_SCALE;
 						let previewHeight = this.monitor.height * PREVIEW_SCALE;
 						if (width > previewWidth || height > previewHeight)
@@ -362,7 +362,8 @@ var SectorMenu = class SectorMenu {
 						//this.SectorMenu.set_x_align(1)
 						//this.SectorMenu.set_y_align(.5)
 
-
+						// ! seems like the size of the texture is very small?
+						
 						let clone = new Clutter.Clone({
 							name: 'preview'+n.toString()+'-'+i.toString(),
 							opacity: 255,
@@ -388,19 +389,20 @@ var SectorMenu = class SectorMenu {
 							translation_x: this.iconSize * CosTheta,
 							translation_y: 10,
 						})
-						clone.lower_bottom();
-						
+						//clone.lower_bottom();
+						this.items[n].raise_top();
+						DEBUG('connecting events to previews')
 						clone.connect(
 							'button-press-event',
 							this._onButtonPressEvent.bind(this, metawin)
 						)
 						clone.connect(
 							'enter-event',
-							this._onMouseEnter.bind(this, n)
+							this._onMouseEnter.bind(this, clone, n)
 						)
 						clone.connect(
 							'leave-event',
-							this._onMouseLeave.bind(this, n)
+							this._onMouseLeave.bind(this, clone, n)
 						)
 						//clone.delegate=this;
 					}
@@ -413,6 +415,7 @@ var SectorMenu = class SectorMenu {
 			}
 	
 		}
+	DEBUG('sectormenu._drawPreviews() done.')
 	}
 
 	_drawApps(){
@@ -628,8 +631,8 @@ var SectorMenu = class SectorMenu {
 			transition: 'easeOutExpo',
 			//transition: 'easeOutExpo',
 			//transition: 'EaseInSine',
-			scale_x: 1.5,
-			scale_y: 1.5,
+			scale_x: 4,
+			scale_y: 4,
 			// rotation_angle_x: 40,
 			// rotation_angle_y: 40,
 			//rotation_angle_z:180,
@@ -639,7 +642,7 @@ var SectorMenu = class SectorMenu {
 			//transform
 			opacity: 255,
 		})
-		cactor.lower_bottom();
+		//cactor.lower_bottom();
 		if(n) {
 			Tweener.addTween(this.items[n], {
 				time: .1,
@@ -665,9 +668,9 @@ var SectorMenu = class SectorMenu {
 			//translation_x: 0,
 			translation_x: 0,
 			pivot_point_z: 0,
-			opacity: 0,
+			//opacity: 0,
 		})
-		cactor.lower_bottom();
+		//cactor.lower_bottom();
 			if (n) {
 				Tweener.addTween(this.items[n], {
 				time: .5,
