@@ -41,17 +41,10 @@ const Util = imports.misc.util;
 
 const Me = ExtensionUtils.getCurrentExtension()
 const Convenience = Me.imports.convenience;
-
+const Lib = Me.imports.lib;
 const SectorMenu = Me.imports.sectormenu;
 
-DEBUG = function (message, message2) {
-	// Enable for debugging purposes.
-	// TODO : make this more versatile with options, info, warn, etc. 
-	if (!message2) message2 = ""
-	else message2 = ", " + message2;
-	if (true) global.log("[" + Me.metadata.name + "] " + message + message2);
-}
-
+const DEBUG=Lib.DEBUG;
 
 var Fullscreen = class Fullscreen {
 

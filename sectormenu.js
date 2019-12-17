@@ -29,15 +29,12 @@ const Tweener = imports.ui.tweener;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension()
 const Convenience = Me.imports.convenience;
-
+const Lib = Me.imports.lib;
 const System = imports.system; // * For debugging ? 
-DEBUG = function (message, message2) {
-	// Enable for debugging purposes.
-	// TODO : make this more versatile with options, info, warn, etc. 
-	if (!message2) message2 = ""
-	else message2 = ", " + message2;
-	if (true) global.log("[" + Me.metadata.name + "] " + message + message2);
-}
+
+const DEBUG=Lib.DEBUG;
+// var debug = Me.imports.lib.debug;
+// const DEBUG = Me.imports.lib.DEBUG;
 
 const RED = new Clutter.Color({
 	'red': 255,
@@ -62,7 +59,6 @@ var SectorMenu = class SectorMenu {
 		this.previews = [];;
 		this.cx=this.monitor.width/2;
 		this.cy=this.monitor.length/2;
-
 		this.N=this.settings.get_int('sectors')
 		this.R=this.settings.get_int('radius')
 		this.iconSize = this.settings.get_int('icon-size');
@@ -109,7 +105,7 @@ var SectorMenu = class SectorMenu {
 			}
 		});
 		this.isOpen=false;
-		this.super.toggle();
+		//this.delegate.toggle(); //? How to close the calling actor, FSMenu ?
 	};
 
 	show(){
