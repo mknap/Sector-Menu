@@ -119,6 +119,12 @@ var Fullscreen = class Fullscreen {
 			'scroll-event',
 			this._onScrollEvent.bind(this)
 		);
+		
+		// ! New to signals. Learning here.
+		// this.FSMenu.connect(
+		// 	'sectormenu-closed',
+		// 	this.close.bind(this)
+		// );
 		// this.FSMenu.connect(
 		// 	"button-press-event",
 		// 	this._onButtonPressEvent.bind(this)
@@ -145,6 +151,7 @@ var Fullscreen = class Fullscreen {
 			'key-press-event',
 			this._entryKeyPressEvent.bind(this)
 		);
+		
 		//this.entry_box.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS); //TODO : What does this do?
 		this.FSMenu.add_actor(this.entry_box)
 			
@@ -232,7 +239,7 @@ var Fullscreen = class Fullscreen {
 		this.FSMenu.add_actor(info)
 				
 		// Make our SectorMenu actor 
-		this.SectorMenu=new SectorMenu.SectorMenu();
+		this.SectorMenu=new SectorMenu.SectorMenu(this);
 		this.FSMenu.add_actor(this.SectorMenu.SMactor);
 		
 		// Add the screen to the uiGroup

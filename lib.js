@@ -20,14 +20,27 @@
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension()
 
-var debug = false;
+/* debug level enumeration
+ * mostly for me to learn 
 
-const DEBUG = function (message1,message2) {
+Least log content 
+o : no logging - silence,only errors
+1 : warnings - and explicit log statements
+2 : informational- entering methods for example 
+3 : verbose - events, signals
+Most log content
+
+*/
+
+
+var debug = true;
+
+var DEBUG = function (message1,message2,level) {
     // Enable for debugging purposes.
     // TODO : make this more versatile with options, info, warn, etc. 
     if(debug) { 
         if(!message2) message2="" 
         else message2= ", " + message2;
         global.log( "[" + Me.metadata.name + "] " + message1 + message2) ;
-   }
+    }
 } 

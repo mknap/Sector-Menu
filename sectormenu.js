@@ -43,11 +43,13 @@ const RED = new Clutter.Color({
 	'alpha': 128
 });
 
+var debug=true;
+
 var SectorMenu = class SectorMenu {
 	
-    constructor(){
+    constructor(caller){
 		DEBUG('SectorMenu.constructor() ...')
-				
+		this.caller=caller;		
 		this.isOpen = false;
 		this.monitor = Main.layoutManager.currentMonitor;
 		this.favs = AppFavorites.getAppFavorites().getFavorites();
@@ -77,7 +79,7 @@ var SectorMenu = class SectorMenu {
 			height: this.monitor.height,
 			visible: true,
 			reactive: true,
-			z_position: 0,
+			// z_position: 0,
 			
 		})
 		
@@ -94,7 +96,7 @@ var SectorMenu = class SectorMenu {
 	}
 	
 	close(){
-		DEBUG('SectorMenu.destroy()')
+		DEBUG('SectorMenu.close()')
 		let kids = this.SMactor.get_children();
 		kids.forEach( function (k) {
 			try {
@@ -106,6 +108,9 @@ var SectorMenu = class SectorMenu {
 		});
 		this.isOpen=false;
 		//this.delegate.toggle(); //? How to close the calling actor, FSMenu ?
+		
+		// ! I have some cleaning up to do here with open/close, show/hide, and destroy, and signals.
+		// this.emit('sectormenu-closed');
 	};
 
 	show(){
@@ -120,35 +125,41 @@ var SectorMenu = class SectorMenu {
 		this.R=this.settings.get_int('radius')
 		this.iconSize=this.settings.get_int('icon-size')
 		
-		this._drawGuides();
 		//this._drawTests();
+		// this._drawGuides();
 		this._drawCenter();
 		
-		this._drawPanels();
+		//this._drawPanels();
 		this._drawApps();
 		this._drawPreviews();
-
-		// this._drawSectors();
+		
+		//this._drawSectors();
 		
 		this.SMactor.show();
 		//this.SMactor.lower_bottom();
 		this.isOpen=true;
 	}
+
 	toggle(){
 		DEBUG('sectormenu.toggle()');
 		if (this.isOpen == true)
-			this.close();
+		this.close();
 		else if (this.isOpen == false)
-			this.open();
+		this.open();
 	}
-
+	
     destroy(){
-		DEBUG('sectormenu.close()')
+		DEBUG('sectormenu.destroy()')
 		this.close()
+		this.caller.close();
 		this.SMactor.destroy;
     }
-
+	
 	// * Drawing methods
+	
+	_defineSectors(){
+	}
+	
 	_drawGuides(){
 		DEBUG('SectorMenu._drawGuides()')
 		if (this.settings.get_boolean('draw-guides')) {
@@ -176,10 +187,7 @@ var SectorMenu = class SectorMenu {
 
 	}
 	
-	_defineSectors(){
-
-	}
-
+	
 	_drawCenter(){
 		
 		DEBUG('sectormenu._drawCenter()')
@@ -225,16 +233,16 @@ var SectorMenu = class SectorMenu {
 		// // pulse 5 times
 		
 		// for (let n=0; n<5; n++){
-		// 	Tweener.addTween(center,startParams);
-		// 	//Tweener.removeTweens(center);
-		// 	Tweener.addTween(center,pulseParams);
-		// 	//Tweener.removeTweens(center);
-		// 	DEBUG(n);
-		// 	//Tweener.removeTweens(center)
-		// }
-
-		
-		
+			// 	Tweener.addTween(center,startParams);
+			// 	//Tweener.removeTweens(center);
+			// 	Tweener.addTween(center,pulseParams);
+			// 	//Tweener.removeTweens(center);
+			// 	DEBUG(n);
+			// 	//Tweener.removeTweens(center)
+			// }
+			
+			
+			
 		// Tweener.addCaller(center,{
 		// 	//base: base,
 		// 	delay: .1,
@@ -327,7 +335,7 @@ var SectorMenu = class SectorMenu {
 				
 				let metawin = app[n].get_windows();
 				// let compositor = metawin.get_compositor_private();
-				DEBUG('~-=-~-=-~-=-~')
+				// DEBUG('~-=-~-=-~-=-~')
 				// DEBUG(app[n].get_name());
 				// DEBUG(app[n].get_app_info());
 				// DEBUG(metawin)
@@ -356,7 +364,7 @@ var SectorMenu = class SectorMenu {
 
 
 						let clone = new Clutter.Clone({
-							name: 'panel'+n.toString(),
+							name: 'preview'+n.toString()+'-'+i.toString(),
 							opacity: 255,
 							source: texture.get_size ? texture : compositor,
 							reactive: true,
@@ -381,6 +389,19 @@ var SectorMenu = class SectorMenu {
 							translation_y: 10,
 						})
 						clone.lower_bottom();
+						
+						clone.connect(
+							'button-press-event',
+							this._onButtonPressEvent.bind(this, metawin)
+						)
+						clone.connect(
+							'enter-event',
+							this._onMouseEnter.bind(this, n)
+						)
+						clone.connect(
+							'leave-event',
+							this._onMouseLeave.bind(this, n)
+						)
 						//clone.delegate=this;
 					}
 					//this.previews[n] = get.texture
@@ -446,13 +467,23 @@ var SectorMenu = class SectorMenu {
 					//track_hover: true,
 				});
 				this.items[n].set_child(icon);
+				// ! This is where I'm at. I need to emit a signal from here to close the FSmenu. ...
 				this.items[n].connect(
 					'clicked',
 					() => {
 						app[n].open_new_window(-1);
-						this.toggle();
+						this.destroy();
 					});
-
+				this.items[n].connect(
+					'notify::hover',
+					()=> {Tweener.addTween(
+							this.items[n],
+							{scale_x: this.items[n].hover ? 1.5 : 1,
+							scale_y: this.items[n].hover ? 1.5 : 1,
+							}
+						)	
+					}
+				)
 				this.SMactor.add_actor(this.items[n])
 				this.items[n].raise_top();
 				this.items[n].state = app[n].state;  // * for the previews
@@ -564,6 +595,7 @@ var SectorMenu = class SectorMenu {
 			Tweener.addTween(this.panels[n], tweenParams);
 		}*/
 	}
+	
 	_moveSectors(x,y){
 		let [dx,dy] = [this.cx -x, this.cy - y]
 
@@ -581,13 +613,16 @@ var SectorMenu = class SectorMenu {
 		this.cx=x,this.cy=y
 	}
 	
-	// * Helper methods	
+	// #region Helper methods	
 	_get_previews(){}
 	
+	// #endregion Helper methods
 	
-	// * event handlers
+	
+	// #region event handlers
 	_onMouseEnter(cactor,n){
-		//DEBUG('sectormenu._onMouseEnter()',n)
+		DEBUG('sectormenu._onMouseEnter()')
+		DEBUG(cactor,n)
 		Tweener.addTween(cactor, {
 			time: .1,
 			transition: 'easeOutExpo',
@@ -605,8 +640,8 @@ var SectorMenu = class SectorMenu {
 			opacity: 255,
 		})
 		cactor.lower_bottom();
-			if(n) {
-				Tweener.addTween(this.items[n], {
+		if(n) {
+			Tweener.addTween(this.items[n], {
 				time: .1,
 				transition: 'easeInExpo',
 				scale_x: 1.5,
@@ -616,9 +651,9 @@ var SectorMenu = class SectorMenu {
 		} 
 	}
 	
-	
 	_onMouseLeave(cactor,n){
-		//DEBUG('sectormenu._onMouseLeave()',n)
+		DEBUG('sectormenu._onMouseLeave()',n)
+		DEBUG(cactor,n)
 		Tweener.addTween(cactor, {
 			time: 1,
 			scale_x: 1,
@@ -664,14 +699,16 @@ var SectorMenu = class SectorMenu {
 			break;
 		}
 	}
+
+	// #endregion event handlers
 }
-	
+
 function stepTween(actor, params) {
-	 
+
 	// for (let n=0; n < Object.keys(params).length; n++) {
 	// 	DEBUG( params[key[n]] )
-
 	// }}
+
 	for(let key in params) {
 		let stepparams={time:2,delay:1}
 		DEBUG(key, params[key])
