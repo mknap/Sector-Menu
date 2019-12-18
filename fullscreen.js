@@ -51,7 +51,7 @@ var Fullscreen = class Fullscreen {
 	// #region mains
 	constructor() {
 		DEBUG(`fullscreen.constructor()...`)
-
+		
 		this.is_open = false;
 		this.monitor = Main.layoutManager.currentMonitor;
 		this.favs = AppFavorites.getAppFavorites().getFavorites();
@@ -313,12 +313,16 @@ var Fullscreen = class Fullscreen {
 	
 		} */
 		this.is_open = true;
+		let [x, y] = global.get_pointer();
+		this.cx = x;
+		this.cy = y;
+		
 		//global.window_group.hide(); //makes screen fade
 		// * this._drawSectors(this.settings.get_int('sectors'));
 		//this._drawApps(this.settings.get_int('sectors'))
 		this.FSMenu.show();
 		this.FSMenu.raise_top();
-		this.entry_box.grab_key_focus();
+		this.entry_box.grab_key_focus(); // ! might have been the issue
 		this.entry_box.raise_top();
 		
 		this.SectorMenu.show();
@@ -336,20 +340,22 @@ var Fullscreen = class Fullscreen {
 	// #endregion mains
 	
 	_entryKeyPressEvent(actor, event) { 
-
+		DEBUG('_entryKeyPressEvent(a,e)')
 		let symbol = event.get_key_symbol();
-		DEBUG(actor.name)
-		DEBUG(symbol);
+		DEBUG('actor.name: ',actor.name)
+		DEBUG('symbol :', symbol);
 		if (symbol === Clutter.KEY_Escape) {
 			if (actor.get_text()) {
+				DEBUG('clearing bash entry_text')
 				actor.set_text('');
 				return Clutter.EVENT_STOP;
 			} else {
 				this.close();
 			}
 		} else if (symbol == Clutter.KEY_Tab){
+			DEBUG('TAB key -> show main.overview')
 			this.close();
-			Main.overview.toggle();
+			Main.overview.show();
 		}
 		//return Clutter.EVENT_PROPAGATE;
 	}
@@ -435,12 +441,41 @@ var Fullscreen = class Fullscreen {
 	_onKeyReleaseEvent(actor, event) {
 		DEBUG('fullscreen._onKeyReleaseEvent()')
 		let symbol = event.get_key_symbol();
-		DEBUG(actor);
-		DEBUG(symbol);
-		if (symbol == 65515) {
-		    //this.close();
+		DEBUG(actor, event);
+		DEBUG('got symbol: ',symbol);
+		DEBUG('		this.cx and this.cy : ')
+		DEBUG(this.cx, this.cy)
+		let [x, y, mask] = global.get_pointer();
+		DEBUG('		x and y :')
+		DEBUG(x, y);
+		if (symbol == 65515 && this.settings.get_boolean('quick-mode')) {
+			if (x != this.cx || y != this.cy){
+				DEBUG(' ***quick-mode-command')
+				// Here we act upon pointer location, current actor, etc
+				//this.emit('clicked')
+				// We can't do the click emulation, per
+				// https://stackoverflow.com/questions/34947627/how-to-create-clutter-events-with-gjs
+				
+				//So a new idea here is to modify the release event to something the actor can handle
+				
+				//newevent=new Clutter.Event(Clutter.EventType.BUTTON_PRESS)
+				
+				event.set_key_symbol(Clutter.KEY_Pointer_Button1);
+				DEBUG('set new symbol: ',event.get_key_symbol()) 
+							
+				//return event ;
+
+				DEBUG('fullscreen._onKeyReleaseEvent()  DONE.')
+				try {
+					this.SectorMenu.quickFunction()
+				} catch (e) {
+					throw(e);
+				}
+				this.close();
+			}
 		}
 		//return Clutter.EVENT_PROPAGATE;
+		DEBUG('fullscreen._onKeyReleaseEvent()  DONE.')
 	}
 
 	_onKeyPressEvent(actor, event) {
@@ -448,9 +483,10 @@ var Fullscreen = class Fullscreen {
 		let symbol = event.get_key_symbol();
 		DEBUG(actor)
 		DEBUG(actor.name)
-		// DEBUG(symbol);
+		DEBUG(symbol);
 		if (symbol === Clutter.KEY_Escape) {
 			if (actor.get_text()) {    
+				DEBUG('clearing text in ', actor.name);
 				actor.set_text('');
 				return Clutter.EVENT_STOP;
 			} else {

@@ -168,8 +168,8 @@ class Extension {
         DEBUG('disable() Done.')
     }
 
-    _keyAction() {
-        // DEBUG('_keyAction()')
+    _keyAction(event) {
+        DEBUG('_keyAction()',event,)
         if (!this.fullscreen) {
             this.fullscreen = new Fullscreen.Fullscreen(); 
         }

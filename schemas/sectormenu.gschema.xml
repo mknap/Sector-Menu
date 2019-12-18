@@ -5,6 +5,9 @@
     <!-- <key name="panel-states" type="a{sb}">
       <default>{}</default>
     </key> -->
+    <key name="quick-mode" type="b">
+      <default>true</default>
+    </key>
     <key name="show-indicator" type="b">
       <default>true</default>
     </key>

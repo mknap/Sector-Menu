@@ -50,6 +50,7 @@ var SectorMenu = class SectorMenu {
     constructor(caller){
 		DEBUG('SectorMenu.constructor() ...')
 		this.caller=caller;		
+		this.quickFunction= ()=> {return Clutter.EVENT_STOP};
 		this.isOpen = false;
 		this.monitor = Main.layoutManager.currentMonitor;
 		this.favs = AppFavorites.getAppFavorites().getFavorites();
@@ -115,7 +116,7 @@ var SectorMenu = class SectorMenu {
 
 	show(){
 		DEBUG('sectormenu.show()');
-		if(this.settings.get_boolean('draw-at-mouse'))
+		if(this.settings.get_boolean('draw-at-mouse') )
 			[this.cx, this.cy] = global.get_pointer();
 		else
 			[this.cx, this.cy] = this.monitor.width/2, this.monitor.length/2;
@@ -126,12 +127,13 @@ var SectorMenu = class SectorMenu {
 		this.iconSize=this.settings.get_int('icon-size')
 		
 		//this._drawTests();
-		// this._drawGuides();
+		
+		this._drawGuides();
 		this._drawCenter();
 		
 		//this._drawPanels();
 		this._drawApps();
-		this._drawPreviews();
+		//this._drawPreviews();
 		
 		//this._drawSectors();
 		
@@ -158,10 +160,11 @@ var SectorMenu = class SectorMenu {
 	// * Drawing methods
 	
 	_defineSectors(){
+		DEBUG('sectormenu._defineSectors()')
 	}
 	
 	_drawGuides(){
-		DEBUG('SectorMenu._drawGuides()')
+		DEBUG('sectormenu._drawGuides()')
 		if (this.settings.get_boolean('draw-guides')) {
 			let R = this.settings.get_int('radius');
 			let N=this.N;
@@ -487,9 +490,20 @@ var SectorMenu = class SectorMenu {
 						)	
 					}
 				)
+				this.items[n].connect(
+					'key-release-event',
+					this._onItemKeyRelease.bind(this)
+				)
+				this.items[n].connect(
+					'enter-event',
+					this._onMouseEnter.bind(this)
+				)
+					
+				
 				this.SMactor.add_actor(this.items[n])
 				this.items[n].raise_top();
 				this.items[n].state = app[n].state;  // * for the previews
+				this.items[n].Fcn = () => app[n].open_new_window(-1);
 			}
 		}
 	}
@@ -600,9 +614,9 @@ var SectorMenu = class SectorMenu {
 	}
 	
 	_moveSectors(x,y){
+		DEBUG('sectormenu._moveSectors()')
 		let [dx,dy] = [this.cx -x, this.cy - y]
 
-		DEBUG('sectormenu._moveSectors()')
 		this.SMactor.get_children().forEach(
 			function (k) {
 				Tweener.addTween(k,{
@@ -617,7 +631,9 @@ var SectorMenu = class SectorMenu {
 	}
 	
 	// #region Helper methods	
-	_get_previews(){}
+	_getPreviews(){
+		DEBUG('sectormenu._getPreviews()')
+	}
 	
 	// #endregion Helper methods
 	
@@ -626,6 +642,7 @@ var SectorMenu = class SectorMenu {
 	_onMouseEnter(cactor,n){
 		DEBUG('sectormenu._onMouseEnter()')
 		DEBUG(cactor,n)
+		//cactor.grab_key_focus();
 		Tweener.addTween(cactor, {
 			time: .1,
 			transition: 'easeOutExpo',
@@ -642,16 +659,22 @@ var SectorMenu = class SectorMenu {
 			//transform
 			opacity: 255,
 		})
+		if(cactor.Fcn) {
+			DEBUG('Fcn attached...')
+			this.quickFunction = cactor.Fcn;
+			DEBUG('set quickFunction')
+			//this.close();
+		}
 		//cactor.lower_bottom();
-		if(n) {
-			Tweener.addTween(this.items[n], {
-				time: .1,
-				transition: 'easeInExpo',
-				scale_x: 1.5,
-				scale_y: 1.5,
-				// rotation_x:0,
-			})
-		} 
+		// if(n) {
+		// 	Tweener.addTween(this.items[n], {
+		// 		time: .1,
+		// 		transition: 'easeInExpo',
+		// 		scale_x: 1.5,
+		// 		scale_y: 1.5,
+		// 		// rotation_x:0,
+		// 	})
+		// } 
 	}
 	
 	_onMouseLeave(cactor,n){
@@ -702,6 +725,17 @@ var SectorMenu = class SectorMenu {
 			break;
 		}
 	}
+
+	_onKeyReleaseEvent(actor, event) {
+		DEBUG('sectormenu._onKeyReleaseEvent()');
+		
+	}
+
+	_onItemKeyRelease(actor, event) {
+		DEBUG('_onItemKeyRelease(a,e');
+		let symbol = event.get_key_symbol();
+		DEBUG('key-press-event on app item[n], ', symbol);
+}
 
 	// #endregion event handlers
 }
