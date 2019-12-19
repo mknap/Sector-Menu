@@ -46,20 +46,22 @@ const SectorMenu = Me.imports.sectormenu;
 
 const DEBUG=Lib.DEBUG;
 
+var debug
+
 var Fullscreen = class Fullscreen {
 
 	// #region mains
 	constructor() {
 		DEBUG(`fullscreen.constructor()...`)
-		
+		this.SectorMenu=null;
 		this.is_open = false;
 		this.monitor = Main.layoutManager.currentMonitor;
-		this.favs = AppFavorites.getAppFavorites().getFavorites();
+		//this.favs = AppFavorites.getAppFavorites().getFavorites();
 		this.settings = Convenience.getSettings();
-		this.guidelines = [];
-		this.items = [];
-		this.tips = [];
-		this.previews = [];
+		//this.guidelines = [];
+		//this.items = [];
+		//this.tips = [];
+		//this.previews = [];
 		
 		// TODO: Ways to get a container to draw in.  Make a setting for this?
 		if(false){ // * works ok but doesn't seem to do mouse-wheel events, and text color is off
@@ -79,6 +81,7 @@ var Fullscreen = class Fullscreen {
 				});
 			}			
 			this.FSMenu = this._backgroundGroup;
+			
 		} else if (false) { // * this would make our screen a clutter stage (not exactly what we want)
 			// Main screen Widget
 			this.FSMenu = new Clutter.Stage({
@@ -93,9 +96,9 @@ var Fullscreen = class Fullscreen {
 					//perspective: 
 
 				}); //does work, lots of tweak to do
-			//this.FSMenu.activeate();
+				//this.FSMenu.activeate();
 				//this.FSMenu.set_fullscreen(true);
-		} else if (true) {   // * this is the approach I've had the best results
+			} else if (true) {   // * this is the approach I've had the best results
 			this.FSMenu = new St.Widget({
 				name: 'FSMenu',
 				visible: true,
@@ -106,7 +109,16 @@ var Fullscreen = class Fullscreen {
 			});
 		}
 		
+		// TODO might want to use these down the road
+		// let fx1 = new Clutter.DesaturateEffect;
+		// let fx2 = new Clutter.BlurEffect;
+		// this.FSMenu.add_effect(fx2);
+		// TODO: var somecolor = new Clutter.Color(); for scope?
+		let white=new Clutter.Color();
+		white.init(255,255,255,255);			
+		
 		this.FSMenu.set_size(this.monitor.width, this.monitor.height);
+
 		this.FSMenu.connect(
 			'key-release-event',
 			this._onKeyReleaseEvent.bind(this)
@@ -129,9 +141,13 @@ var Fullscreen = class Fullscreen {
 		// 	"button-press-event",
 		// 	this._onButtonPressEvent.bind(this)
 		// );
+		
+		// Make our SectorMenu actor 
+		this.SectorMenu = new SectorMenu.SectorMenu(this);
+		this.FSMenu.add_actor(this.SectorMenu.SMactor);
+
 			
-			
-		//bash entry box
+		// #region bash entry box
 		this.entry_box = new St.Entry({
 			style_class: 'entry-box',
 			hint_text: 'Type a command to run. Tab to overview. Esc to quit',
@@ -152,10 +168,13 @@ var Fullscreen = class Fullscreen {
 			this._entryKeyPressEvent.bind(this)
 		);
 		
-		//this.entry_box.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS); //TODO : What does this do?
+		//this.entry_box.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS); 
+		
+		//TODO : What does this do?
 		this.FSMenu.add_actor(this.entry_box)
-			
-		//bash history
+		// #endregion bssh	
+		
+		// #region history
 		// TODO: Read imports.misc.history.HistoryManager`.
 		let hist = new St.Label({
 			name : 'hist',
@@ -168,11 +187,9 @@ var Fullscreen = class Fullscreen {
 			
 		})
 		this.FSMenu.add_actor(hist) 
-			
-		// TODO: var somecolor = new Clutter.Color(); for scope?
-		let white=new Clutter.Color();
-		white.init(255,255,255,255);			
-		
+		// #endregion history
+
+		// #region notes
 		// TODO: Add a todo,notes,snippets
 		let notesClutter = new Clutter.Text({
 			name: 'notesClutter',
@@ -213,6 +230,7 @@ var Fullscreen = class Fullscreen {
 			() => {
 				this.notes.raise_top();
 				this.notes.grab_key_focus()
+				this.SectorMenu.quickFunction=function(){displayName='notes;'};
 			}
 		)
 		this.notes.connect(
@@ -222,8 +240,11 @@ var Fullscreen = class Fullscreen {
 				// return Clutter.EVENT_STOP;
 			}
 		)
+		// #endregion notes
+		
+		// #region info
+		
 		// TODO this could be a Clutter.Text for simplicty and style consistency	
-		// info
 		let info = new St.Label({
 			visible: true,
 			reactive: false,
@@ -236,11 +257,26 @@ var Fullscreen = class Fullscreen {
 			'\n' + PACKAGE_NAME +
 			' Version ' + PACKAGE_VERSION
 		);
-		this.FSMenu.add_actor(info)
-				
-		// Make our SectorMenu actor 
-		this.SectorMenu=new SectorMenu.SectorMenu(this);
-		this.FSMenu.add_actor(this.SectorMenu.SMactor);
+		this.FSMenu.add_actor(info);
+		// #endregion info		
+		
+		// #region quick
+		this.qFcnText= new St.Label({
+			visible : true,
+			//reacitve : false,
+			x: 0,
+			//y: .9 * this.monitor.height, 
+			y: 1000,
+			style_class : 'info',
+		});
+		this.FSMenu.add_actor(this.qFcnText);
+	
+		this.qFcnText.set_text(this.SectorMenu.quickFunction.toString());
+			//might use .toSource() or .displayName instead?
+
+		// #endregion quick
+		
+		
 		
 		// Add the screen to the uiGroup
 		this.FSMenu.hide();
@@ -339,6 +375,10 @@ var Fullscreen = class Fullscreen {
 
 	// #endregion mains
 	
+	_updateQuick(){
+		this.qFcnText.set_text(this.SectorMenu.quickFunction.toString())
+	}
+
 	_entryKeyPressEvent(actor, event) { 
 		DEBUG('_entryKeyPressEvent(a,e)')
 		let symbol = event.get_key_symbol();
@@ -382,6 +422,10 @@ var Fullscreen = class Fullscreen {
 			// this.close();
 		} else if (command == 'lg') {
 				Main.createLookingGlass().open()
+		} else if (command == 'z') {
+			DEBUG('resetting SectorMenu');
+			this.SectorMenu.destroy();
+			this.SectorMenu = new SectorMenu.SectorMenu(this);
 		} else {
 			Util.trySpawnCommandLine(command);
 			// this.close();
@@ -439,6 +483,7 @@ var Fullscreen = class Fullscreen {
 	}
 
 	_onKeyReleaseEvent(actor, event) {
+		debug=false;
 		DEBUG('fullscreen._onKeyReleaseEvent()')
 		let symbol = event.get_key_symbol();
 		DEBUG(actor, event);
@@ -465,9 +510,9 @@ var Fullscreen = class Fullscreen {
 							
 				//return event ;
 
-				DEBUG('fullscreen._onKeyReleaseEvent()  DONE.')
+				
 				try {
-					this.SectorMenu.quickFunction()
+					this.SectorMenu.quickFunction() 
 				} catch (e) {
 					throw(e);
 				}
@@ -476,6 +521,7 @@ var Fullscreen = class Fullscreen {
 		}
 		//return Clutter.EVENT_PROPAGATE;
 		DEBUG('fullscreen._onKeyReleaseEvent()  DONE.')
+		debug=true;
 	}
 
 	_onKeyPressEvent(actor, event) {

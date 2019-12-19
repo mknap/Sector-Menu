@@ -19,7 +19,7 @@
  */
 
 const Clutter = imports.gi.Clutter;
-
+const Cogl = imports.gi.Cogl;
 const St = imports.gi.St;
 
 const AppFavorites = imports.ui.appFavorites;
@@ -50,7 +50,8 @@ var SectorMenu = class SectorMenu {
     constructor(caller){
 		DEBUG('SectorMenu.constructor() ...')
 		this.caller=caller;		
-		this.quickFunction= ()=> {return Clutter.EVENT_STOP};
+		this.quickFunction = function() {return Clutter.EVENT_STOP};
+		
 		this.isOpen = false;
 		this.monitor = Main.layoutManager.currentMonitor;
 		this.favs = AppFavorites.getAppFavorites().getFavorites();
@@ -61,7 +62,7 @@ var SectorMenu = class SectorMenu {
 		this.panels = [];
 		this.previews = [];;
 		this.cx=this.monitor.width/2;
-		this.cy=this.monitor.length/2;
+		this.cy=this.monitor.height/2;
 		this.N=this.settings.get_int('sectors')
 		this.R=this.settings.get_int('radius')
 		this.iconSize = this.settings.get_int('icon-size');
@@ -92,7 +93,37 @@ var SectorMenu = class SectorMenu {
 			"button-press-event",
 			this._onButtonPressEvent.bind(this)
 		);
-				
+		
+		// ! Some mtarix stuff, want to set the perspective on SMactor.
+		let M = new Cogl.Matrix;
+		M.init_identity();
+
+		DEBUG(' -={ T transform (should be id)  }=-');
+		DEBUG('-={ M identity }=-');
+		Cogl.debug_matrix_print(M);
+		DEBUG(M);
+
+
+		let T = this.SMactor.get_transform();
+		Cogl.debug_matrix_print(T);
+		DEBUG(T);
+
+
+		M.look_at(this.cx, this.cy, 1, this.cx, this.cy, -1, 0, 1, 0);
+		DEBUG('-={ M after look_at()  }=-');
+		Cogl.debug_matrix_print(M);
+		DEBUG(M);
+
+
+		DEBUG(' -={ Setting transform matrix }=- ');
+		//this.SMactor.set_transform(M);
+
+// Maybe its projection ??
+
+
+
+
+
 		DEBUG('SectorMenu.constructor() Done.')
 	}
 	
@@ -112,28 +143,31 @@ var SectorMenu = class SectorMenu {
 		
 		// ! I have some cleaning up to do here with open/close, show/hide, and destroy, and signals.
 		// this.emit('sectormenu-closed');
+		this.quickFunction = null;
+		DEBUG(this.quickFunction)	
 	};
 
 	show(){
 		DEBUG('sectormenu.show()');
+		this.quickFunction= ()=> {return Clutter.EVENT_STOP};
 		if(this.settings.get_boolean('draw-at-mouse') )
 			[this.cx, this.cy] = global.get_pointer();
-		else
-			[this.cx, this.cy] = this.monitor.width/2, this.monitor.length/2;
+		// else
+		// 	[this.cx, this.cy] = [this.monitor.width/2, this.monitor.length/2];
 		
-		DEBUG(this.SMactor);
+		//DEBUG(this.SMactor);
 		this.N=this.settings.get_int('sectors')
 		this.R=this.settings.get_int('radius')
 		this.iconSize=this.settings.get_int('icon-size')
 		
 		//this._drawTests();
 		
-		this._drawGuides();
-		this._drawCenter();
+		//this._drawGuides();
+		//this._drawCenter();
 		
 		//this._drawPanels();
 		this._drawApps();
-		//this._drawPreviews();
+		this._drawPreviews();
 		
 		//this._drawSectors();
 		
@@ -153,8 +187,8 @@ var SectorMenu = class SectorMenu {
     destroy(){
 		DEBUG('sectormenu.destroy()')
 		this.close()
-		this.caller.close();
 		this.SMactor.destroy;
+		//this.caller.close();
     }
 	
 	// * Drawing methods
@@ -208,6 +242,7 @@ var SectorMenu = class SectorMenu {
 			anchor_gravity: Clutter.Gravity.CENTER,
 			x: this.cx,
 			y: this.cy,
+			z_position: 0,
 		}) ;
 		this.SMactor.add_actor(center);
 		
@@ -273,7 +308,7 @@ var SectorMenu = class SectorMenu {
 		let N=this.N;
 		for (let n = 0; n < N; n++) {
 			this.panels[n] = new Clutter.Texture({
-				filename: Me.path + "/ui/sector-gradientb-512.svg",
+				filename: Me.path + "/ui/sector-gradienta-512.svg",
 				// border_color: RED,
 				reactive: true,
 				opacity: 0,
@@ -287,6 +322,7 @@ var SectorMenu = class SectorMenu {
 				// anchor_gravity: Clutter.Gravity.CENTER,
 				x: this.cx,
 				y: this.cy,
+				z_position: -1,
 			});
 			this.SMactor.add_actor(this.panels[n]);
 			this.panels[n].lower_bottom();
@@ -309,6 +345,8 @@ var SectorMenu = class SectorMenu {
 				rotation_angle_x: 0,
 				rotation_angle_y: 60,
 				rotation_angle_z: n * 360 / N - 180 / N,
+				z_position: -1,
+				//scale_z: 0.
 				// translate_x: 0 ,
 				// translate_y: 0 ,
 				// translate_z: 0,
@@ -356,7 +394,7 @@ var SectorMenu = class SectorMenu {
 						}
 
 						let scale = 1.0;
-						const PREVIEW_SCALE = 2/this.N;
+						const PREVIEW_SCALE = .2;
 						let previewWidth = this.monitor.width * PREVIEW_SCALE;
 						let previewHeight = this.monitor.height * PREVIEW_SCALE;
 						if (width > previewWidth || height > previewHeight)
@@ -382,30 +420,37 @@ var SectorMenu = class SectorMenu {
 							y: 1.5 * R * SinTheta + this.cy,
 							rotation_angle_x: 0 * SinTheta,
 							rotation_angle_y: -30 * CosTheta,
+							z_position: -.5,
 						});
-						/* clone.target_width = Math.round(width * scale);
+						clone.target_width = Math.round(width * scale);
 						clone.target_height = Math.round(height * scale);
 						clone.target_width_side = clone.target_width * 2 / 3;
-						clone.target_height_side = clone.target_height; */
+						clone.target_height_side = clone.target_height; 
 						this.SMactor.add_child(clone);
+
+						clone.Fcn= () => Main.activateWindow(metawin[i])
+						clone.Fcn.displayName = 'Activate the preview'
+
 						Tweener.addTween(clone, {
 							translation_x: this.iconSize * CosTheta,
 							translation_y: 10,
 						})
 						//clone.lower_bottom();
+						
 						this.items[n].raise_top();
 						DEBUG('connecting events to previews')
 						clone.connect(
 							'button-press-event',
 							this._onButtonPressEvent.bind(this, metawin)
 						)
-						clone.connect(
-							'enter-event',
-							this._onMouseEnter.bind(this, clone, n)
-						)
+						
 						clone.connect(
 							'leave-event',
 							this._onMouseLeave.bind(this, clone, n)
+						)
+						clone.connect(
+							'enter-event',
+							this._onMouseEnter2.bind(this, clone,n)
 						)
 						//clone.delegate=this;
 					}
@@ -454,6 +499,7 @@ var SectorMenu = class SectorMenu {
 					//pivot_point: p,
 					// x: x - dx/2,
 					// y: y - dy/2,
+					z_position: .5,
 					x: x,
 					y: y,
 					anchor_gravity: Clutter.Gravity.CENTER, 
@@ -504,6 +550,7 @@ var SectorMenu = class SectorMenu {
 				this.items[n].raise_top();
 				this.items[n].state = app[n].state;  // * for the previews
 				this.items[n].Fcn = () => app[n].open_new_window(-1);
+				this.items[n].Fcn.displayName = 'Open New ' + app[n].get_name() + ' Window'
 			}
 		}
 	}
@@ -628,6 +675,10 @@ var SectorMenu = class SectorMenu {
 			}
 		)
 		this.cx=x,this.cy=y
+		let M=this.panels[0].get_transformation_matrix();
+		Cogl.debug_matrix_print(M)
+		logMatrix(M)
+		M.look_at(x,y,1,x,y,0,0,1,0)
 	}
 	
 	// #region Helper methods	
@@ -639,19 +690,20 @@ var SectorMenu = class SectorMenu {
 	
 	
 	// #region event handlers
-	_onMouseEnter(cactor,n){
+	_onMouseEnter(actor,n){
 		DEBUG('sectormenu._onMouseEnter()')
-		DEBUG(cactor,n)
+		DEBUG(actor,n)
 		//cactor.grab_key_focus();
-		Tweener.addTween(cactor, {
-			time: .1,
+		//cactor.raise_top();
+		Tweener.addTween(actor, {
+			time: 1,
+			//transition: 'easeInOutSine',
 			transition: 'easeOutExpo',
-			//transition: 'easeOutExpo',
 			//transition: 'EaseInSine',
-			scale_x: 4,
-			scale_y: 4,
-			// rotation_angle_x: 40,
+			scale_x: 2,
+			scale_y: 2,
 			// rotation_angle_y: 40,
+			// rotation_angle_x: 40,
 			//rotation_angle_z:180,
 			// translation_x: 50,
 			//translation_z: 100,
@@ -659,10 +711,10 @@ var SectorMenu = class SectorMenu {
 			//transform
 			opacity: 255,
 		})
-		if(cactor.Fcn) {
-			DEBUG('Fcn attached...')
-			this.quickFunction = cactor.Fcn;
-			DEBUG('set quickFunction')
+		if(actor.Fcn) {
+			DEBUG('Attaching a quickFunction');
+			this.quickFunction = actor.Fcn;
+			this.caller.qFcnText.set_text(actor.Fcn.displayName);
 			//this.close();
 		}
 		//cactor.lower_bottom();
@@ -677,6 +729,24 @@ var SectorMenu = class SectorMenu {
 		// } 
 	}
 	
+	_onMouseEnter2(actor,n){
+		DEBUG('sectormenu._onMouseEnter2(n) ')
+		DEBUG(this.name)
+		DEBUG(actor.name);
+		DEBUG(n);
+		
+		Tweener.addTween(actor,{
+			scale_x:2,
+			scale_y:2
+		})
+		
+		if (actor.Fcn) {
+			DEBUG('Attaching a quickFunction');
+			this.quickFunction = actor.Fcn;
+			this.caller.qFcnText.set_text(actor.Fcn.displayName);
+		}
+	}
+
 	_onMouseLeave(cactor,n){
 		DEBUG('sectormenu._onMouseLeave()',n)
 		DEBUG(cactor,n)
@@ -717,7 +787,7 @@ var SectorMenu = class SectorMenu {
 				Tweener.addTween(cactor,{
 					time: 2,
 					transition: 'linear',
-					scale_z: -.1})
+					scale_z: 0})
 				break;
 			case 3:
 				let [x,y]=global.get_pointer();
@@ -753,4 +823,11 @@ function stepTween(actor, params) {
 		DEBUG(stepparams)
 		Tweener.addTween(actor, stepparams)
 	}	
+}
+
+function logMatrix(M){
+	global.log('[', M.xx,M.xy,M.xz,M.xw, '] ' +
+	'[', M.yx,M.yy,M.yz,M.yw, '] \n' +
+	'[', M.zx,M.zy,M.zz,M.zw, '] \n' +
+	'[', M.wx,M.wy,M.wz,M.ww, ']')
 }

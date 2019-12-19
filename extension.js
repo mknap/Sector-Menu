@@ -45,6 +45,7 @@ const ShellActionMode = (Shell.ActionMode) ? Shell.ActionMode : Shell.KeyBinding
 
 const DEBUG=Lib.DEBUG;
 
+
 class Extension {
     constructor() {
         DEBUG(' ~-~--={ Starting Sector Menu }=-~-~ ')
