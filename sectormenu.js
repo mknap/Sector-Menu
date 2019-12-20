@@ -109,14 +109,14 @@ var SectorMenu = class SectorMenu {
 		DEBUG(T);
 
 
-		M.look_at(this.cx, this.cy, 1, this.cx, this.cy, -1, 0, 1, 0);
+		M.look_at(this.cx, this.cy, 10, this.cx, this.cy, 1, 0, 1, 0);
 		DEBUG('-={ M after look_at()  }=-');
 		Cogl.debug_matrix_print(M);
 		DEBUG(M);
 
 
 		DEBUG(' -={ Setting transform matrix }=- ');
-		//this.SMactor.set_transform(M);
+		//this.SMactor.set_child_transform(M);
 
 // Maybe its projection ??
 
@@ -162,10 +162,10 @@ var SectorMenu = class SectorMenu {
 		
 		//this._drawTests();
 		
-		//this._drawGuides();
-		//this._drawCenter();
+		this._drawGuides();
+		this._drawCenter();
 		
-		//this._drawPanels();
+		this._drawPanels();
 		this._drawApps();
 		this._drawPreviews();
 		

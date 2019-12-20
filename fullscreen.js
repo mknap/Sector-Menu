@@ -167,7 +167,10 @@ var Fullscreen = class Fullscreen {
 			'key-press-event',
 			this._entryKeyPressEvent.bind(this)
 		);
-		
+		this.entry_box.connect(
+			'enter-event',
+			() => {this.entry_box.grab_key_focus()}
+		)
 		//this.entry_box.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS); 
 		
 		//TODO : What does this do?
@@ -275,7 +278,6 @@ var Fullscreen = class Fullscreen {
 			//might use .toSource() or .displayName instead?
 
 		// #endregion quick
-		
 		
 		
 		// Add the screen to the uiGroup
@@ -531,9 +533,9 @@ var Fullscreen = class Fullscreen {
 		DEBUG(actor.name)
 		DEBUG(symbol);
 		if (symbol === Clutter.KEY_Escape) {
-			if (actor.get_text()) {    
+			if (this.entry_box.get_text()) {    
 				DEBUG('clearing text in ', actor.name);
-				actor.set_text('');
+				this.entry_box.set_text('');
 				return Clutter.EVENT_STOP;
 			} else {
 				this.close();
@@ -547,33 +549,8 @@ var Fullscreen = class Fullscreen {
 			//return Clutter.EVENT_PROPAGATE;
 		}
 	}
-
-	//#region old
-	// _onHoverChanged(actor) {
-	// 	// DEBUG(`_onHoverChanged( ${actor} )`)
-	// 	// DEBUG(actor.anchor_x)
-	// 	// DEBUG(actor.anchor_y)
-	// 	let iconSize = this.settings.get_int('icon-size');
-	// 	Tweener.addTween(actor, {
-	// 		// gravity: Clutter.Gravity.CENTER,
-	// 		opacity: actor.hover ? 255 : 225,
-	// 		height: actor.hover ? iconSize*1.5 : iconSize,
-	// 		width: actor.hover ? iconSize*1.5 : iconSize,
-	// 		time: .1,
-	// 		transition: 'easeOutExpo',
-	// 	})
-	// 	actor.tip.opacity = actor.hover ? 255 : 0;
-	// 	actor.raise_top();
-	// 	actor.tip.raise_top();
-	// 	// return Clutter.EVENT_PROPOGATE;
-	// }
-	//#endregion old
-	// TODO this event handler is also in sectormenu.js
-// 	_onButtonPressEvent(cactor){
-// 		DEBUG('_onButtonPressEvent() ');
-// 		DEBUG(global.get_pointer())
-// 	}
 }
+
 
 // * I am gathering that this adds methods to handle signals like emit() ?
 // Signals.addSignalMethods(Fullscreen.prototype)

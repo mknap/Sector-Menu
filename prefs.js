@@ -405,6 +405,24 @@ function buildPrefsWidget() {
 
 /* ++++++++++++++++++++++++++++++++++++ End: Keyboard accelerator +++++ */
 
+// Super_L
+    hbox = new Gtk.HBox({ margin_left: 18, visible: true });
+    label = new Gtk.Label({
+        label: 'Use Super_L as a shortcut. ***',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    button = new Gtk.Button({
+        label: 'I understand',
+        visible: true
+    });         
+    button.connect('clicked', () => {
+        this.settings.set_strv('toggle-sector-menu', ['Super_L'])
+    });
+    
+    hbox.pack_start(label, false, false, 0);
+    hbox.pack_end(button, false, false, 0);
+    frame.pack_start(hbox, false, false, 0);   
 
     //aboutWidget :
     grid = new Gtk.Grid({
