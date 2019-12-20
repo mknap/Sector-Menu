@@ -524,21 +524,25 @@ var SectorMenu = class SectorMenu {
 					'clicked',
 					() => {
 						app[n].open_new_window(-1);
-						this.destroy();
+						this.caller.close();
 					});
+				// this.items[n].connect(
+				// 	'notify::hover',
+				// 	()=> {Tweener.addTween(
+				// 			this.items[n],
+				// 			{scale_x: this.items[n].hover ? 1.5 : 1,
+				// 			scale_y: this.items[n].hover ? 1.5 : 1,
+				// 			}
+				// 		)	
+				// 	}
+				// )
+				// this.items[n].connect(
+				// 	'key-release-event',
+				// 	this._onItemKeyRelease.bind(this)
+				// )
 				this.items[n].connect(
-					'notify::hover',
-					()=> {Tweener.addTween(
-							this.items[n],
-							{scale_x: this.items[n].hover ? 1.5 : 1,
-							scale_y: this.items[n].hover ? 1.5 : 1,
-							}
-						)	
-					}
-				)
-				this.items[n].connect(
-					'key-release-event',
-					this._onItemKeyRelease.bind(this)
+					'leave-event',
+					this._onMouseLeave.bind(this,this.items[n],n)
 				)
 				this.items[n].connect(
 					'enter-event',
@@ -694,7 +698,7 @@ var SectorMenu = class SectorMenu {
 		DEBUG('sectormenu._onMouseEnter()')
 		DEBUG(actor,n)
 		//cactor.grab_key_focus();
-		//cactor.raise_top();
+		actor.raise_top();
 		Tweener.addTween(actor, {
 			time: 1,
 			//transition: 'easeInOutSine',
@@ -702,14 +706,15 @@ var SectorMenu = class SectorMenu {
 			//transition: 'EaseInSine',
 			scale_x: 2,
 			scale_y: 2,
-			// rotation_angle_y: 40,
-			// rotation_angle_x: 40,
+			scale_z: 2,
+			//rotation_angle_y: 40,
+			//rotation_angle_x: 40,
 			//rotation_angle_z:180,
-			// translation_x: 50,
+			//translation_x: 50,
 			//translation_z: 100,
-			// pivot_point_z: 50,
+			//pivot_point_z: 50,
 			//transform
-			opacity: 255,
+			//opacity: 255,
 		})
 		if(actor.Fcn) {
 			DEBUG('Attaching a quickFunction');
@@ -763,7 +768,7 @@ var SectorMenu = class SectorMenu {
 			pivot_point_z: 0,
 			//opacity: 0,
 		})
-		//cactor.lower_bottom();
+		actor.lower_bottom();
 			if (n) {
 				Tweener.addTween(this.items[n], {
 				time: .5,

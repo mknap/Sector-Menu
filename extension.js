@@ -53,6 +53,11 @@ class Extension {
         DEBUG(`${PACKAGE_NAME}  ${PACKAGE_VERSION}` )
         DEBUG(' + getting settings')
         this.settings = Convenience.getSettings();
+        // DEBUG(this.settings.list_keys())
+        // this.settings.list_keys().forEach (key => {
+        //     DEBUG(key)
+        //     DEBUG(this.settings.reset(key))
+        // })
         DEBUG('constructor() Done.')
         Main.notify(Me.metadata.name + " loaded.")
     }   
