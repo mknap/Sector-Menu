@@ -33,17 +33,17 @@ const Lib = Me.imports.lib;
 const System = imports.system; // * For debugging ? 
 
 const DEBUG=Lib.DEBUG;
-// var debug = Me.imports.lib.debug;
-// const DEBUG = Me.imports.lib.DEBUG;
+// // var debug = Me.imports.lib.debug;
+// // const DEBUG = Me.imports.lib.DEBUG;
 
-const RED = new Clutter.Color({
-	'red': 255,
-	'blue': 0,
-	'green': 0,
-	'alpha': 128
-});
+// const RED = new Clutter.Color({
+// 	'red': 255,
+// 	'blue': 0,
+// 	'green': 0,
+// 	'alpha': 128
+// });
 
-var debug=true;
+// var debug=true;
 
 var SectorMenu = class SectorMenu {
 	
@@ -58,7 +58,7 @@ var SectorMenu = class SectorMenu {
 		this.settings = Convenience.getSettings();
 		this.guidelines = [];
 		this.items = [];
-		this.tips = [];
+		//this.tips = [];
 		this.panels = [];
 		this.previews = [];;
 		
@@ -71,28 +71,20 @@ var SectorMenu = class SectorMenu {
 		this.R=this.settings.get_int('radius')
 		this.iconSize = this.settings.get_int('icon-size');
 		this.angle=360/this.N;
+		this.color = new Clutter.Color().init(255,0,0,255) //red 
 
-		// A few different ways to create the main widget:
-		this.SMactorSTWidget = new St.Widget({
-			name: "SectorMenu",
-			visible: true,
-			reactive: true,
-			//style_class: 'sector-debug',
-		})
-		this.SMactorClutter = new Clutter.Actor({
+		this.SMactor = new Clutter.Actor({
 			name: 'SMactor',
 			width: this.monitor.width,
 			height: this.monitor.height,
 			visible: true,
 			reactive: true,
 			// z_position: 0,
-			
 		})
-		
-		this.SMactor = this.SMactorClutter; 
 		this.SMactor.hide();
 		
-		// ! Some mtarix stuff, want to set the perspective on SMactor.
+		// * some playing around with matrices for future work
+		// #region matrix!
 		let M=[];
 		M[0] = new Cogl.Matrix;
 		M[0].init_identity();
@@ -108,39 +100,15 @@ var SectorMenu = class SectorMenu {
 		M[3] = new Cogl.Matrix;
 		M[3].init_identity();
 		M[3].look_at(-this.cx, -this.cy, 10,0, 0, 0, 0, 1, 0);
-		
-		M[4] = new Cogl.Matrix;
-		//M[4].view_2d_in_frustrum(0, 1920, 1080, 1,);
-		
-		
 		this.M=M
 		
-		
-		// M = new Cogl.Matrix;
-		// M.init_identity();
-		
-		// DEBUG(' -={ T transform (should be id)  }=-');
-		// DEBUG('-={ M identity }=-');
-		// Cogl.debug_matrix_print(M);
-		// DEBUG(M);
-		
-		
-		// let T = this.SMactor.get_transform();
-		// Cogl.debug_matrix_print(T);
-		// DEBUG(T);
-		
-		
-		// M.look_at(this.cx, this.cy, 0, 0, 0, 1, 0, 1, 0);
-		// DEBUG('-={ M after look_at()  }=-');
-		// Cogl.debug_matrix_print(M);
-		// DEBUG(M);
-		// DEBUG(' -={ Setting transform matrix }=- ')
-		 //this.SMactor.set_child_transform(M);
-		// Connections
-		this.SMactor.connect(
-			"button-press-event",
-			this._onButtonPressEvent.bind(this)
-		);
+		// commented for release, uncomment for debug
+		// this.SMactor.connect(
+		// 	"button-press-event",
+		// 	this._onButtonPressEvent.bind(this)
+		// );
+
+		// #endregion
 		DEBUG('SectorMenu.constructor() Done.')
 	}
 	
@@ -156,42 +124,29 @@ var SectorMenu = class SectorMenu {
 			}
 		});
 		this.isOpen=false;
-		//this.delegate.toggle(); //? How to close the calling actor, FSMenu ?
-		
-		// ! I have some cleaning up to do here with open/close, show/hide, and destroy, and signals.
-		// this.emit('sectormenu-closed');
 		this.quickFunction = null;
-		DEBUG(this.quickFunction)	
+		//this.caller.close(); 
 	};
 
 	show(){
 		DEBUG('sectormenu.show()');
-		this.quickFunction= ()=> {return Clutter.EVENT_STOP};
-		if(this.settings.get_boolean('draw-at-mouse') )
+		if (this.settings.get_boolean('draw-at-mouse'))
 			[this.cx, this.cy] = global.get_pointer();
-		// else
-		// 	[this.cx, this.cy] = [this.monitor.width/2, this.monitor.length/2];
-		
-		//DEBUG(this.SMactor);
-		this.N=this.settings.get_int('sectors')
-		this.R=this.settings.get_int('radius')
-		this.iconSize=this.settings.get_int('icon-size')
-		
+		//reload from settings:
+		this.N = this.settings.get_int('sectors');
+		this.R = this.settings.get_int('radius');
+		this.iconSize = this.settings.get_int('icon-size');
+		this.angle = 360 / this.N;
+		this.isOpen=true;
 		//this._drawTests();
-		
 		this._drawGuides();
-		this._drawGrid();
+		//this._drawGrid();
 		this._drawCenter();
-		
 		this._drawPanels();
 		this._drawApps();
 		this._drawPreviews();
-		
 		//this._drawSectors();
-		
 		this.SMactor.show();
-		//this.SMactor.lower_bottom();
-		this.isOpen=true;
 	}
 
 	toggle(){
@@ -206,7 +161,7 @@ var SectorMenu = class SectorMenu {
 		DEBUG('sectormenu.destroy()')
 		this.close()
 		this.SMactor.destroy;
-		//this.caller.close();
+		this.caller.close();
     }
 	
 	// * Drawing methods
@@ -223,7 +178,7 @@ var SectorMenu = class SectorMenu {
 
 			for (let n = 0; n < N; n++){
 				this.guidelines[n] = new Clutter.Actor({
-					background_color: RED,
+					background_color: this.color,
 					width: 3 * R,
 					height: 1,
 					x: this.cx,
@@ -241,8 +196,7 @@ var SectorMenu = class SectorMenu {
 		}
 
 	}
-	
-	
+		
 	_drawCenter(){
 		
 		DEBUG('sectormenu._drawCenter()')
@@ -286,37 +240,6 @@ var SectorMenu = class SectorMenu {
 		}
 		// Tweener.addTween(center,startParams);
 		Tweener.addTween(center,pulseParams);
-		// // pulse 5 times
-		
-		// for (let n=0; n<5; n++){
-			// 	Tweener.addTween(center,startParams);
-			// 	//Tweener.removeTweens(center);
-			// 	Tweener.addTween(center,pulseParams);
-			// 	//Tweener.removeTweens(center);
-			// 	DEBUG(n);
-			// 	//Tweener.removeTweens(center)
-			// }
-			
-			
-			
-		// Tweener.addCaller(center,{
-		// 	//base: base,
-		// 	delay: .1,
-		// 	count: 10,
-		// 	time: 1,
-		// 	color: 0xffdd33 ,
-		// 	transition: 'linear',
-		// 	scale_x: 3,
-		// 	scale_y: 3,
-		// 	opacity: 255,
-		// 	onUpdate: DEBUG('test'),
-		// 	//autoreverse: true,
-		// 	//loop: true,
-		// 	// ? not sure how theese work yet
-		// 	//nCompleteParams: [],
-		// 	//onComplete: Tweener.addTween(this, pulseParams),
-		// 	//onCompleteScope: this,
-		// })
 	}
 
 	_drawPanels(){
@@ -326,8 +249,7 @@ var SectorMenu = class SectorMenu {
 		let N=this.N;
 		for (let n = 0; n < N; n++) {
 			this.panels[n] = new Clutter.Texture({
-				filename: Me.path + "/ui/sector-gradienta-512.svg",
-				// border_color: RED,
+				filename: Me.path + "/ui/sector-gradient-512.svg",
 				reactive: true,
 				opacity: 0,
 				width: .5 * R,
@@ -375,6 +297,9 @@ var SectorMenu = class SectorMenu {
 
 	_drawPreviews(){
 		DEBUG("sectormenu._drawPreviews()")
+		// A lot of this code from extension UUID
+		// CoverFlowAltTab@palatis.blogspot.com
+		
 		for( let n=0; n < this.N; n++){
 			let app=[];
 			app[n] = this.favs[n];
@@ -391,14 +316,8 @@ var SectorMenu = class SectorMenu {
 				let x = R * CosTheta + this.cx;
 				let y = R * SinTheta + this.cy;
 				
-				
 				let metawin = app[n].get_windows();
-				// let compositor = metawin.get_compositor_private();
-				// DEBUG('~-=-~-=-~-=-~')
-				// DEBUG(app[n].get_name());
-				// DEBUG(app[n].get_app_info());
-				// DEBUG(metawin)
-				// DEBUG(metawin.length)
+				
 				for (let i in metawin) {
 					let compositor = metawin[i].get_compositor_private();
 					if (compositor) {
@@ -418,10 +337,11 @@ var SectorMenu = class SectorMenu {
 						scale = Math.min(previewWidth / width, previewHeight / height);
 						DEBUG('adding preview:', n)
 						DEBUG(width,height)
-						let clone = new Clutter.Clone({
-							name: 'preview'+n.toString()+'-'+i.toString(),
+						let clonebox=new Clutter.Actor({
+							name: 'Clonebox'+n.toString(),
+							background_color: new Clutter.Color().init(255, 0, 0, 64),
 							opacity: 255,
-							source: texture.get_size ? texture : compositor,
+							//source: texture.get_size ? texture : compositor,
 							//source : compositor,
 							reactive: true,
 							//anchor_gravity: Clutter.Gravity.CENTER,
@@ -432,34 +352,50 @@ var SectorMenu = class SectorMenu {
 							//y_align: 1,
 							x: 3 * R * CosTheta + this.cx,
 							y: 3 * R * SinTheta + this.cy,
-							translation_x: scale*-width/2  * (CosTheta + 1),
-							translation_y: scale*-height/2 * (SinTheta + 1),
+							translation_x: scale * -width / 2 * (CosTheta + 1),
+							translation_y: scale * -height / 2 * (SinTheta + 1),
 							rotation_angle_x: 0 * SinTheta,
 							rotation_angle_y: -30 * CosTheta,
-							z_position: -.5,
+							//z_position: -.5,
+						})
+						let clone = new Clutter.Clone({
+							name: 'preview'+n.toString()+'-'+i.toString(),
+							background_color:new Clutter.Color().init(255,0,0,255),
+							opacity: 255,
+							source: texture.get_size ? texture : compositor,
+							//source : compositor,
+							reactive: true,
+							//anchor_gravity: Clutter.Gravity.CENTER,
+							pivot_point: p,
+							width: this.monitor.width * PREVIEW_SCALE,
+							height: this.monitor.height * PREVIEW_SCALE,
+							//x_align: 1,
+							//y_align: 1,
+							//x: 3 * R * CosTheta + this.cx,
+							//y: 3 * R * SinTheta + this.cy,
+							// translation_x: scale*-width/2  * (CosTheta + 1),
+							// translation_y: scale*-height/2 * (SinTheta + 1),
+							// rotation_angle_x: 0 * SinTheta,
+							// rotation_angle_y: -30 * CosTheta,
+							// z_position: -.5,
 						});
-						DEBUG('position')
-						DEBUG(clone.x, clone.y)
-						DEBUG('translation')
-						DEBUG(clone.translation_x, clone.translation_y)
-						clone.target_width = Math.round(width * scale);
-						clone.target_height = Math.round(height * scale);
-						clone.target_width_side = clone.target_width * 2 / 3;
-						clone.target_height_side = clone.target_height; 
-						this.SMactor.add_child(clone);
-
-						clone.Fcn= () => Main.activateWindow(metawin[i])
-						clone.Fcn.displayName = 'Activate the preview'
-
-						// Tweener.addTween(clone, {
-						// 	translation_x: this.iconSize * CosTheta,
-						// 	translation_y: 10,
-						// })
-						//clone.lower_bottom();
+						clonebox.add_actor(clone)
+						// DEBUG('position')
+						// DEBUG(clone.x, clone.y)
+						// DEBUG('translation')
+						// DEBUG(clone.translation_x, clone.translation_y)
 						
-						//this.items[n].raise_top();
+						// clone.target_width = Math.round(width * scale);
+						// clone.target_height = Math.round(height * scale);
+						// clone.target_width_side = clone.target_width * 2 / 3;
+						// clone.target_height_side = clone.target_height; 
+						this.SMactor.add_child(clonebox);
+
+						clonebox.Fcn= () => Main.activateWindow(metawin[i])
+						clonebox.Fcn.displayName = 'Activate the preview'
+
 						DEBUG('connecting events to previews')
-						clone.connect(
+						clonebox.connect(
 							'button-press-event',
 							() => {
 								clone.Fcn();
@@ -467,21 +403,16 @@ var SectorMenu = class SectorMenu {
 							}
 						)
 						
-						clone.connect(
+						clonebox.connect(
 							'leave-event',
-							this._onMouseLeave.bind(this, clone, n)
+							this._onMouseLeave.bind(this, clonebox, n)
 						)
-						clone.connect(
+						clonebox.connect(
 							'enter-event',
-							this._onMouseEnter.bind(this, clone,n)
+							this._onMouseEnter.bind(this, clonebox,n)
 						)
-						//clone.delegate=this;
 					}
-					//this.previews[n] = get.texture
-
-					// this.SMactor.add_actor(this.previews[n]);
-					//this.previews[n].hide();
-				}
+				}	
 
 			}
 	
@@ -542,7 +473,7 @@ var SectorMenu = class SectorMenu {
 					//track_hover: true,
 				});
 				this.items[n].set_child(icon);
-				// ! This is where I'm at. I need to emit a signal from here to close the FSmenu. ...
+				
 				this.items[n].connect(
 					'clicked',
 					() => {
@@ -774,10 +705,7 @@ var SectorMenu = class SectorMenu {
 	
 	// #region event handlers
 	_onMouseEnter(actor,n){
-		DEBUG('sectormenu._onMouseEnter()')
-		DEBUG(actor,n)
-		//cactor.grab_key_focus();
-		//actor.raise_top();
+		DEBUG('sectormenu._onMouseEnter()', actor)
 		Tweener.addTween(actor, {
 			time: 1,
 			//transition: 'easeInOutSine',
@@ -786,60 +714,24 @@ var SectorMenu = class SectorMenu {
 			scale_x: 2,
 			scale_y: 2,
 			scale_z: 2,
-			//rotation_angle_y: 40,
-			//rotation_angle_x: 40,
-			//rotation_angle_z:180,
-			//translation_x: 50,
-			//translation_z: 100,
-			//pivot_point_z: 50,
-			//transform
-			//opacity: 255,
 		})
 		if(actor.Fcn) {
 			DEBUG('Attaching a quickFunction');
 			this.quickFunction = actor.Fcn;
 			this.caller.qFcnText.set_text(actor.Fcn.displayName);
-			//this.close();
 		}
-		//cactor.lower_bottom();
-		// if(n) {
-		// 	Tweener.addTween(this.items[n], {
-		// 		time: .1,
-		// 		transition: 'easeInExpo',
-		// 		scale_x: 1.5,
-		// 		scale_y: 1.5,
-		// 		// rotation_x:0,
-		// 	})
-		// } 
 	}
 	
-	_onMouseLeave(cactor,n){
-		DEBUG('sectormenu._onMouseLeave()',n)
-		DEBUG(cactor,n)
-		Tweener.addTween(cactor, {
+	_onMouseLeave(actor,n){
+		DEBUG('sectormenu._onMouseLeave()', actor)
+		Tweener.addTween(actor, {
 			time: 1,
 			scale_x: 1,
 			scale_y: 1,
-			transition: 'easeOutBounce',
-			// rotation_angle_x: 0,
-			// rotation_angle_y: 0,
-			//rotation_angle_z:0,
-			//translation_x: 0,
-			//translation_x: 0,
-			//pivot_point_z: 0,
-			//opacity: 0,
+			//transition: 'easeOutBounce',
 		})
-		//actor.lower_bottom();
-			// if (n) {
-			// 	Tweener.addTween(this.items[n], {
-			// 	time: .5,
-			// 	transition: 'easeOutExpo',
-			// 	scale_x: 1,
-			// 	scale_y: 1,
-			// 	// rotation_x: 0,
-			// }) 
-		// }
 	}
+	
 
 	_onButtonPressEvent(cactor,event) {
 		DEBUG('sectormenu._onButtonPressEvent() ');
@@ -868,29 +760,7 @@ var SectorMenu = class SectorMenu {
 		DEBUG('_onItemKeyRelease(a,e');
 		let symbol = event.get_key_symbol();
 		DEBUG('key-press-event on app item[n], ', symbol);
-}
+	}
 
 	// #endregion event handlers
-}
-
-function stepTween(actor, params) {
-
-	// for (let n=0; n < Object.keys(params).length; n++) {
-	// 	DEBUG( params[key[n]] )
-	// }}
-
-	for(let key in params) {
-		let stepparams={time:2,delay:1}
-		DEBUG(key, params[key])
-		stepparams[key] = params[key];
-		DEBUG(stepparams)
-		Tweener.addTween(actor, stepparams)
-	}	
-}
-
-function logMatrix(M){
-	global.log('[', M.xx,M.xy,M.xz,M.xw, '] ' +
-	'[', M.yx,M.yy,M.yz,M.yw, '] \n' +
-	'[', M.zx,M.zy,M.zz,M.zw, '] \n' +
-	'[', M.wx,M.wy,M.wz,M.ww, ']')
 }

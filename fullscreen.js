@@ -26,11 +26,11 @@ const Clutter = imports.gi.Clutter;
 const Meta = imports.gi.Meta;
 const St = imports.gi.St;
 const Gdk = imports.gi.Gdk;
-const Signals = imports.signals;
+// const Signals = imports.signals;
 
-const AppFavorites = imports.ui.appFavorites;
+// const AppFavorites = imports.ui.appFavorites;
 const AppDisplay = imports.ui.appDisplay;
-const Layout = imports.ui.layout;
+//const Layout = imports.ui.layout;
 const Main = imports.ui.main;
 
 const ShellEntry = imports.ui.shellEntry;
@@ -46,19 +46,25 @@ const SectorMenu = Me.imports.sectormenu;
 
 const DEBUG=Lib.DEBUG;
 
-var debug
-
 var Fullscreen = class Fullscreen {
-
+	
 	// #region mains
 	constructor() {
+		this.debug=true;
 		DEBUG(`fullscreen.constructor()...`)
 		this.SectorMenu=null;
 		this.is_open = false;
 		this.monitor = Main.layoutManager.currentMonitor;
 		this.settings = Convenience.getSettings();
-
+		// TODO might want to use these down the road
+		// let fx1 = new Clutter.DesaturateEffect;
+		// let fx2 = new Clutter.BlurEffect;
+		// this.FSMenu.add_effect(fx2);
+		let color1=new Clutter.Color().init(255,255,255,255); //white
+		let color2=new Clutter.Color().init(0,0,0,0); //black
+		let p = new Clutter.Point().init(.5,.5) // pt 
 		
+
 		// TODO: Ways to get a container to draw in.  Make a setting for this?
 		if(false){ // * stage works ok but doesn't seem to do mouse-wheel events, and text color is off
 			/** initBackground from coverflow platform.js */
@@ -114,15 +120,6 @@ var Fullscreen = class Fullscreen {
 				background_color: new Clutter.Color().init(0,0,0,128)
 			})
 		}
-		
-		// TODO might want to use these down the road
-		// let fx1 = new Clutter.DesaturateEffect;
-		// let fx2 = new Clutter.BlurEffect;
-		// this.FSMenu.add_effect(fx2);
-		// TODO: var somecolor = new Clutter.Color(); for scope?
-		let color=new Clutter.Color().init(255,255,255,255);
-				
-		
 		this.FSMenu.set_size(this.monitor.width, this.monitor.height);
 
 		this.FSMenu.connect(
@@ -146,15 +143,31 @@ var Fullscreen = class Fullscreen {
 		this.SectorMenu = new SectorMenu.SectorMenu(this);
 		this.FSMenu.add_actor(this.SectorMenu.SMactor);
 
-			
+		// #region info
+		let info = new Clutter.Text({
+			visible: true,
+			reactive: false,
+			color: color1,
+			background_color: color2,
+		})
+		info.set_text(
+			Me.metadata['name'] +
+			' Version ' +
+			Me.metadata['version'] +
+			'\n' + PACKAGE_NAME +
+			' Version ' + PACKAGE_VERSION
+		);
+		this.FSMenu.add_actor(info);
+		// #endregion info
+
 		// #region bash entry box
 		this.entry_box = new St.Entry({
 			style_class: 'entry-box',
-			hint_text: 'Type a command to run. Tab to overview. Esc to quit',
+			hint_text: 'Type a command to run.  Esc to quit',
 			track_hover: true,
 			can_focus: true,
-			x: 100,
-			y: 100,
+			x: .05*this.monitor.width,
+			y: .1*this.monitor.height,
 			width: this.monitor.width / 4,
 		});
 		ShellEntry.addContextMenu(this.entry_box)  ; 
@@ -169,7 +182,9 @@ var Fullscreen = class Fullscreen {
 		);
 		this.entry_box.connect(
 			'enter-event',
-			() => {this.entry_box.grab_key_focus()}
+			() => {this.entry_box.grab_key_focus();
+				this.SectorMenu.quickFunction = function(){displayName='entry'}
+			}
 		)
 		//this.entry_box.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS); 
 		
@@ -179,9 +194,10 @@ var Fullscreen = class Fullscreen {
 		
 		// #region history
 		// TODO: Read imports.misc.history.HistoryManager`.
-		let hist = new St.Label({
+		let hist = new Clutter.Text({
 			name : 'hist',
-			style_class: 'STLabel-history',
+			//style_class: 'STLabel-history',
+			color:color1,
 			x: 100,
 			y: 150,
 			width: this.monitor.width /4,
@@ -193,47 +209,30 @@ var Fullscreen = class Fullscreen {
 		// #endregion history
 
 		// #region notes
-		// TODO: Add a todo,notes,snippets
-		let notesClutter = new Clutter.Text({
+		this.notes = new Clutter.Text({
 			name: 'notesClutter',
 			editable: true,
 			selectable: true,
 			cursor_visible: true,
-			color: color,
+			color: color1,
 			text: this.settings.get_string('notes'),
 			x: Math.round(this.monitor.width * .75),
-			y: 100,
+			y: .1*this.monitor.height,
 			height: 500,
 			width: this.monitor.width / 4,
 			reactive: true,
 			//border_color: white,
 		})
-		let notesSt = new St.Entry({
-			name: 'notesSt',
-			// clutter_text: notesClutter,
-			//style_class: 'STscrollview',
-			// editable: true,
-			// selectable: true,
-			// cursor_visible: true,
-			// color: white,
-			// text: this.settings.get_string('notes'),
-			// x: Math.round(this.monitor.width * .75),
-			// y: 100,
-			// height: 500,
-			// width: this.monitor.width / 4,
-			// reactive: true,
-		})
-		
-		this.notes=notesClutter;
+			
 		//ShellEntry.addContextMenu(this.notes);
-		//this.notes.set_text(this.settings.get_string('notes'))
 		this.FSMenu.add_actor(this.notes)
 		this.notes.connect(
 			'enter-event',
 			() => {
 				this.notes.raise_top();
 				this.notes.grab_key_focus()
-				this.SectorMenu.quickFunction=function(){displayName='notes;'};
+				this.SectorMenu.quickFunction=function(){}
+				this.SectorMenu.quickFunction.displayName='Take notes;';
 			}
 		)
 		this.notes.connect(
@@ -245,51 +244,37 @@ var Fullscreen = class Fullscreen {
 		)
 		// #endregion notes
 		
-		// #region info
-		
-		// TODO this could be a Clutter.Text for simplicty and style consistency	
-		let info = new St.Label({
-			visible: true,
-			reactive: false,
-			style_class: 'info',
-		})
-		info.set_text(
-			Me.metadata['name'] +
-			' Version ' +
-			Me.metadata['version'] +
-			'\n' + PACKAGE_NAME +
-			' Version ' + PACKAGE_VERSION
-		);
-		this.FSMenu.add_actor(info);
-		// #endregion info		
-		
 		// #region quick
-		this.qFcnText= new St.Label({
+		this.qFcnText= new Clutter.Text({
 			visible : true,
-			//reacitve : false,
-			x: 0,
-			//y: .9 * this.monitor.height, 
-			y: 1000,
-			style_class : 'info',
+			pivot_point: p,
+			x: this.monitor.width/2,
+			y: .1 * this.monitor.height, 
+			//y: this.monitor.height-15,
+			color: color1,
+			//background_color: color2,
 		});
+		// ! See why this isn't translating
+		this.qFcnText.set_translation(Math.round(-this.qFcnText.width/2),0,0);
 		this.FSMenu.add_actor(this.qFcnText);
-	
 		this.qFcnText.set_text(this.SectorMenu.quickFunction.toString());
-			//might use .toSource() or .displayName instead?
-
+		
 		// #endregion quick
 		
 		// #region pointerText
 		this.pointerText = new Clutter.Text({
 			visible:true,
 			text: global.get_pointer().toString(),
-			color: color,
-			x: 1800,
-			y: 900
+			color: color1,
+			background_color: color2.init(0,0,0,255),
+			pivot_point: p.init(0,1),
+			x: 0,
+			y: this.monitor.height
 		})
+		this.pointerText.set_translation(0,-this.pointerText.height,0)
 		this.FSMenu.add_actor(this.pointerText);
 
-		// #endregion po;interText
+		// #endregion pointerText
 		
 		// Add the screen to the uiGroup
 		this.FSMenu.hide();
@@ -323,7 +308,7 @@ var Fullscreen = class Fullscreen {
 		DEBUG('fullscreen.destroy()')
 		this.SectorMenu.destroy();
 		
-		// thanks andyholmes
+		// thanks andyholmes !
 		Main.layoutManager.removeChrome(this.FSMenu)
 		this.FSMenu.destroy();
 	}
@@ -331,24 +316,7 @@ var Fullscreen = class Fullscreen {
 	close() {
 		DEBUG('fullscreen.close()')
 		this.is_open = false;
-		
-		this.settings.set_string('notes',this.notes.get_text())
-		
-		global.window_group.show();
-		//let N = this.settings.get_int('sectors');
-		/* for (let n = 0; n < N; n++) {
-			if (this.items[n] != null) {
-				this.FSMenu.remove_actor(this.items[n]);
-				this.FSMenu.remove_actor(this.tips[n]);
-				this.FSMenu.remove_actor(this.texture[n]);
-			}
-			if (this.settings.get_boolean('draw-guides')) {
-			this.FSMenu.remove_actor(this.guidelines[n])
-			//DEBUG(`${n} of ${N}`)
-		}
-		//this.FSMenu.remove_actor(this.texture[n]);
-		} */
-		/* f */
+		this.settings.set_string('notes',this.notes.get_text());
 		this.FSMenu.hide();
 		this.SectorMenu.close();
 		this.entry_box.set_text('')
@@ -357,24 +325,15 @@ var Fullscreen = class Fullscreen {
 
 	open() {
 		DEBUG('fullscreen.open()')
-		/* if (this.is_open) {
-			this.FSMenu.raise_top();
-	
-		} */
 		this.is_open = true;
 		let [x, y] = global.get_pointer();
 		this.cx = x;
 		this.cy = y;
-		
-		//global.window_group.hide(); //makes screen fade
-		// * this._drawSectors(this.settings.get_int('sectors'));
-		//this._drawApps(this.settings.get_int('sectors'))
 		this.FSMenu.show();
 		this.FSMenu.raise_top();
-		this.entry_box.grab_key_focus(); // ! might have been the issue
+		this.entry_box.grab_key_focus(); // ! might be an issue
 		this.entry_box.raise_top();
 		this.SectorMenu.show();
-		
 		this.notes.raise_top();
 	}
 
@@ -499,7 +458,6 @@ var Fullscreen = class Fullscreen {
 	}
 
 	_onKeyReleaseEvent(actor, event) {
-		debug=false;
 		DEBUG('fullscreen._onKeyReleaseEvent()')
 		let symbol = event.get_key_symbol();
 		DEBUG(actor, event);
@@ -537,7 +495,6 @@ var Fullscreen = class Fullscreen {
 		}
 		//return Clutter.EVENT_PROPAGATE;
 		DEBUG('fullscreen._onKeyReleaseEvent()  DONE.')
-		debug=true;
 	}
 
 	_onKeyPressEvent(actor, event) {
@@ -564,7 +521,5 @@ var Fullscreen = class Fullscreen {
 		}
 	}
 }
-
-
 // * I am gathering that this adds methods to handle signals like emit() ?
 // Signals.addSignalMethods(Fullscreen.prototype)

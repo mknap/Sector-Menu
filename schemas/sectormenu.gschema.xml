@@ -6,7 +6,9 @@
       <default>{}</default>
     </key> -->
     <key name="quick-mode" type="b">
-      <default>true</default>
+      <default>false</default>
+      <summary>Boolean to use quick mode. See http://mknap.github.com/sector-menu/quickmode.md</summary>
+        <description></description>
     </key>
     <key name="show-indicator" type="b">
       <default>true</default>
