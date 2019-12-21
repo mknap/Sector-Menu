@@ -44,7 +44,7 @@ const Lib = Me.imports.lib;
 const ShellActionMode = (Shell.ActionMode) ? Shell.ActionMode : Shell.KeyBindingMode;
 
 const DEBUG=Lib.DEBUG;
-
+var debug=Lib.debug
 
 class Extension {
     constructor() {
@@ -60,6 +60,7 @@ class Extension {
         // })
         DEBUG('constructor() Done.')
         Main.notify(Me.metadata.name + " loaded.")
+        
     }   
 
     enable() {

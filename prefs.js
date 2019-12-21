@@ -424,6 +424,31 @@ function buildPrefsWidget() {
     hbox.pack_end(button, false, false, 0);
     frame.pack_start(hbox, false, false, 0);   
 
+    // Quick Mode
+    hbox = new Gtk.HBox({ margin_left: 18, visible: true });
+    label = new Gtk.Label({
+        label: 'Quick Mode. ***',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    toggle = new Gtk.Switch({
+        active: this.settings.get_boolean('quick-mode'),
+        halign: Gtk.Align.END,
+        valign: Gtk.Align.START,
+        visible: true
+    });
+    this.settings.bind(
+        'quick-mode',
+        toggle,
+        'active',
+        Gio.SettingsBindFlags.DEFAULT
+    );
+
+    hbox.pack_start(label, false, false, 0);
+    hbox.pack_end(toggle, false, false, 0);
+    frame.pack_start(hbox, false, false, 0); 
+
+
     //aboutWidget :
     grid = new Gtk.Grid({
         visible: true,

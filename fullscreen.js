@@ -56,15 +56,11 @@ var Fullscreen = class Fullscreen {
 		this.SectorMenu=null;
 		this.is_open = false;
 		this.monitor = Main.layoutManager.currentMonitor;
-		//this.favs = AppFavorites.getAppFavorites().getFavorites();
 		this.settings = Convenience.getSettings();
-		//this.guidelines = [];
-		//this.items = [];
-		//this.tips = [];
-		//this.previews = [];
+
 		
 		// TODO: Ways to get a container to draw in.  Make a setting for this?
-		if(false){ // * works ok but doesn't seem to do mouse-wheel events, and text color is off
+		if(false){ // * stage works ok but doesn't seem to do mouse-wheel events, and text color is off
 			/** initBackground from coverflow platform.js */
 		
 			let Background = imports.ui.background;
@@ -82,7 +78,7 @@ var Fullscreen = class Fullscreen {
 			}			
 			this.FSMenu = this._backgroundGroup;
 			
-		} else if (false) { // * this would make our screen a clutter stage (not exactly what we want)
+		} else if (false) { // * backgroundui this would make our screen a clutter stage (not exactly what we want)
 			// Main screen Widget
 			this.FSMenu = new Clutter.Stage({
 				//  style_class: 'sectormenu-fullscreen',
@@ -98,7 +94,7 @@ var Fullscreen = class Fullscreen {
 				}); //does work, lots of tweak to do
 				//this.FSMenu.activeate();
 				//this.FSMenu.set_fullscreen(true);
-			} else if (true) {   // * this is the approach I've had the best results
+		} else if (false) {   // * ST Widget this is the approach I've had the best results
 			this.FSMenu = new St.Widget({
 				name: 'FSMenu',
 				visible: true,
@@ -106,7 +102,17 @@ var Fullscreen = class Fullscreen {
 				style_class: 'sectormenu-fullscreen',
 				//gravity: Clutter.Gravity.CENTER,
 				//vignette: true,
-			});
+		});
+		
+		} else if (true) {    // ** clutter actor  (why didn't I use this before?)
+			this.FSMenu = new Clutter.Actor({
+				name: 'FSMenu (clutter)',
+				width: 1920,
+				height: 1080,
+				visible: true,
+				reactive: true,
+				background_color: new Clutter.Color().init(0,0,0,128)
+			})
 		}
 		
 		// TODO might want to use these down the road
@@ -114,8 +120,8 @@ var Fullscreen = class Fullscreen {
 		// let fx2 = new Clutter.BlurEffect;
 		// this.FSMenu.add_effect(fx2);
 		// TODO: var somecolor = new Clutter.Color(); for scope?
-		let white=new Clutter.Color();
-		white.init(255,255,255,255);			
+		let color=new Clutter.Color().init(255,255,255,255);
+				
 		
 		this.FSMenu.set_size(this.monitor.width, this.monitor.height);
 
@@ -131,16 +137,10 @@ var Fullscreen = class Fullscreen {
 			'scroll-event',
 			this._onScrollEvent.bind(this)
 		);
-		
-		// ! New to signals. Learning here.
-		// this.FSMenu.connect(
-		// 	'sectormenu-closed',
-		// 	this.close.bind(this)
-		// );
-		// this.FSMenu.connect(
-		// 	"button-press-event",
-		// 	this._onButtonPressEvent.bind(this)
-		// );
+		this.FSMenu.connect(
+			'motion-event',
+			this._updatePointerText.bind(this)
+		);
 		
 		// Make our SectorMenu actor 
 		this.SectorMenu = new SectorMenu.SectorMenu(this);
@@ -199,7 +199,7 @@ var Fullscreen = class Fullscreen {
 			editable: true,
 			selectable: true,
 			cursor_visible: true,
-			color: white,
+			color: color,
 			text: this.settings.get_string('notes'),
 			x: Math.round(this.monitor.width * .75),
 			y: 100,
@@ -279,6 +279,17 @@ var Fullscreen = class Fullscreen {
 
 		// #endregion quick
 		
+		// #region pointerText
+		this.pointerText = new Clutter.Text({
+			visible:true,
+			text: global.get_pointer().toString(),
+			color: color,
+			x: 1800,
+			y: 900
+		})
+		this.FSMenu.add_actor(this.pointerText);
+
+		// #endregion po;interText
 		
 		// Add the screen to the uiGroup
 		this.FSMenu.hide();
@@ -362,7 +373,6 @@ var Fullscreen = class Fullscreen {
 		this.FSMenu.raise_top();
 		this.entry_box.grab_key_focus(); // ! might have been the issue
 		this.entry_box.raise_top();
-		
 		this.SectorMenu.show();
 		
 		this.notes.raise_top();
@@ -379,6 +389,10 @@ var Fullscreen = class Fullscreen {
 	
 	_updateQuick(){
 		this.qFcnText.set_text(this.SectorMenu.quickFunction.toString())
+	}
+
+	_updatePointerText(){
+		this.pointerText.set_text(global.get_pointer().toString());
 	}
 
 	_entryKeyPressEvent(actor, event) { 
