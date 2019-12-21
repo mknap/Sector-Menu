@@ -114,22 +114,26 @@ var SectorMenu = class SectorMenu {
 	
 	close(){
 		DEBUG('SectorMenu.close()')
-		let kids = this.SMactor.get_children();
-		kids.forEach( function (k) {
-			try {
-				//this.FSMenu.remove_actor(kid);
-				k.destroy();
-			} catch (e) {
-				DEBUG(e);
-			}
-		});
-		this.isOpen=false;
-		this.quickFunction = null;
-		//this.caller.close(); 
-	};
+		if (this.isOpen){
+			this.isOpen=false;
+			let kids = this.SMactor.get_children();
+			kids.forEach( function (k) {
+				try {
+					//this.FSMenu.remove_actor(kid);
+					k.destroy();
+				} catch (e) {
+					DEBUG(e);
+				}
+			});
+			this.quickFunction =()=>{};
+			this.quickFunction.displayName=null
+			this.caller.close(); 
+		}
+		};
 
 	show(){
 		DEBUG('sectormenu.show()');
+		this.isOpen=true;
 		if (this.settings.get_boolean('draw-at-mouse'))
 			[this.cx, this.cy] = global.get_pointer();
 		//reload from settings:
@@ -339,7 +343,7 @@ var SectorMenu = class SectorMenu {
 						DEBUG(width,height)
 						let clonebox=new Clutter.Actor({
 							name: 'Clonebox'+n.toString(),
-							background_color: new Clutter.Color().init(255, 0, 0, 64),
+							background_color: new Clutter.Color().init(255, 0, 0, 0),
 							opacity: 255,
 							//source: texture.get_size ? texture : compositor,
 							//source : compositor,
@@ -360,7 +364,7 @@ var SectorMenu = class SectorMenu {
 						})
 						let clone = new Clutter.Clone({
 							name: 'preview'+n.toString()+'-'+i.toString(),
-							background_color:new Clutter.Color().init(255,0,0,255),
+							background_color:new Clutter.Color().init(255,0,0,0),
 							opacity: 255,
 							source: texture.get_size ? texture : compositor,
 							//source : compositor,
@@ -398,7 +402,7 @@ var SectorMenu = class SectorMenu {
 						clonebox.connect(
 							'button-press-event',
 							() => {
-								clone.Fcn();
+								clonebox.Fcn();
 								this.close();
 							}
 						)
@@ -713,8 +717,9 @@ var SectorMenu = class SectorMenu {
 			//transition: 'EaseInSine',
 			scale_x: 2,
 			scale_y: 2,
-			scale_z: 2,
+			translation_z: 5
 		})
+		//actor.raise_top();
 		if(actor.Fcn) {
 			DEBUG('Attaching a quickFunction');
 			this.quickFunction = actor.Fcn;
@@ -728,8 +733,10 @@ var SectorMenu = class SectorMenu {
 			time: 1,
 			scale_x: 1,
 			scale_y: 1,
+			translation_z: 0,
 			//transition: 'easeOutBounce',
 		})
+		//actor.lower_bottom();
 	}
 	
 

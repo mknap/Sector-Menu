@@ -318,7 +318,8 @@ var Fullscreen = class Fullscreen {
 		this.is_open = false;
 		this.settings.set_string('notes',this.notes.get_text());
 		this.FSMenu.hide();
-		this.SectorMenu.close();
+        if (this.SectorMenu.isOpen)
+            this.SectorMenu.close();
 		this.entry_box.set_text('')
 		
 	}
