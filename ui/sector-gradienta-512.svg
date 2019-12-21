@@ -16,7 +16,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="sector-gradient-512.svg">
+   sodipodi:docname="sector-gradienta-512.svg">
   <defs
      id="defs2">
     <linearGradient
@@ -88,7 +88,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -152,7 +152,7 @@
          id="tspan969"
          sodipodi:role="line" /></text>
     <rect
-       style="fill:url(#radialGradient1105);fill-opacity:1;stroke:none;stroke-width:0.3027218;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:url(#radialGradient1105);fill-opacity:1;stroke:#04f903;stroke-width:0.3027218;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.15062761"
        id="rect1059"
        width="135.46666"
        height="135.46664"

@@ -16,7 +16,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="sector-gradient-512.svg">
+   sodipodi:docname="sector-gradientc-512.svg">
   <defs
      id="defs2">
     <linearGradient
@@ -35,13 +35,26 @@
        inkscape:collect="always"
        xlink:href="#linearGradient1103"
        id="radialGradient1105"
-       cx="34.114464"
-       cy="112.15556"
-       fx="34.114464"
-       fy="112.15556"
+       cx="76.166801"
+       cy="135.91844"
+       fx="76.166801"
+       fy="135.91844"
        r="59.928126"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(2.2605104,2.2605103,-0.71981277,0.71981281,11.826343,-85.885107)" />
+       gradientTransform="matrix(2.2136047,-0.0146858,0.00733777,1.1058946,-160.94934,-10.956714)" />
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter1480"
+       x="-0.071999996"
+       width="1.144"
+       y="-0.072000004"
+       height="1.144">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="4.0639602"
+         id="feGaussianBlur1482" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -51,8 +64,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="302.95813"
-     inkscape:cy="252.24049"
+     inkscape:cx="81.789875"
+     inkscape:cy="143.96725"
      inkscape:document-units="mm"
      inkscape:current-layer="g973"
      showgrid="false"
@@ -68,9 +81,9 @@
      inkscape:snap-path-clip="true"
      inkscape:snap-path-mask="true"
      inkscape:window-width="1920"
-     inkscape:window-height="1043"
+     inkscape:window-height="1016"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="27"
      inkscape:window-maximized="1"
      showguides="true"
      inkscape:guide-bbox="true">
@@ -152,12 +165,12 @@
          id="tspan969"
          sodipodi:role="line" /></text>
     <rect
-       style="fill:url(#radialGradient1105);fill-opacity:1;stroke:none;stroke-width:0.3027218;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:url(#radialGradient1105);fill-opacity:1;stroke:#2bff00;stroke-width:0.30271885;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter1480)"
        id="rect1059"
-       width="135.46666"
-       height="135.46664"
+       width="135.46535"
+       height="135.46533"
        x="8.2114458"
-       y="71.96199" />
+       y="71.963318" />
   </g>
   <g
      inkscape:label="Border"

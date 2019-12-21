@@ -2,19 +2,22 @@
 <schemalist>
   <schema id="org.gnome.shell.extensions.sectormenu" path="/org/gnome/shell/extensions/sectormenu/">
 
-    <key name="panel-states" type="a{sb}">
+    <!-- <key name="panel-states" type="a{sb}">
       <default>{}</default>
+    </key> -->
+    <key name="quick-mode" type="b">
+      <default>false</default>
+      <summary>Boolean to use quick mode. See http://mknap.github.com/sector-menu/quickmode.md</summary>
+        <description></description>
     </key>
-
     <key name="show-indicator" type="b">
       <default>true</default>
     </key>
     <key name="show-favorites" type="b">
       <default>true</default>
     </key>
-
     <key name="draw-guides" type="b">
-        <default>true</default>
+        <default>false</default>
         <summary>Boolean to draw | not draw the guidelines of the sector menu.</summary>
         <description></description>
     </key>
@@ -25,22 +28,28 @@
     </key>
     <key name="icon-size" type="i">
         <range min="16" max="256"/>
-        <default>128</default>
+        <default>64</default>
         <summary>Integer[16-256]: The icon size.</summary>
         <description></description>
     </key>
     <key name="radius" type="i">
         <range min="16" max="512"/>
-        <default>220</default>
+        <default>108</default>
         <summary>Integer [16 - 512] The size of the radius for icon placement.</summary>
         <description></description>
     </key>
     <key name="sectors" type="i">
         <range min="3" max="16"/>
-        <default>7</default>
+        <default>6</default>
         <summary>Integer[3 - 16]: The number of sectors.</summary>
         <description></description>
     </key>
+    <key name="notes" type="s">
+      <default>'Type Notes, TODOs, snppets here...'</default>
+        <summary>Save some notes and things. </summary>
+        <description></description>
+    </key>
+
 
     <!-- An array of string arrays: [['this', 'that'],['name','cmd']] -->
     <key type="aas" name="menu-entries">

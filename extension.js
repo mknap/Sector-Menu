@@ -1,22 +1,23 @@
 /* extension.js
- *
- * Copyright (c) Mike Knap 2019
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * SPDX-License-Identifier: GPL-2.0-or-later
- */
+*
+* Copyright (c) Mike Knap 2019
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+* SPDX-License-Identifier: GPL-2.0-or-later
+*/
+
 
 const {
     Gio,
@@ -39,14 +40,11 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 const Convenience = Me.imports.convenience;
 const Fullscreen = Me.imports.fullscreen;
-
-const DEBUG = function (message) {
-    // Enable for debugging purposes.
-    //TODO : make this more versatile with options, info, warn, etc.
-   if(true) global.log( "[" + Me.metadata.name + "] " + message);
-}
+const Lib = Me.imports.lib;
 const ShellActionMode = (Shell.ActionMode) ? Shell.ActionMode : Shell.KeyBindingMode;
 
+const DEBUG=Lib.DEBUG;
+var debug=Lib.debug
 
 class Extension {
     constructor() {
@@ -55,11 +53,15 @@ class Extension {
         DEBUG(`${PACKAGE_NAME}  ${PACKAGE_VERSION}` )
         DEBUG(' + getting settings')
         this.settings = Convenience.getSettings();
-
-
+        // DEBUG(this.settings.list_keys())
+        // this.settings.list_keys().forEach (key => {
+        //     DEBUG(key)
+        //     DEBUG(this.settings.reset(key))
+        // })
         DEBUG('constructor() Done.')
         Main.notify(Me.metadata.name + " loaded.")
-    }
+        
+    }   
 
     enable() {
         DEBUG('enable() begin...')
@@ -75,11 +77,11 @@ class Extension {
         // )
 
         DEBUG(' + constructing icon and panel indicator')
-        this.gicon = Gio.icon_new_for_string(Me.path + '/icons/sector-icon.svg');
+        this.gicon = Gio.icon_new_for_string(Me.path + '/ui/icons/sector-icon.svg');
         DEBUG(Me.metadata.name)
         this.indicator = new PanelMenu.Button(0.0, Me.metadata.name);
 
-        // fixme: Compatiblity with gshell < 3.30
+        // Compatiblity with gshell < 3.30
         if (SHELL_MINOR < 30) {
                 this.indicator.actor.add_child(
                     new St.Icon({
@@ -120,12 +122,12 @@ class Extension {
             Meta.KeyBindingFlags.NONE,
             ShellActionMode.NORMAL |
             ShellActionMode.OVERVIEW,
-            /** See https://gitlab.gnome.org/GNOME/gjs/blob/master/doc/Modules.md */
-            //Lang.bind(this, this._keyAction)
             this._keyAction.bind(this)
         );
-
-        // fixme
+        DEBUG(' + constructing fullscreen menu')
+        this.fullscreen = new Fullscreen.Fullscreen();
+        
+        // Compatabilty
         if (SHELL_MINOR < 30) {
             this.settings.bind(
                 'show-indicator',
@@ -161,7 +163,7 @@ class Extension {
         }
 
         DEBUG(' + resetting keybindings')
-        Main.wm.removeKeybinding('toggle-sector-menu') //TODO: needed ?
+        Main.wm.removeKeybinding('toggle-sector-menu') 
         //If we took over the <super> key, give it back
         // from viewselector@228
         // Main.wm.setCustomKeybindingHandler(
@@ -173,10 +175,10 @@ class Extension {
         DEBUG('disable() Done.')
     }
 
-    _keyAction() {
-        DEBUG('_keyAction()')
+    _keyAction(event) {
+        DEBUG('_keyAction()',event,)
         if (!this.fullscreen) {
-            this.fullscreen = new Fullscreen.Fullscreen(); //FIXME: monitor 0 temp
+            this.fullscreen = new Fullscreen.Fullscreen(); 
         }
         this.fullscreen.toggle();
     }

@@ -28,14 +28,8 @@ const GObject = imports.gi.GObject;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
-
-const DEBUG = function (message) {
-    // Enable for debugging purposes.
-    //if(true) global.log(Date().substr(16,8) + Me.metadata.name + message);
-
-    //TODO : make this more versatile with options, info, warn, etc.
-   if(true) global.log( "[" + Me.metadata.name + "] " + message);
-}
+const Lib=Me.imports.lib;
+const DEBUG = Lib.DEBUG;
 
 const Config = imports.misc.config;
 
@@ -45,6 +39,7 @@ const PACKAGE_VERSION = Config.PACKAGE_VERSION;
 
 function init() {
     DEBUG(` ~-~-={ Initializing ${Me.metadata.name} Preferences }=-~-~ `);
+    global.log('Sector Menu Prefs.js')
 }
 
 function buildPrefsWidget() {
@@ -83,17 +78,9 @@ function buildPrefsWidget() {
     noteWidget.append_page(frame, sectorTab)
 
     //some old stuff, keeping to re-use
-    let buttonLabel = new Gtk.Label({
-        label: 'Reset Panel Items:',
-        halign: Gtk.Align.START,
-        visible: true
-    });
-    let button = new Gtk.Button({
-        label: 'Reset Panel',
-        visible: true
-    });
-    button.connect('clicked', (button) => this.settings.reset('panel-states'));
-
+    
+        
+    
     let toggleLabel = new Gtk.Label({
         label: 'Show Extension Indicator:',
         halign: Gtk.Align.START,
@@ -140,7 +127,31 @@ function buildPrefsWidget() {
     })
     frame.pack_start(label,false,false,0);
 
+    // Reset defaults button
+    hbox = new Gtk.HBox({ margin_left: 18, visible: true });
+    let resetbuttonlabel = new Gtk.Label({
+        label: 'Reset to defaults',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    let resetbutton = new Gtk.Button({
+        label: 'Reset to Defaults',
+        visible: true
+    });
+    resetbutton.connect('clicked', ()=>{
+        this.settings.list_keys().forEach(key => {
+            this.settings.reset(key)    
+        })
+    });
+    hbox.pack_start(resetbuttonlabel, false, false, 0);
+    hbox.pack_end(resetbutton, false, false, 0);
+    // hbox.set_tooltip_text(
+    //     this.settings.settings_schema.get_key('draw-guides').get_summary(),
+    // );
+    frame.pack_start(hbox, false, false, 0)
+    
     //draw-guides:
+    hbox = new Gtk.HBox({ margin_left: 18, visible: true });
     label = new Gtk.Label({
         label: 'Draw guidelines',
         use_markup: true,
@@ -193,8 +204,6 @@ function buildPrefsWidget() {
     )
     frame.pack_start(hbox,false,false,0)
 
-    //TODO: Fix the iconsize in fullscreen.js
-    //icon-size:
     hbox = new Gtk.HBox({margin_left: 18,visible: true});
     label = new Gtk.Label({
         label: 'Icon size :',
@@ -396,6 +405,49 @@ function buildPrefsWidget() {
 
 /* ++++++++++++++++++++++++++++++++++++ End: Keyboard accelerator +++++ */
 
+// Super_L
+    hbox = new Gtk.HBox({ margin_left: 18, visible: true });
+    label = new Gtk.Label({
+        label: 'Use Super_L as a shortcut. ***',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    button = new Gtk.Button({
+        label: 'I understand',
+        visible: true
+    });         
+    button.connect('clicked', () => {
+        this.settings.set_strv('toggle-sector-menu', ['Super_L'])
+    });
+    
+    hbox.pack_start(label, false, false, 0);
+    hbox.pack_end(button, false, false, 0);
+    frame.pack_start(hbox, false, false, 0);   
+
+    // Quick Mode
+    hbox = new Gtk.HBox({ margin_left: 18, visible: true });
+    label = new Gtk.Label({
+        label: 'Quick Mode. ***',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    toggle = new Gtk.Switch({
+        active: this.settings.get_boolean('quick-mode'),
+        halign: Gtk.Align.END,
+        valign: Gtk.Align.START,
+        visible: true
+    });
+    this.settings.bind(
+        'quick-mode',
+        toggle,
+        'active',
+        Gio.SettingsBindFlags.DEFAULT
+    );
+
+    hbox.pack_start(label, false, false, 0);
+    hbox.pack_end(toggle, false, false, 0);
+    frame.pack_start(hbox, false, false, 0); 
+
 
     //aboutWidget :
     grid = new Gtk.Grid({
@@ -414,7 +466,7 @@ function buildPrefsWidget() {
         // font: "Sans Bold 40"
     })
     icon = new Gtk.Image({
-        file: `${Me.path}/icons/sector-icon.svg`,
+        file: `${Me.path}/ui/icons/sector-icon.svg`,
         // style_class: 'system-status-icon',
         visible: true,
         pixel_size: 0,

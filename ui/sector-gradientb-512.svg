@@ -16,32 +16,43 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="sector-gradient-512.svg">
+   sodipodi:docname="sector-gradientb-512.svg">
   <defs
      id="defs2">
     <linearGradient
        inkscape:collect="always"
-       id="linearGradient1103">
+       id="linearGradient829">
       <stop
-         style="stop-color:#000595;stop-opacity:1"
+         style="stop-color:#0015fd;stop-opacity:0.96862745"
          offset="0"
-         id="stop1099" />
+         id="stop825" />
       <stop
-         style="stop-color:#0009ff;stop-opacity:0"
+         style="stop-color:#010071;stop-opacity:0"
          offset="1"
-         id="stop1101" />
+         id="stop827" />
     </linearGradient>
     <radialGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient1103"
-       id="radialGradient1105"
-       cx="34.114464"
-       cy="112.15556"
-       fx="34.114464"
-       fy="112.15556"
-       r="59.928126"
+       xlink:href="#linearGradient829"
+       id="radialGradient852"
+       cx="52.521751"
+       cy="86.090988"
+       fx="52.521751"
+       fy="86.090988"
+       r="67.865621"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(2.2605104,2.2605103,-0.71981277,0.71981281,11.826343,-85.885107)" />
+       gradientTransform="matrix(1.2231811,1.2087199,-0.60651643,0.61376436,39.575097,1.6758269)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient829"
+       id="radialGradient975"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.2231811,1.2087199,-0.60651643,0.61376436,39.575097,1.6758269)"
+       cx="52.521751"
+       cy="86.090988"
+       fx="52.521751"
+       fy="86.090988"
+       r="67.865621" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -51,8 +62,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="302.95813"
-     inkscape:cy="252.24049"
+     inkscape:cx="395.95813"
+     inkscape:cy="261.24049"
      inkscape:document-units="mm"
      inkscape:current-layer="g973"
      showgrid="false"
@@ -75,7 +86,7 @@
      showguides="true"
      inkscape:guide-bbox="true">
     <sodipodi:guide
-       position="85.724997,145.25624"
+       position="68.323937,157.56338"
        orientation="0,1"
        id="guide854"
        inkscape:locked="false" />
@@ -88,7 +99,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -97,14 +108,14 @@
      transform="translate(-8.0791541,-71.829699)"
      id="g973"
      inkscape:groupmode="layer"
-     inkscape:label="Spotlight">
+     inkscape:label="Layer Spotlight">
     <rect
        y="71.96199"
        x="8.2114458"
        height="135.46666"
        width="135.46666"
        id="rect947"
-       style="fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:0.26458332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0" />
+       style="fill:url(#radialGradient852);fill-opacity:1;stroke:#31ff00;stroke-width:0.26458332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96652724" />
     <flowRoot
        transform="matrix(0.26458333,0,0,0.26458333,8.0791541,71.829699)"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none"
@@ -118,7 +129,7 @@
            height="160.73637"
            width="168.64145"
            id="rect949" /></flowRegion><flowPara
-         id="flowPara953" /></flowRoot>    <flowRoot
+         id="flowPara953"></flowPara></flowRoot>    <flowRoot
        transform="matrix(0.26458333,0,0,0.26458333,8.0791541,71.829699)"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        id="flowRoot963"
@@ -129,7 +140,7 @@
            height="47"
            width="27"
            id="rect957" /></flowRegion><flowPara
-         id="flowPara961" /></flowRoot>    <text
+         id="flowPara961"></flowPara></flowRoot>    <text
        id="text967"
        y="97.758865"
        x="28.716654"
@@ -151,59 +162,52 @@
          x="31.097904"
          id="tspan969"
          sodipodi:role="line" /></text>
-    <rect
-       style="fill:url(#radialGradient1105);fill-opacity:1;stroke:none;stroke-width:0.3027218;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect1059"
-       width="135.46666"
-       height="135.46664"
-       x="8.2114458"
-       y="71.96199" />
   </g>
   <g
-     inkscape:label="Border"
+     inkscape:label="With Green Border"
      inkscape:groupmode="layer"
-     id="g1027"
+     id="layer1"
      transform="translate(-8.0791541,-71.829699)"
      style="display:none">
     <rect
-       style="fill:none;fill-opacity:1;stroke:#31ff00;stroke-width:0.26458332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96652724"
-       id="rect1001"
+       style="fill:url(#radialGradient975);fill-opacity:1;stroke:#31ff00;stroke-width:0.26458332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96652724"
+       id="rect823"
        width="135.46666"
        height="135.46666"
        x="8.2114458"
        y="71.96199" />
     <flowRoot
        xml:space="preserve"
-       id="flowRoot1009"
+       id="flowRoot818"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none"
        transform="matrix(0.26458333,0,0,0.26458333,8.0791541,71.829699)"><flowRegion
-         id="flowRegion1005"
+         id="flowRegion820"
          style="fill:#ffffff;fill-opacity:1"><rect
-           id="rect1003"
+           id="rect822"
            width="168.64145"
            height="160.73637"
            x="79.050682"
            y="90.078865"
            style="fill:#ffffff;fill-opacity:1" /></flowRegion><flowPara
-         id="flowPara1007" /></flowRoot>    <flowRoot
+         id="flowPara824"></flowPara></flowRoot>    <flowRoot
        xml:space="preserve"
-       id="flowRoot1017"
+       id="flowRoot826"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        transform="matrix(0.26458333,0,0,0.26458333,8.0791541,71.829699)"><flowRegion
-         id="flowRegion1013"><rect
-           id="rect1011"
+         id="flowRegion828"><rect
+           id="rect830"
            width="27"
            height="47"
            x="96"
            y="111" /></flowRegion><flowPara
-         id="flowPara1015" /></flowRoot>    <text
+         id="flowPara832"></flowPara></flowRoot>    <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="28.716654"
        y="97.758865"
-       id="text1021"><tspan
+       id="text836"><tspan
          sodipodi:role="line"
-         id="tspan1019"
+         id="tspan834"
          x="28.716654"
          y="107.12263"
          style="fill:#ffffff;fill-opacity:1;stroke-width:0.26458332" /></text>
@@ -212,9 +216,9 @@
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="31.097904"
        y="104.10886"
-       id="text1025"><tspan
+       id="text840"><tspan
          sodipodi:role="line"
-         id="tspan1023"
+         id="tspan838"
          x="31.097904"
          y="113.47263"
          style="stroke-width:0.26458332" /></text>
@@ -222,8 +226,8 @@
   <g
      inkscape:groupmode="layer"
      id="layer2"
-     inkscape:label="Orientation Help"
-     style="display:none">
+     inkscape:label="Layer 2"
+     style="display:inline">
     <text
        transform="translate(-8.0791542,-71.8297)"
        xml:space="preserve"
