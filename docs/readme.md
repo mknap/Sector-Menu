@@ -4,7 +4,8 @@ A gnome shell extension which provides quick access to a configurable set of app
 
 ![Sector Menu Icon](../ui/icons/sector-icon.svg)
 
-![Screenshot](img/screencast1.webm/)
+![Screenshot (webm) ](img/screencast1.webm)
+![Screenshot () ](img/screencast2.mp4)
 
 ## Usage
 The default accelerator to show the extension is `<super>-z`. 
