@@ -183,9 +183,9 @@ var Fullscreen = class Fullscreen {
 		this.entry_box.connect(
 			'enter-event',
 			() => {this.entry_box.grab_key_focus();
-				this.SectorMenu.quickFunction = function(){displayName='entry'}
-			}
-		)
+                this.SectorMenu.quickFunction = function () { };
+                this.SectorMenu.quickFunction.displayName = 'Enter a bash command';
+            })
 		//this.entry_box.set_offscreen_redirect(Clutter.OffscreenRedirect.ALWAYS); 
 		
 		//TODO : What does this do?
@@ -229,10 +229,10 @@ var Fullscreen = class Fullscreen {
 		this.notes.connect(
 			'enter-event',
 			() => {
-				this.notes.raise_top();
-				this.notes.grab_key_focus()
+				//this.notes.raise_top();
+				//this.notes.grab_key_focus()
 				this.SectorMenu.quickFunction=function(){}
-				this.SectorMenu.quickFunction.displayName='Take notes;';
+				this.SectorMenu.qFcnText.set_text('Take notes');
 			}
 		)
 		this.notes.connect(
@@ -275,7 +275,23 @@ var Fullscreen = class Fullscreen {
 		this.FSMenu.add_actor(this.pointerText);
 
 		// #endregion pointerText
-		
+        
+        //#region quickmode warning
+        this.quickmodewarning=new Clutter.Text({
+            text: 'Quick Mode On',
+            visible: true,
+            reactive: false,
+            x: this.monitor.width/2 -50,
+            y:0,
+            color: new Clutter.Color().init(255,0,0,255),
+        })
+        this.FSMenu.add_actor(this.quickmodewarning);
+        if (this.settings.get_boolean('quick-mode'))
+            this.quickmodewarning.show()
+        else
+            this.quickmodewarning.hide();
+        //#endregion quickmode warning
+
 		// Add the screen to the uiGroup
 		this.FSMenu.hide();
 		Main.layoutManager.addChrome(this.FSMenu);
@@ -326,7 +342,8 @@ var Fullscreen = class Fullscreen {
 
 	open() {
 		DEBUG('fullscreen.open()')
-		this.is_open = true;
+        this.quickmodewarning.show();
+        this.is_open = true;
 		let [x, y] = global.get_pointer();
 		this.cx = x;
 		this.cy = y;
@@ -461,33 +478,19 @@ var Fullscreen = class Fullscreen {
 	_onKeyReleaseEvent(actor, event) {
 		DEBUG('fullscreen._onKeyReleaseEvent()')
 		let symbol = event.get_key_symbol();
-		DEBUG(actor, event);
-		DEBUG('got symbol: ',symbol);
-		DEBUG('		this.cx and this.cy : ')
-		DEBUG(this.cx, this.cy)
+		// DEBUG(actor, event);
+		// DEBUG('got symbol: ',symbol);
+		// DEBUG('		this.cx and this.cy : ')
+		// DEBUG(this.cx, this.cy)
 		let [x, y, mask] = global.get_pointer();
-		DEBUG('		x and y :')
-		DEBUG(x, y);
+		// DEBUG('		x and y :')
+		// DEBUG(x, y);
 		if (symbol == 65515 && this.settings.get_boolean('quick-mode')) {
 			if (x != this.cx || y != this.cy){
 				DEBUG(' ***quick-mode-command')
-				// Here we act upon pointer location, current actor, etc
-				//this.emit('clicked')
-				// We can't do the click emulation, per
-				// https://stackoverflow.com/questions/34947627/how-to-create-clutter-events-with-gjs
-				
-				//So a new idea here is to modify the release event to something the actor can handle
-				
-				//newevent=new Clutter.Event(Clutter.EventType.BUTTON_PRESS)
-				
-				event.set_key_symbol(Clutter.KEY_Pointer_Button1);
-				DEBUG('set new symbol: ',event.get_key_symbol()) 
-							
-				//return event ;
-
-				
 				try {
-					this.SectorMenu.quickFunction() 
+                    this.SectorMenu.quickFunction();
+                    this.quickmodewarning.hide(); 
 				} catch (e) {
 					throw(e);
 				}
@@ -495,7 +498,8 @@ var Fullscreen = class Fullscreen {
 			}
 		}
 		//return Clutter.EVENT_PROPAGATE;
-		DEBUG('fullscreen._onKeyReleaseEvent()  DONE.')
+        this.quickmodewarning.hide();
+        DEBUG('fullscreen._onKeyReleaseEvent()  DONE.')
 	}
 
 	_onKeyPressEvent(actor, event) {

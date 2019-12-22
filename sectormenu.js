@@ -323,6 +323,7 @@ var SectorMenu = class SectorMenu {
 				let metawin = app[n].get_windows();
 				
 				for (let i in metawin) {
+					DEBUG(typeof i)
 					let compositor = metawin[i].get_compositor_private();
 					if (compositor) {
 						let texture = compositor.get_texture();
@@ -342,7 +343,7 @@ var SectorMenu = class SectorMenu {
 						DEBUG('adding preview:', n)
 						DEBUG(width,height)
 						let clonebox=new Clutter.Actor({
-							name: 'Clonebox'+n.toString(),
+							name: 'Clonebox'+n.toString()+'-'+i.toString(),
 							background_color: new Clutter.Color().init(255, 0, 0, 0),
 							opacity: 255,
 							//source: texture.get_size ? texture : compositor,
@@ -354,8 +355,8 @@ var SectorMenu = class SectorMenu {
 							height: this.monitor.height * PREVIEW_SCALE,
 							//x_align: 1,
 							//y_align: 1,
-							x: 3 * R * CosTheta + this.cx,
-							y: 3 * R * SinTheta + this.cy,
+							x: (3+Number(i)) * R * CosTheta + this.cx,
+							y: (3+Number(i)) * R * SinTheta + this.cy,
 							translation_x: scale * -width / 2 * (CosTheta + 1),
 							translation_y: scale * -height / 2 * (SinTheta + 1),
 							rotation_angle_x: 0 * SinTheta,
