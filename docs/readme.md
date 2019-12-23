@@ -6,11 +6,7 @@ A gnome shell extension which provides quick access to a configurable set of app
 
 ![Sector Menu Icon](../ui/icons/sector-icon.svg)
 
-[![](http://img.youtube.com/vi/aLLZ94PJt8Y/0.jpg)](http://www.youtube.com/watch?v=aLLZ94PJt8Y "Screen Cast 1")
-
-
-[![](http://img.youtube.com/vi/yc5eE1yqzQI/0.jpg)](http://www.youtube.com/watch?v=yc5eE1yqzQI "Screen Cast 2")
-[![](http://img.youtube.com/vi/SybIvYIxGT0/0.jpg)](http://www.youtube.com/watch?v=SybIvYIxGT0 "Screen Cast 2")
+[![](http://img.youtube.com/vi/aLLZ94PJt8Y/0.jpg)](http://www.youtube.com/watch?v=aLLZ94PJt8Y "Screen Cast 1") [![](http://img.youtube.com/vi/yc5eE1yqzQI/0.jpg)](http://www.youtube.com/watch?v=yc5eE1yqzQI "Screen Cast 2") [![](http://img.youtube.com/vi/SybIvYIxGT0/0.jpg)](http://www.youtube.com/watch?v=SybIvYIxGT0 "Screen Cast 2")
 
 ## Usage
 
@@ -22,8 +18,8 @@ The text entry box is **not** like the dash text entry. This entry box will try 
 
 This extension is currently in its very early stages.
 
-## On Quick Mode
-Need to include or link to the quickmode.md file here. 
+## [On Quick Mode](quickmode.md)
+
 
 ## Ideas coming up
 
@@ -38,7 +34,7 @@ Need to include or link to the quickmode.md file here.
 
 
 
-## Dev notes 
+## [Dev notes](dev.md) 
 Link or include dev.md here.
 
 ## Links to know
