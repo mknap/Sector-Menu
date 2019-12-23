@@ -5,10 +5,14 @@ A gnome shell extension which provides quick access to a configurable set of app
 ## Screenshots
 
 ![Sector Menu Icon](../ui/icons/sector-icon.svg)
-![Sector Menu Icon](img/icons/sector-icon.svg)
-![Screenshot (webm) ](img/screencast1.webm)
-![Screenshot (mp4) ](img/screencast2.mp4)
-![Screenshot (mp4) ](img/screencast3.mp4)
+![Sector Menu Icon](img/sector-icon.svg)
+
+
+![Screen Cast 1(webm) ]<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/aLLZ94PJt8Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+![Screen Cast 2 (mp4) ](https://youtu.be/yc5eE1yqzQI)
+![Screen Cast 3 (mp4) ](https://youtu.be/SybIvYIxGT0)
 
 ## Usage
 
