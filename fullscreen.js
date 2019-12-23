@@ -56,6 +56,8 @@ var Fullscreen = class Fullscreen {
 		this.is_open = false;
 		this.monitor = Main.layoutManager.currentMonitor;
 		this.settings = Convenience.getSettings();
+		this._clipboard = St.Clipboard.get_default();
+		
 		// TODO might want to use these down the road
 		// let fx1 = new Clutter.DesaturateEffect;
 		// let fx2 = new Clutter.BlurEffect;
@@ -208,6 +210,24 @@ var Fullscreen = class Fullscreen {
 		this.FSMenu.add_actor(hist) 
 		// #endregion history
 
+		// #region quick
+		this.qFcnText = new Clutter.Text({
+			visible: true,
+			pivot_point: p,
+			x: this.monitor.width / 2,
+			y: .1 * this.monitor.height,
+			//y: this.monitor.height-15,
+			color: color1,
+			//background_color: color2,
+		});
+		// ! See why this isn't translating
+		this.qFcnText.set_translation(Math.round(-this.qFcnText.width / 2), 0, 0);
+		this.FSMenu.add_actor(this.qFcnText);
+		this.qFcnText.set_text(this.SectorMenu.quickFunction.toString());
+
+		// #endregion quick
+
+
 		// #region notes
 		this.notes = new Clutter.Text({
 			name: 'notesClutter',
@@ -215,12 +235,14 @@ var Fullscreen = class Fullscreen {
 			selectable: true,
 			cursor_visible: true,
 			color: color1,
+			selected_text_color: color2,
 			text: this.settings.get_string('notes'),
 			x: Math.round(this.monitor.width * .75),
 			y: .1*this.monitor.height,
 			height: 500,
 			width: this.monitor.width / 4,
 			reactive: true,
+			use_markup: true, 
 			//border_color: white,
 		})
 			
@@ -228,38 +250,29 @@ var Fullscreen = class Fullscreen {
 		this.FSMenu.add_actor(this.notes)
 		this.notes.connect(
 			'enter-event',
-			() => {
-				//this.notes.raise_top();
-				//this.notes.grab_key_focus()
-				this.SectorMenu.quickFunction=function(){}
-				this.SectorMenu.qFcnText.set_text('Take notes');
-			}
+			this._notesEnter.bind(this)
 		)
+		// 	() => {
+		// 		//this.notes.raise_top();
+		// 		//this.notes.grab_key_focus()
+		// 		this.caller.quickFunction=function(){}
+		// 		this.caller.qFcnText.set_text('Take notes');
+			
+		// 	}
+		// )
 		this.notes.connect(
-			'key-press-event',
-			() => {
-				DEBUG('notes key-press-event')
-				// return Clutter.EVENT_STOP;
-			}
+			'button-press-event',
+			this._notesButton.bind(this)
 		)
+		// (actor,event) => {
+		// 		DEBUG('notes button-press-event')
+		// 		DEBUG(event.get_button())
+		// 		if (event.button() ==3)
+
+		// 		return Clutter.EVENT_STOP;
+		// 	}
+		// )
 		// #endregion notes
-		
-		// #region quick
-		this.qFcnText= new Clutter.Text({
-			visible : true,
-			pivot_point: p,
-			x: this.monitor.width/2,
-			y: .1 * this.monitor.height, 
-			//y: this.monitor.height-15,
-			color: color1,
-			//background_color: color2,
-		});
-		// ! See why this isn't translating
-		this.qFcnText.set_translation(Math.round(-this.qFcnText.width/2),0,0);
-		this.FSMenu.add_actor(this.qFcnText);
-		this.qFcnText.set_text(this.SectorMenu.quickFunction.toString());
-		
-		// #endregion quick
 		
 		// #region pointerText
 		this.pointerText = new Clutter.Text({
@@ -371,6 +384,27 @@ var Fullscreen = class Fullscreen {
 	_updatePointerText(){
 		this.pointerText.set_text(global.get_pointer().toString());
 	}
+
+	_notesEnter(actor,event){
+		DEBUG("_notesEnter()")
+		
+	}
+	_notesButton(actor,event){
+		DEBUG("_notesButton()")
+		if(event.get_button()==2) {
+			let Test = this._clipboard.get_text(St.ClipboardType.CLIPBOARD,
+			(clipboard, text) => {
+				if (!text)
+					return;
+				actor.delete_selection();
+				let pos = actor.get_cursor_position();
+				actor.insert_text(text, pos);
+			});
+			DEBUG(Test)
+		}
+	}
+
+
 
 	_entryKeyPressEvent(actor, event) { 
 		DEBUG('_entryKeyPressEvent(a,e)')

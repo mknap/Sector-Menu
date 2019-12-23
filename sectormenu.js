@@ -103,10 +103,10 @@ var SectorMenu = class SectorMenu {
 		this.M=M
 		
 		// commented for release, uncomment for debug
-		// this.SMactor.connect(
-		// 	"button-press-event",
-		// 	this._onButtonPressEvent.bind(this)
-		// );
+		this.SMactor.connect(
+			"button-press-event",
+			this._onButtonPressEvent.bind(this)
+		);
 
 		// #endregion
 		DEBUG('SectorMenu.constructor() Done.')
