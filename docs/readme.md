@@ -22,6 +22,9 @@ The text entry box is **not** like the dash text entry. This entry box will try 
 
 This extension is currently in its very early stages.
 
+## On Quick Mode
+Need to include or link to the quickmode.md file here. 
+
 ## Ideas coming up
 
 * command history
@@ -31,6 +34,12 @@ This extension is currently in its very early stages.
 * multiple sectors
 * app menus inside sectors
 * custom list of apps (also perhaps on a per-sector basis )
+
+
+
+
+## Dev notes 
+Link or include dev.md here.
 
 ## Links to know
 
